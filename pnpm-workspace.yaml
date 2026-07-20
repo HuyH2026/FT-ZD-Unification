@@ -1,0 +1,5 @@
+# Approve native build scripts required by the toolchain so a fresh
+# `pnpm install` produces a working production build.
+allowBuilds:
+  '@tailwindcss/oxide': true
+  esbuild: true
