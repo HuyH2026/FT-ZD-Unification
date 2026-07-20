@@ -76,7 +76,7 @@ export function ExpandedSidebar({ activeLabel, selectedSub, onSelectSub, onColla
           >
             <IconComponent size={14} color={iconFill} className="shrink-0" />
             <span
-              className="font-['SF_Pro_Text:Semibold',sans-serif] text-[14px] tracking-[-0.154px] leading-[20px] whitespace-nowrap w-[146px]"
+              className="font-semibold text-[14px] tracking-[-0.154px] leading-[20px] whitespace-nowrap w-[146px]"
               style={{ color: textColor }}
             >
               {item.label}
@@ -96,10 +96,7 @@ export function ExpandedSidebar({ activeLabel, selectedSub, onSelectSub, onColla
                   <Link
                     key={subItem}
                     to={`${item.path}/${kebab(subItem)}`}
-                    onClick={(e) => {
-                      e.preventDefault()
-                      onSelectSub(item.label, subItem)
-                    }}
+                    onClick={() => onSelectSub(item.label, subItem)}
                     onMouseEnter={() => setHoveredSub(`${item.label}:${subItem}`)}
                     onMouseLeave={() =>
                       setHoveredSub((prev) => (prev === `${item.label}:${subItem}` ? null : prev))
@@ -113,7 +110,7 @@ export function ExpandedSidebar({ activeLabel, selectedSub, onSelectSub, onColla
                     }`}
                   >
                     <span
-                      className="font-['SF_Pro_Text:Regular',sans-serif] text-[14px] tracking-[-0.154px] leading-[20px] whitespace-nowrap"
+                      className="text-[14px] tracking-[-0.154px] leading-[20px] whitespace-nowrap"
                       style={{ color: selected ? '#ffffff' : subHovered ? '#404241' : '#2f3130' }}
                     >
                       {subItem}
@@ -140,7 +137,7 @@ export function ExpandedSidebar({ activeLabel, selectedSub, onSelectSub, onColla
   const secondaryStartTop = separatorTop + 28
 
   return (
-    <div className="absolute left-[8px] top-[55px] h-[837px] w-[234px] bg-[#f8f7f6] rounded-l-[26px] overflow-hidden z-50">
+    <div className="relative h-full w-[234px] shrink-0 bg-[#f8f7f6] overflow-hidden">
       {/* PRIMARY NAV */}
       {renderSection(PRIMARY_NAV, 22)}
 

@@ -27,10 +27,18 @@ describe('OrgSwitcher', () => {
   it('switches the current org on selection', async () => {
     const user = userEvent.setup()
     renderSwitcher()
-    expect(screen.getByText('SpaceX')).toBeInTheDocument()
+    // Initially shows SpaceX in the current org display (first span, not in menu yet)
+    const allSpaceX = screen.getAllByText('SpaceX')
+    expect(allSpaceX).toHaveLength(1)
+    expect(allSpaceX[0].tagName).toBe('SPAN')
+
     await user.click(screen.getByRole('button', { name: /switch organization/i }))
     await user.click(await screen.findByRole('menuitem', { name: /tesla/i }))
-    // Current org should change to Tesla
-    expect(screen.getAllByText('Tesla').length).toBeGreaterThan(0)
+
+    // After switch, the current org display (span) should show Tesla
+    const allTesla = await screen.findAllByText('Tesla')
+    const currentOrgDisplay = allTesla.find((el) => el.tagName === 'SPAN')
+    expect(currentOrgDisplay).toBeInTheDocument()
+    expect(currentOrgDisplay?.className).toContain('text-ink')
   })
 })
