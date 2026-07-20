@@ -11,3 +11,4 @@ Task 5: complete (commits 0e5ca23..3535d19, approved + 2 fixes applied: flyover 
 Task 6: complete (commits 199bbbe..1ee13a5, approved + fixes: submenu links navigate, SF_Pro fonts removed from ExpandedSidebar+OrgSwitcher, fluid sidebar root, strengthened org-switch test). All fixes verified: 7/7 covering tests pass.
 Task 7: complete (commits 45de557..95268d3, controller-verified — trivial fluid Home surface + contract test, matches brief, full suite 18/18)
 Task 8: complete (commits 673d519..7cdf29d, review clean — approved, nested routes correct, honest empty views, BUILT-set intact)
+Task 9: complete (commits 5186558..8e10176, approved + test tightened: create-org assertion scoped to dashboard via within(screen-organization)). Fluid rebuild verified, single provider intact, 4/4 org tests + 24/24 full suite pass.
