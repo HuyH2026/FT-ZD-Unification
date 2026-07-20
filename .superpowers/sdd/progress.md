@@ -12,3 +12,4 @@ Task 6: complete (commits 199bbbe..1ee13a5, approved + fixes: submenu links navi
 Task 7: complete (commits 45de557..95268d3, controller-verified — trivial fluid Home surface + contract test, matches brief, full suite 18/18)
 Task 8: complete (commits 673d519..7cdf29d, review clean — approved, nested routes correct, honest empty views, BUILT-set intact)
 Task 9: complete (commits 5186558..8e10176, approved + test tightened: create-org assertion scoped to dashboard via within(screen-organization)). Fluid rebuild verified, single provider intact, 4/4 org tests + 24/24 full suite pass.
+Task 10: complete (commit db4b070..733a1ca, controller-verified — new App.tsx has NO double OrgProvider, main.tsx imports app-styles, old app/App.tsx deleted + unreferenced, npx vite build succeeds, tsc errors only in src/imports/ old files, 24/24 tests pass)
