@@ -1,3 +1,10 @@
+# Dependencies
+node_modules/
+pnpm-lock.yaml
+
+# Build outputs
+dist/
+
 # Claude Code local settings
 .claude/
 
