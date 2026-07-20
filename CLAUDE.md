@@ -4,53 +4,78 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A **Figma Make export** — an interactive, high-fidelity prototype of the "FT Unification" product UI (a customer-experience / AI-agent management console). It is a design artifact rendered as a running React app, not a production application: there is no backend, no data layer, no routing library in use, and no test suite. State lives entirely in `App.tsx` via `useState`.
+A **greenfield React + Vite + TypeScript front end** for the FT Unification console — an AI platform for customer support automation. This is the foundation layer: persistent chrome (navigation, org switching, top bar), routing, design tokens, and placeholder feature screens. Product logic (ticket triage, agent configuration, analytics) is out of scope for this phase.
 
 ## Commands
 
 ```bash
-pnpm install     # install deps (pnpm workspace; no lockfile is committed)
-pnpm dev         # Vite dev server
-pnpm build       # vite build
+pnpm install
+pnpm dev        # Vite dev server
+pnpm build      # tsc -b && vite build (typecheck + production build)
+pnpm test       # vitest run
+pnpm typecheck  # tsc --noEmit
+pnpm lint       # eslint
+pnpm format     # prettier --write
 ```
 
-There is **no lint, no typecheck, and no test command** — do not invent one. The `*.js` / `*.cjs` files at the repo root (`test.js`, `parseNav.js`, `test-compile.js`, `test-expand.js`, etc.) are throwaway debugging scratch scripts, not a test suite; ignore them and don't extend them.
+If `pnpm` is not on PATH, use `npx` equivalents (e.g. `npx tsc --noEmit`, `npx vitest run`, `npx vite build`).
 
 ## Architecture
 
-The app has two distinct layers that must not be conflated:
+### Routing
+React Router v7 with `createBrowserRouter`. Route definitions live in `src/routes.tsx`, and the single source of truth for navigation structure is `src/app/nav-config.ts` (`NavItem[]`), which exports:
+- `navItems` — flat nav structure with `path`, `label`, `icon`, `subItems` (for 2-level menus).
+- `findNavItemByPath(path)` — lookup helper to resolve active nav state from URL.
 
-### 1. `src/imports/` — generated Figma output (treat as read-only source-of-truth)
-Each subfolder (e.g. `01HomeDefault/`, `02Insights/`, `Org06/`) is a screen or fragment exported directly from Figma. Every folder contains:
-- `index.tsx` — deeply nested `<div>` trees with **absolute positioning and hardcoded pixel values** mirroring the Figma canvas exactly.
-- `svg-*.ts` — extracted SVG path data, imported by `index.tsx`.
-- `*.png` — raster assets.
+All nav chrome (Sidebar, ExpandedSidebar, TopBar) renders from `navItems` — there is no duplication.
 
-These are machine-generated. Prefer not to hand-edit them; when a screen needs interactivity, wrap or overlay it from the `app/` layer instead of rewriting the import.
+### App Layout
+- `src/App.tsx` — router entry, renders routes.
+- `src/app/AppLayout.tsx` — persistent chrome wrapping all feature routes: Sidebar (collapsed left rail), ExpandedSidebar (wide nav panel with org switching + sections), TopBar (breadcrumb + controls).
+- Layout is **desktop-fluid, min-width 1024px** (no mobile or tablet). Collapsible sidebar toggles between 64px collapsed and 280px expanded via `useSidebarCollapse()` hook.
 
-### 2. `src/app/` — the hand-written interactive shell
-- `App.tsx` — the entire application. Holds all state, renders the active screen by string name (`currentScreen`), and layers interactivity on top of the static imports.
-- `components/` — hand-authored interactive pieces (`expanded-sidebar.tsx`, `organization-dashboard.tsx`, `create-org-flow.tsx`, `Sidebar.tsx`, etc.).
-- `components/ui/` — shadcn/ui + Radix primitives. `components/ui/utils.ts` exports `cn()` (clsx + tailwind-merge).
+### Feature Screens
+Live under `src/features/`:
+- `home/HomeScreen.tsx` — root landing (empty placeholder).
+- `insights/` — insights hub + sub-routes (Insights, Metrics, Reporting, Experiments) as placeholders.
+- `organization/OrganizationDashboard.tsx` — org settings stub.
+- `organization/CreateOrgFlow.tsx` — multi-step org-creation dialog via shadcn Dialog + Stepper.
 
-### How the shell drives the imported screens
-`App.tsx` renders one imported screen full-bleed, then makes it interactive with two techniques worth understanding before editing:
+Future features (Solve, Triage, Assist, Discover, AI Studio) are stubbed in `nav-config.ts` but have no screens yet.
 
-1. **Injected `<style>` targeting Figma `data-name` attributes.** The collapsed nav rail is a static import; `App.tsx` forces its active/hover states by generating CSS that targets `[data-name="🧭 Nav item"]:nth-child(N)` where `N` is computed from `navItems` index. Note the off-by-one/separator math: `activeChildIndex = index < 10 ? index + 1 : 12` (a divider occupies child slot 11).
-2. **Invisible absolutely-positioned overlays.** Transparent `<button>`/`<div>` layers are placed over the static art (nav rail, org switcher combobox) to capture clicks and hover-intent, since the imported markup has no handlers.
+### Org Context
+`src/app/org-context.tsx` provides `OrgProvider` + `useOrgs()` hook. Holds the list of orgs and `currentOrg`; surfaces `switchOrg(id)`. The mock implementation lives in `src/app/mock-orgs.ts`. `OrgProvider` wraps the entire app in `src/main.tsx`.
 
-### Fixed-canvas scaling
-The whole UI is authored at a fixed **1440×920** canvas. `ScaledStage` in `App.tsx` centers it on a black backdrop and uniformly `transform: scale()`s it to fit the viewport. This is why coordinates everywhere are hardcoded pixels — the design never reflows; it only scales. Keep new layout in absolute px within the 1440×920 frame.
+### Styles
+- `src/styles/index.css` — entry (imports theme + fonts + Tailwind layers).
+- `src/styles/theme.css` — CSS variable design tokens (colors, typography, spacing, radii) as `--color-*`, `--font-*`, `--radius-*`.
+- `src/styles/fonts.css` — SF Pro system font stack.
+- **Tailwind v4** via `@tailwindcss/vite` — no `tailwind.config`. Design tokens are used via `text-[var(--color-neutral-600)]`, etc. or mapped to Tailwind utilities.
 
-## Conventions specific to this codebase
+### Component Library
+- `src/components/ui/` — full shadcn/ui kit (Button, Dialog, Select, Tabs, etc.) + Radix primitives. `src/components/ui/utils.ts` exports `cn()` (clsx + tailwind-merge).
+- `src/components/figma/ImageWithFallback.tsx` — generic image-error-fallback helper.
+- Icons via `lucide-react`.
 
-- **Path alias:** `@` → `src/` (Vite + would-be TS). Imports between generated screens use relative paths.
-- **`figma:asset/...` imports** resolve via a custom Vite plugin (`figmaAssetResolver` in `vite.config.ts`) to `src/assets/`.
-- **Tailwind v4** via `@tailwindcss/vite` — no `tailwind.config`, no PostCSS plugins needed (see `postcss.config.mjs`). Design tokens are CSS variables in `src/styles/theme.css`; entry is `src/styles/index.css`.
-- **Styling is inline utility classes with bracketed arbitrary values** (`text-[#2f3130]`, `left-[229px]`, `font-['SF_Pro_Text:Semibold',sans-serif]`) to match Figma output precisely. Match this style when adding UI; don't refactor generated screens toward semantic classes.
-- Do NOT remove the `react()` or `tailwindcss()` Vite plugins — both are required for Make even if Tailwind looks unused (comment in `vite.config.ts`).
-- Channel display metadata (label → color/icon) is centralized in `src/app/components/channel-meta.ts`; extend `CHANNEL_META` there rather than hardcoding per-component.
+### Lib
+- `src/lib/cn.ts` — re-exports `cn` from `@/components/ui/utils` for convenience.
+- `src/lib/channel-meta.ts` — centralized channel display metadata (label → color/icon); import `getChannelMeta(label)`.
 
-## Guidelines file
+### Type Definitions
+- `src/types/org.ts` — `Org` interface.
+- `src/types/nav.ts` — `NavItem` interface.
 
-`guidelines/Guidelines.md` is the Figma Make system-guidelines template and is currently empty (only commented-out examples). If real design-system rules get added there, honor them.
+## Conventions
+
+- **Path alias:** `@` → `src/`. Never add `baseUrl` to `tsconfig.json` — TypeScript v7 already supports it.
+- **TypeScript strict mode** — all code is fully typed.
+- **ESLint + Prettier** — code is linted and formatted. Run `pnpm lint` and `pnpm format` before committing.
+- **Tests** via Vitest. `src/test/setup.ts` configures the harness. Run `pnpm test`.
+- **Channel metadata:** use `getChannelMeta(label)` from `@/lib/channel-meta` rather than hardcoding colors/icons per-component.
+
+## Scope Notes
+
+- This is the **foundation only**. Feature logic (ticket data, AI agent config, analytics queries) is out of scope.
+- The app is **desktop-fluid (min-width 1024px)**. No mobile or tablet support.
+- There is **no backend** in this repo. Org data is mocked. Future integration points TBD.
+- **Solve, Triage, Assist, Discover, AI Studio** are stubbed in nav but have no screens yet — they are future work.

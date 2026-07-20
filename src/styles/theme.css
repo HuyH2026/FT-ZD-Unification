@@ -2,6 +2,7 @@
 
 :root {
   --font-size: 16px;
+  --font-sans: -apple-system, system-ui, 'SF Pro Text', 'SF Pro Display', 'Segoe UI', sans-serif;
   --background: #ffffff;
   --foreground: oklch(0.145 0 0);
   --card: #ffffff;
@@ -39,6 +40,12 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --color-app-backdrop: #f1efed;
+  --color-nav-active: #293239;
+  --color-ink: #2f3130;
+  --color-ink-muted: #8b8e89;
+  --color-accent-blue: #1f73b7;
+  --color-surface-border: #d8dcde;
 }
 
 .dark {
@@ -117,6 +124,12 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-app-backdrop: var(--color-app-backdrop);
+  --color-nav-active: var(--color-nav-active);
+  --color-ink: var(--color-ink);
+  --color-ink-muted: var(--color-ink-muted);
+  --color-accent-blue: var(--color-accent-blue);
+  --color-surface-border: var(--color-surface-border);
 }
 
 @layer base {
@@ -125,6 +138,7 @@
   }
 
   body {
+    font-family: var(--font-sans);
     @apply bg-background text-foreground;
   }
 
