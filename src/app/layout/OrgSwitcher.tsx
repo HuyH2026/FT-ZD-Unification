@@ -25,7 +25,7 @@ export function OrgSwitcher() {
     <div className="relative">
       {/* Current org display */}
       <div className="flex items-center gap-2 px-3 py-2">
-        <span className="font-['SF_Pro_Text:Semibold',sans-serif] text-ink text-[14px] tracking-[-0.154px] leading-[20px]">
+        <span className="font-semibold text-ink text-[14px] tracking-[-0.154px] leading-[20px]">
           {currentOrg}
         </span>
       </div>
@@ -52,7 +52,7 @@ export function OrgSwitcher() {
           {/* Header label */}
           <div className="flex gap-[8px] items-start pl-[12px] pr-[36px] py-[8px] w-full">
             <div className="h-[20px] w-[16px] shrink-0" />
-            <div className="font-['SF_Pro_Text:Semibold',sans-serif] text-[#293239] text-[14px] tracking-[-0.154px] leading-[20px]">
+            <div className="font-semibold text-[#293239] text-[14px] tracking-[-0.154px] leading-[20px]">
               Organization
             </div>
           </div>
@@ -80,7 +80,7 @@ export function OrgSwitcher() {
                   </div>
                 )}
               </div>
-              <div className="font-['SF_Pro_Text:Regular',sans-serif] text-[#293239] text-[14px] tracking-[-0.154px] leading-[20px]">
+              <div className="text-[#293239] text-[14px] tracking-[-0.154px] leading-[20px]">
                 {org.name}
               </div>
             </button>
@@ -108,7 +108,7 @@ export function OrgSwitcher() {
                 </svg>
               </div>
             </div>
-            <div className="font-['SF_Pro_Text:Regular',sans-serif] text-accent-blue text-[14px] tracking-[-0.154px] leading-[20px]">
+            <div className="text-accent-blue text-[14px] tracking-[-0.154px] leading-[20px]">
               Add organization
             </div>
           </button>
