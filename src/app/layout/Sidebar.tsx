@@ -13,6 +13,18 @@ function kebabCase(str: string): string {
   return str.toLowerCase().replace(/\s+/g, '-')
 }
 
+// Flyover positioning constants to match the flex rail layout
+const RAIL_TOP_PAD = 12 // py-3
+const ITEM_H = 48 // h-12
+const SEP_SPACE = 17 // my-2 (8+8) + 1px line
+
+function flyoverTop(label: string): number {
+  const p = PRIMARY_NAV.findIndex((i) => i.label === label)
+  if (p !== -1) return RAIL_TOP_PAD + p * ITEM_H
+  const s = SECONDARY_NAV.findIndex((i) => i.label === label)
+  return RAIL_TOP_PAD + PRIMARY_NAV.length * ITEM_H + SEP_SPACE + s * ITEM_H
+}
+
 export function Sidebar({ isExpanded: _isExpanded, onToggleExpand }: SidebarProps) {
   const { pathname } = useLocation()
   const active = findNavItemByPath(pathname)
@@ -105,15 +117,11 @@ export function Sidebar({ isExpanded: _isExpanded, onToggleExpand }: SidebarProp
             onMouseLeave={scheduleClose}
             className="absolute left-[63.2px] z-50 w-[226px] overflow-hidden rounded-[8px] border border-[#eae9e8] bg-white pt-[11px] shadow-[0px_16px_24px_0px_rgba(10,13,14,0.16)]"
             style={{
-              top: `${64.2 + (PRIMARY_NAV.concat(SECONDARY_NAV).findIndex((i) => i.label === activeKey) * 48) + (PRIMARY_NAV.findIndex((i) => i.label === activeKey) >= 10 ? 16 : 0)}px`,
+              top: `${flyoverTop(activeKey)}px`,
             }}
           >
             {/* Label (non-interactive, just shows the item label) */}
-            <div
-              className={`mb-[12px] flex items-center pl-[11px] ${
-                activeItem.submenu.length > 0 ? 'mb-[12px]' : 'mb-0'
-              }`}
-            >
+            <div className="mb-[12px] flex items-center pl-[11px]">
               <div className="w-[146px] text-[14px] font-semibold leading-[20px] tracking-[-0.154px] text-[#0c0c0d]">
                 {activeKey}
               </div>
