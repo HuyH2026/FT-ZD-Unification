@@ -1,0 +1,14 @@
+# Claude Code local settings
+.claude/
+
+# macOS
+.DS_Store
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Environment / secrets
+.env
+.env.local
