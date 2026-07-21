@@ -4,6 +4,27 @@
 
 export type Level = 'platform'
 
+export type HealthState = 'good' | 'attention' | 'critical'
+
+// The four channel families every health metric breaks out into (mirrors
+// CHANNEL_SECTIONS in src/lib/channel-meta.ts).
+export type ChannelKey = 'messaging' | 'email' | 'voice' | 'headless'
+
+// One channel's slice of a single health metric. `share` is the % of total
+// volume on that family; `value`/`delta` carry the metric's own unit (%, score,
+// or duration). `barPct` (0-100) is a precomputed visual fill so the breakdown
+// UI stays presentation-only across metrics with different units.
+export type MetricChannelDatum = {
+  key: ChannelKey
+  label: string
+  share: number
+  value: string
+  delta: string
+  up: boolean
+  good: boolean
+  barPct: number
+}
+
 export type HealthMetric = {
   key: string
   label: string
@@ -11,20 +32,8 @@ export type HealthMetric = {
   delta: string
   up: boolean
   good: boolean
-}
-
-export type HealthState = 'good' | 'attention' | 'critical'
-
-// Resolution rate broken out by channel family (mirrors CHANNEL_SECTIONS in
-// src/lib/channel-meta.ts). `share` is the % of total volume on that family.
-export type ChannelResolution = {
-  key: 'messaging' | 'email' | 'voice' | 'headless'
-  label: string
-  rate: number
-  delta: string
-  up: boolean
-  good: boolean
-  share: number
+  // Per-channel breakdown, revealed when the metric tile is expanded.
+  byChannel: MetricChannelDatum[]
 }
 
 export type LevelData = {
@@ -34,7 +43,6 @@ export type LevelData = {
   aiSummary: string
   trend: number[]
   metrics: HealthMetric[]
-  resolutionByChannel: ChannelResolution[]
   notifications: { id: string; kind: 'studio' | 'billing' | 'error'; title: string; body: string; time: string }[]
   approvals: {
     id: string
@@ -94,16 +102,42 @@ export const DATA: Record<Level, LevelData> = {
     aiSummary: 'Agents are performing well. Resolution and CSAT are trending up, and escalations are down 1.2% — no action needed right now.',
     trend: [70, 74, 72, 80, 78, 86, 90, 88, 92, 94],
     metrics: [
-      { key: 'res', label: 'Resolution rate', value: '82%', delta: '+3.1%', up: true, good: true },
-      { key: 'csat', label: 'CSAT', value: '4.6', delta: '+0.2', up: true, good: true },
-      { key: 'esc', label: 'Escalations', value: '6.4%', delta: '-1.2%', up: false, good: true },
-      { key: 'aht', label: 'Avg handle time', value: '1m 48s', delta: '-9s', up: false, good: true },
-    ],
-    resolutionByChannel: [
-      { key: 'messaging', label: 'Messaging', rate: 86, delta: '+3.4%', up: true, good: true, share: 58 },
-      { key: 'email', label: 'Email', rate: 79, delta: '+1.8%', up: true, good: true, share: 24 },
-      { key: 'voice', label: 'Voice', rate: 71, delta: '-2.1%', up: false, good: false, share: 14 },
-      { key: 'headless', label: 'Headless', rate: 88, delta: '+0.6%', up: true, good: true, share: 4 },
+      {
+        key: 'res', label: 'Resolution rate', value: '82%', delta: '+3.1%', up: true, good: true,
+        byChannel: [
+          { key: 'messaging', label: 'Messaging', share: 58, value: '86%', delta: '+3.4%', up: true, good: true, barPct: 86 },
+          { key: 'email', label: 'Email', share: 24, value: '79%', delta: '+1.8%', up: true, good: true, barPct: 79 },
+          { key: 'voice', label: 'Voice', share: 14, value: '71%', delta: '-2.1%', up: false, good: false, barPct: 71 },
+          { key: 'headless', label: 'Headless', share: 4, value: '88%', delta: '+0.6%', up: true, good: true, barPct: 88 },
+        ],
+      },
+      {
+        key: 'csat', label: 'CSAT', value: '4.6', delta: '+0.2', up: true, good: true,
+        byChannel: [
+          { key: 'messaging', label: 'Messaging', share: 58, value: '4.7', delta: '+0.2', up: true, good: true, barPct: 94 },
+          { key: 'email', label: 'Email', share: 24, value: '4.5', delta: '+0.1', up: true, good: true, barPct: 90 },
+          { key: 'voice', label: 'Voice', share: 14, value: '4.3', delta: '-0.1', up: false, good: false, barPct: 86 },
+          { key: 'headless', label: 'Headless', share: 4, value: '4.8', delta: '+0.3', up: true, good: true, barPct: 96 },
+        ],
+      },
+      {
+        key: 'esc', label: 'Escalations', value: '6.4%', delta: '-1.2%', up: false, good: true,
+        byChannel: [
+          { key: 'messaging', label: 'Messaging', share: 58, value: '4.8%', delta: '-1.6%', up: false, good: true, barPct: 48 },
+          { key: 'email', label: 'Email', share: 24, value: '7.1%', delta: '-0.9%', up: false, good: true, barPct: 71 },
+          { key: 'voice', label: 'Voice', share: 14, value: '11.2%', delta: '+0.8%', up: true, good: false, barPct: 100 },
+          { key: 'headless', label: 'Headless', share: 4, value: '3.1%', delta: '-0.4%', up: false, good: true, barPct: 31 },
+        ],
+      },
+      {
+        key: 'aht', label: 'Avg handle time', value: '1m 48s', delta: '-9s', up: false, good: true,
+        byChannel: [
+          { key: 'messaging', label: 'Messaging', share: 58, value: '1m 32s', delta: '-11s', up: false, good: true, barPct: 61 },
+          { key: 'email', label: 'Email', share: 24, value: '2m 24s', delta: '-6s', up: false, good: true, barPct: 96 },
+          { key: 'voice', label: 'Voice', share: 14, value: '2m 05s', delta: '+4s', up: true, good: false, barPct: 83 },
+          { key: 'headless', label: 'Headless', share: 4, value: '0m 48s', delta: '-3s', up: false, good: true, barPct: 32 },
+        ],
+      },
     ],
     notifications: [
       { id: 'n1', kind: 'studio', title: 'Studio build is ready', body: 'Voice agent v12 finished training and is ready to deploy.', time: '12m ago' },

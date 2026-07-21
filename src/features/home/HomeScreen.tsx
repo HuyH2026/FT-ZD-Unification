@@ -9,7 +9,7 @@ import { Area, AreaChart } from 'recharts'
 import { DndProvider, useDrag, useDrop } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import {
-  type LevelData, type HealthState, type ChannelResolution,
+  type LevelData, type HealthState, type HealthMetric, type ChannelKey,
   type WidgetId, type ColumnKey, type Layout,
   DATA, DEFAULT_LAYOUT,
 } from './dashboard-data'
@@ -99,44 +99,74 @@ const HEALTH_STATE_META: Record<HealthState, { label: string; color: string; Ico
   critical: { label: 'Critical', color: RED, Icon: CircleAlert },
 }
 
-// Icon per channel family, keyed to ChannelResolution.key.
-const CHANNEL_FAMILY_ICON: Record<ChannelResolution['key'], LucideIcon> = {
+// Icon per channel family, keyed to ChannelKey.
+const CHANNEL_FAMILY_ICON: Record<ChannelKey, LucideIcon> = {
   messaging: MessageSquare,
   email: Mail,
   voice: Phone,
   headless: Code,
 }
 
-// Expandable per-channel resolution breakdown (Messaging / Email / Voice /
-// Headless), revealed from the Resolution rate tile.
-function ResolutionBreakdown({ channels }: { channels: ChannelResolution[] }) {
+// A single health-metric tile. Its per-channel breakdown (Messaging / Email /
+// Voice / Headless) floats in a popover on hover or keyboard focus — the tile
+// itself stays compact. `barPct` is a precomputed 0-100 fill so the breakdown
+// stays unit-agnostic across metrics with different units (%, score, duration).
+function MetricTile({ metric }: { metric: HealthMetric }) {
+  const [open, setOpen] = useState(false)
   return (
-    <div className="mt-3 flex flex-col gap-3 rounded-xl border border-solid p-3.5" style={{ borderColor: BORDER, backgroundColor: '#faf9f8' }}>
-      <p className="text-[12px] font-semibold" style={{ color: INK }}>Resolution rate by channel</p>
-      {channels.map((c) => {
-        const Icon = CHANNEL_FAMILY_ICON[c.key]
-        return (
-          <div key={c.key}>
-            <div className="mb-1.5 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Icon size={14} color={MUTED} />
-                <span className="text-[13px] font-normal" style={{ color: INK }}>{c.label}</span>
-                <span className="text-[11px] font-normal" style={{ color: MUTED }}>{c.share}% of volume</span>
+    <div
+      className="relative rounded-xl border border-solid p-3.5 transition-colors"
+      style={{ borderColor: open ? BLUE : BORDER, backgroundColor: '#faf9f8' }}
+      tabIndex={0}
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+      onFocus={() => setOpen(true)}
+      onBlur={() => setOpen(false)}
+    >
+      <div className="flex items-center gap-1">
+        <p className="text-[12px] font-normal" style={{ color: MUTED }}>{metric.label}</p>
+        <ChevronDown size={13} color={MUTED} />
+      </div>
+      <div className="mt-1.5 flex items-baseline justify-between">
+        <span className="text-[22px] font-medium" style={{ color: INK }}>{metric.value}</span>
+        <span className="flex items-center gap-0.5" style={{ color: metric.good ? GREEN : RED }}>
+          {metric.up ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
+          <span className="text-[12px] font-semibold">{metric.delta}</span>
+        </span>
+      </div>
+      {open && (
+        <div
+          role="tooltip"
+          className="absolute left-0 right-0 top-[calc(100%+6px)] z-30 flex flex-col gap-2.5 rounded-xl border border-solid bg-white p-3.5 shadow-[0px_16px_24px_0px_rgba(10,13,14,0.16)]"
+          style={{ borderColor: BORDER }}
+        >
+          <p className="text-[12px] font-semibold" style={{ color: INK }}>{metric.label} by channel</p>
+          {metric.byChannel.map((c) => {
+            const Icon = CHANNEL_FAMILY_ICON[c.key]
+            return (
+              <div key={c.key}>
+                <div className="mb-1.5 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Icon size={14} color={MUTED} />
+                    <span className="text-[13px] font-normal" style={{ color: INK }}>{c.label}</span>
+                    <span className="text-[11px] font-normal" style={{ color: MUTED }}>{c.share}% of volume</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[13px] font-semibold" style={{ color: INK }}>{c.value}</span>
+                    <span className="flex items-center gap-0.5" style={{ color: c.good ? GREEN : RED }}>
+                      {c.up ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                      <span className="text-[11px] font-semibold">{c.delta}</span>
+                    </span>
+                  </div>
+                </div>
+                <div className="h-1.5 overflow-hidden rounded-full" style={{ backgroundColor: '#efeeec' }}>
+                  <div className="h-full rounded-full" style={{ width: `${c.barPct}%`, backgroundColor: c.good ? GREEN : AMBER }} />
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-[13px] font-semibold" style={{ color: INK }}>{c.rate}%</span>
-                <span className="flex items-center gap-0.5" style={{ color: c.good ? GREEN : RED }}>
-                  {c.up ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-                  <span className="text-[11px] font-semibold">{c.delta}</span>
-                </span>
-              </div>
-            </div>
-            <div className="h-1.5 overflow-hidden rounded-full" style={{ backgroundColor: '#efeeec' }}>
-              <div className="h-full rounded-full" style={{ width: `${c.rate}%`, backgroundColor: c.good ? GREEN : AMBER }} />
-            </div>
-          </div>
-        )
-      })}
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }
@@ -144,7 +174,6 @@ function ResolutionBreakdown({ channels }: { channels: ChannelResolution[] }) {
 function AgentHealthCard({ data }: { data: LevelData }) {
   const chart = useMemo(() => data.trend.map((v, i) => ({ i, v })), [data.trend])
   const state = HEALTH_STATE_META[data.healthState]
-  const [showChannels, setShowChannels] = useState(false)
   return (
     <Card>
       <CardHeader icon={<Activity size={18} color={INK} strokeWidth={2} />} title="Overall agent health" action={<LinkButton label="Open Insights" />} />
@@ -168,49 +197,11 @@ function AgentHealthCard({ data }: { data: LevelData }) {
           </div>
         </div>
         <div className="grid flex-1 grid-cols-2 gap-3">
-          {data.metrics.map((m) => {
-            const isResolution = m.key === 'res'
-            const tileBody = (
-              <>
-                <div className="flex items-center gap-1">
-                  <p className="text-[12px] font-normal" style={{ color: MUTED }}>{m.label}</p>
-                  {isResolution && (
-                    <ChevronDown
-                      size={13}
-                      color={MUTED}
-                      className="transition-transform"
-                      style={{ transform: showChannels ? 'rotate(180deg)' : 'none' }}
-                    />
-                  )}
-                </div>
-                <div className="mt-1.5 flex items-baseline justify-between">
-                  <span className="text-[22px] font-medium" style={{ color: INK }}>{m.value}</span>
-                  <span className="flex items-center gap-0.5" style={{ color: m.good ? GREEN : RED }}>
-                    {m.up ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
-                    <span className="text-[12px] font-semibold">{m.delta}</span>
-                  </span>
-                </div>
-              </>
-            )
-            return isResolution ? (
-              <button
-                key={m.key}
-                onClick={() => setShowChannels((s) => !s)}
-                aria-expanded={showChannels}
-                className="rounded-xl border border-solid p-3.5 text-left outline-none transition-colors hover:bg-[#f3f2f0]"
-                style={{ borderColor: BORDER, backgroundColor: '#faf9f8' }}
-              >
-                {tileBody}
-              </button>
-            ) : (
-              <div key={m.key} className="rounded-xl border border-solid p-3.5" style={{ borderColor: BORDER, backgroundColor: '#faf9f8' }}>
-                {tileBody}
-              </div>
-            )
-          })}
+          {data.metrics.map((m) => (
+            <MetricTile key={m.key} metric={m} />
+          ))}
         </div>
       </div>
-      {showChannels && <ResolutionBreakdown channels={data.resolutionByChannel} />}
       {/* AI short summary */}
       <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-solid p-3.5" style={{ borderColor: `${PURPLE}33`, backgroundColor: `${PURPLE}0a` }}>
         <div className="flex size-6 shrink-0 items-center justify-center rounded-lg" style={{ backgroundColor: `${PURPLE}16` }}>

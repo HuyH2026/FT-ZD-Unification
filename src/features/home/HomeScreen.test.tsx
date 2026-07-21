@@ -94,15 +94,44 @@ describe('HomeScreen', () => {
     expect(screen.getByText(/no action needed right now/i)).toBeInTheDocument()
   })
 
-  it('expands the resolution rate into a per-channel breakdown', async () => {
+  // Finds a metric tile by its visible label (tiles are hoverable regions, not
+  // buttons — the breakdown floats in a popover on hover/focus).
+  function metricTile(label: string): HTMLElement {
+    const labelEl = screen.getByText(label)
+    // The tile is the nearest ancestor with the relative-positioned popover host.
+    const tile = labelEl.closest('div.relative')
+    if (!tile) throw new Error(`tile for "${label}" not found`)
+    return tile as HTMLElement
+  }
+
+  it('reveals the resolution rate per-channel breakdown on hover', async () => {
     const user = userEvent.setup()
     render(<HomeScreen />)
-    // Breakdown is collapsed by default.
+    // Breakdown is hidden until hover.
     expect(screen.queryByText(/resolution rate by channel/i)).not.toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: /resolution rate/i }))
+    await user.hover(metricTile('Resolution rate'))
     expect(screen.getByText(/resolution rate by channel/i)).toBeInTheDocument()
     for (const family of ['Messaging', 'Email', 'Voice', 'Headless']) {
       expect(screen.getByText(family)).toBeInTheDocument()
+    }
+    // Unhovering hides it again.
+    await user.unhover(metricTile('Resolution rate'))
+    expect(screen.queryByText(/resolution rate by channel/i)).not.toBeInTheDocument()
+  })
+
+  it('reveals a per-channel breakdown for every health metric on hover', async () => {
+    const user = userEvent.setup()
+    render(<HomeScreen />)
+    for (const [label, heading] of [
+      ['CSAT', /csat by channel/i],
+      ['Escalations', /escalations by channel/i],
+      ['Avg handle time', /avg handle time by channel/i],
+    ] as const) {
+      const tile = metricTile(label)
+      await user.hover(tile)
+      expect(screen.getByText(heading)).toBeInTheDocument()
+      expect(screen.getByText('Messaging')).toBeInTheDocument()
+      await user.unhover(tile)
     }
   })
 
