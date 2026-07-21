@@ -248,7 +248,6 @@ function NotificationsCard({ data }: { data: LevelData }) {
 
 // Slack logomark — lucide has no Slack icon, so this is a local inline SVG
 // (matching the codebase's inline-SVG convention). Rendered in Slack aubergine.
-// @ts-expect-error 6133 - unused function; consumed by Task 3
 function SlackGlyph({ size = 13 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 122.8 122.8" aria-hidden="true">
@@ -307,16 +306,37 @@ function ApprovalsCard({ data }: { data: LevelData }) {
                 </div>
               </div>
             )}
+            {a.slack && (
+              <div className="mt-2.5 rounded-lg border border-solid bg-white p-2.5" style={{ borderColor: BORDER }}>
+                <div className="mb-2 flex items-center gap-1.5">
+                  <SlackGlyph size={13} />
+                  <span className="text-[11px] font-normal" style={{ color: MUTED }}>via Slack {a.slack.channel}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span
+                    className="flex size-[18px] shrink-0 items-center justify-center rounded-md text-[9px] font-semibold text-white"
+                    style={{ backgroundColor: '#611f69' }}
+                  >
+                    {a.slack.author.split(' ').map((w) => w[0]).slice(0, 2).join('')}
+                  </span>
+                  <span className="text-[12px] font-semibold" style={{ color: INK }}>{a.slack.author}</span>
+                  <span className="text-[11px] font-normal" style={{ color: MUTED }}>{a.slack.time}</span>
+                </div>
+                <p className="mt-1 pl-[24px] text-[12px] font-normal leading-[17px]" style={{ color: INK_SOFT }}>
+                  {a.slack.message}
+                </p>
+              </div>
+            )}
             <div className="mt-2.5 flex items-center gap-2">
               <span className="flex h-5 items-center gap-1 rounded-full px-2" style={{ backgroundColor: `${GREEN}18` }}>
                 <TrendingUp size={12} color={GREEN} />
                 <span className="text-[11px] font-semibold" style={{ color: GREEN }}>{a.impact}</span>
               </span>
-              {a.person ? (
+              {!a.slack && (a.person ? (
                 <span className="text-[11px] font-normal" style={{ color: MUTED }}>{a.person.name} · {a.person.role}</span>
               ) : (
                 <span className="text-[11px] font-normal" style={{ color: MUTED }}>by {a.author}</span>
-              )}
+              ))}
             </div>
             <div className="mt-3 flex items-center gap-2">
               <button className="flex h-[34px] flex-1 items-center justify-center gap-1.5 rounded-full outline-none" style={{ backgroundColor: INK }}>

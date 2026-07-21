@@ -143,10 +143,14 @@ describe('HomeScreen', () => {
     expect(screen.getByRole('button', { name: /publish variant a/i })).toBeInTheDocument()
   })
 
-  it('attributes a self-improving plan approval to a named co-worker', () => {
+  it('renders a self-improving plan approval as an embedded Slack message', () => {
     render(<HomeScreen />)
     expect(screen.getByText(/sunny created a self-improving plan/i)).toBeInTheDocument()
-    expect(screen.getByText(/sunny kong · support lead/i)).toBeInTheDocument()
+    // Origin is shown as a forwarded Slack message: channel + quoted text.
+    expect(screen.getByText(/via slack #support-ai/i)).toBeInTheDocument()
+    expect(screen.getByText(/resolution keeps stalling there/i)).toBeInTheDocument()
+    // The redundant "Name · Role" footer is suppressed when the Slack block shows.
+    expect(screen.queryByText(/sunny kong · support lead/i)).not.toBeInTheDocument()
   })
 
   it('enters edit mode via Customize', async () => {
