@@ -2,7 +2,13 @@ import { ChevronDown, Users, Braces, ChartPie, Globe, CircleHelp, Sparkles } fro
 import { ZendeskLogo } from '@/components/ZendeskLogo'
 import { OrgSwitcher } from './OrgSwitcher'
 
-const ICON_BUTTONS = [Users, Braces, ChartPie, Globe, CircleHelp]
+const ICON_BUTTONS: { Icon: typeof Users; label: string }[] = [
+  { Icon: Users, label: 'Team' },
+  { Icon: Braces, label: 'Developer tools' },
+  { Icon: ChartPie, label: 'Reports' },
+  { Icon: Globe, label: 'Language & region' },
+  { Icon: CircleHelp, label: 'Help' },
+]
 
 export function TopBar() {
   return (
@@ -25,15 +31,19 @@ export function TopBar() {
 
       {/* Right: icon cluster + avatar */}
       <div className="flex items-center gap-2">
-        {ICON_BUTTONS.map((Icon, i) => (
+        {ICON_BUTTONS.map(({ Icon, label }) => (
           <button
-            key={i}
+            key={label}
+            aria-label={label}
             className="flex size-8 items-center justify-center rounded-lg transition-colors hover:bg-[rgba(92,105,112,0.08)]"
           >
             <Icon size={20} className="text-ink" />
           </button>
         ))}
-        <button className="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-[#8d59b1] to-[#406cc4]">
+        <button
+          aria-label="AI assistant"
+          className="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-[#8d59b1] to-[#406cc4]"
+        >
           <Sparkles size={20} className="text-white" />
         </button>
         <div className="size-6 rounded-full bg-[#d9d7d5]" />

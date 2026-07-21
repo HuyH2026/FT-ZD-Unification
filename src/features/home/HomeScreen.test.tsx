@@ -1,9 +1,27 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, afterEach, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { HomeScreen } from './HomeScreen'
 
+const STORAGE_KEY = 'home-dashboard-layout-v2'
+
+// Install a minimal in-memory localStorage seeded with `stored`, so we can
+// exercise loadLayout (jsdom does not provide localStorage by default).
+function stubStorage(stored: string) {
+  const map = new Map<string, string>([[STORAGE_KEY, stored]])
+  vi.stubGlobal('localStorage', {
+    getItem: (k: string) => map.get(k) ?? null,
+    setItem: (k: string, v: string) => void map.set(k, v),
+    removeItem: (k: string) => void map.delete(k),
+    clear: () => map.clear(),
+    key: () => null,
+    length: 0,
+  })
+}
+
 describe('HomeScreen', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
   it('renders the dashboard surface with a greeting', () => {
     render(<HomeScreen />)
     const surface = screen.getByTestId('screen-home')
@@ -35,5 +53,23 @@ describe('HomeScreen', () => {
     await user.click(screen.getByRole('button', { name: /customize/i }))
     expect(screen.getByText(/customize your dashboard/i)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /add widget/i })).toBeInTheDocument()
+  })
+
+  it('ignores a crafted layout referencing prototype keys and falls back to defaults', () => {
+    // "toString" is on Object.prototype; a naive `in WIDGETS` check would accept
+    // it and crash on render. Validation must reject it and use DEFAULT_LAYOUT.
+    stubStorage(JSON.stringify({ left: ['toString'], right: [] }))
+    render(<HomeScreen />)
+    // Renders the default widgets, no crash.
+    expect(screen.getByText('Overall agent health')).toBeInTheDocument()
+    expect(screen.getByText('Needs your approval')).toBeInTheDocument()
+  })
+
+  it('dedupes a stored layout with duplicate widget ids', () => {
+    stubStorage(JSON.stringify({ left: ['health', 'health'], right: ['qa'] }))
+    render(<HomeScreen />)
+    // The duplicate is collapsed to a single instance (one heading, not two).
+    expect(screen.getAllByText('Overall agent health')).toHaveLength(1)
+    expect(screen.getByText('QA coverage')).toBeInTheDocument()
   })
 })

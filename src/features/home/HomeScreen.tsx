@@ -400,14 +400,24 @@ const WIDGETS: Record<WidgetId, { title: string; render: (data: LevelData, level
 
 const STORAGE_KEY = 'home-dashboard-layout-v2'
 
+const WIDGET_IDS = new Set<string>(Object.keys(WIDGETS))
+
 function loadLayout(): Layout {
   try {
     const raw = window.localStorage?.getItem(STORAGE_KEY)
     if (!raw) return DEFAULT_LAYOUT
     const parsed = JSON.parse(raw) as Layout
+    // Own-key membership (not the `in` operator, which matches inherited
+    // prototype keys like "toString" and would let a crafted layout resolve
+    // to a non-widget and crash the render).
     const valid = (arr: unknown): arr is WidgetId[] =>
-      Array.isArray(arr) && arr.every((x) => typeof x === 'string' && x in WIDGETS)
-    if (valid(parsed.left) && valid(parsed.right)) return parsed
+      Array.isArray(arr) && arr.every((x) => typeof x === 'string' && WIDGET_IDS.has(x))
+    if (valid(parsed.left) && valid(parsed.right)) {
+      // Guard against duplicate ids (duplicate React keys + wrong drag target).
+      const seen = new Set<WidgetId>()
+      const dedupe = (arr: WidgetId[]) => arr.filter((id) => !seen.has(id) && seen.add(id))
+      return { left: dedupe(parsed.left), right: dedupe(parsed.right) }
+    }
   } catch {
     /* ignore missing/malformed storage */
   }
