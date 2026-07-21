@@ -18,7 +18,7 @@ export function OrganizationScreen() {
         className="h-full flex-1 overflow-y-auto rounded-[26px] bg-white p-10"
       >
         {/* Header */}
-        <div className="flex items-center justify-between mb-12">
+        <div className="flex items-center justify-between mb-4">
           <h1 className="text-[26px] leading-8 text-ink">Organization</h1>
           <div className="flex items-center gap-2">
             <button
@@ -39,9 +39,11 @@ export function OrganizationScreen() {
           </div>
         </div>
 
-        {/* Decorative flora glow illustration, centered above the intro copy */}
-        <div className="flex justify-center">
-          <OrgIllustration className="h-[180px] w-[401px]" />
+        {/* Decorative flora glow illustration, centered above the intro copy.
+            Sized to the visible cluster; the glow's faint edges bleed past it
+            harmlessly. Kept short so the copy sits close beneath it. */}
+        <div className="flex justify-center h-[190px] mb-6">
+          <OrgIllustration className="h-[190px] w-[404px]" />
         </div>
 
         {/* Intro copy */}
@@ -69,7 +71,7 @@ export function OrganizationScreen() {
       </div>
 
       {/* AI Studio assistant panel */}
-      {showStudio && <AiStudioPanel />}
+      {showStudio && <AiStudioPanel onClose={() => setShowStudio(false)} />}
     </div>
   )
 }

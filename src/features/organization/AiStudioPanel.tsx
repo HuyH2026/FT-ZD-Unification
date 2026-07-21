@@ -1,4 +1,4 @@
-import { Building2, BookOpen, SlidersHorizontal, Bot, Plus, ExternalLink } from 'lucide-react'
+import { Building2, BookOpen, SlidersHorizontal, Bot, Plus, ExternalLink, X } from 'lucide-react'
 
 type StepCard = {
   Icon: typeof BookOpen
@@ -40,7 +40,8 @@ const STEPS: StepCard[] = [
 // white card with a header (title + actions), a two-line greeting, the "AI Agent
 // set up" steps in a frosted sub-card, and a chat composer pinned to the bottom.
 // Static shell — the composer is presentational (no backend in this phase).
-export function AiStudioPanel() {
+// `onClose` is wired to the header X button so the parent can hide the panel.
+export function AiStudioPanel({ onClose }: { onClose?: () => void }) {
   return (
     <aside
       data-testid="ai-studio-panel"
@@ -77,10 +78,11 @@ export function AiStudioPanel() {
             <ExternalLink size={16} />
           </button>
           <button
-            aria-label="Expand panel"
+            aria-label="Close AI Studio"
+            onClick={onClose}
             className="flex size-6 items-center justify-center rounded text-[#5c6970] transition-colors hover:bg-[#f5f6f7]"
           >
-            <ExternalLink size={16} />
+            <X size={16} />
           </button>
         </div>
       </div>
