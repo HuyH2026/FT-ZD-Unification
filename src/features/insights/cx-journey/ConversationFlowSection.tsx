@@ -10,9 +10,11 @@ import { FilterRow } from './FilterRow'
 // `amount` metadata on each node.
 
 const NODE_W = 10
-const GAP = 26 // vertical gap between stacked bands in a column
+const GAP = 30 // vertical gap between stacked bands in a column
 const MIN_H = 16 // floor for node/ribbon thickness so small flows stay visible
-const PAD = { top: 44, bottom: 18, left: 14, right: 26 }
+// Labels read downward from each bar's top edge (matching Figma), so we only
+// need a little headroom on top and room below for the bottom row's value line.
+const PAD = { top: 10, bottom: 34, left: 14, right: 26 }
 
 // Measure the container so the SVG fills it fluidly and only renders once it has
 // a real size (avoids a zero-size render in jsdom tests).
@@ -122,14 +124,16 @@ function FlowSankey({ width, height }: { width: number; height: number }) {
         const isLast = i === lastIndex
         const labelX = isLast ? p.x - 8 : p.x + NODE_W + 8
         const anchor = isLast ? 'end' : 'start'
+        // Labels sit at the bar's top edge and read downward: the name (dark ink,
+        // with only the percentage greyed) on the first line, the value below.
         return (
           <g key={node.name}>
             <rect x={p.x} y={p.y} width={NODE_W} height={p.h} rx={2} fill={node.color} />
-            <text x={labelX} y={p.y - 20} textAnchor={anchor} fontSize={11} fill="#8b8e89">
+            <text x={labelX} y={p.y + 11} textAnchor={anchor} fontSize={11} fill="#2f3130">
               {node.name}
-              {node.pct ? ` ${node.pct}` : ''}
+              {node.pct ? <tspan fill="#8b8e89">{` ${node.pct}`}</tspan> : null}
             </text>
-            <text x={labelX} y={p.y - 4} textAnchor={anchor} fontSize={14} fontWeight={600} fill="#2f3130">
+            <text x={labelX} y={p.y + 27} textAnchor={anchor} fontSize={14} fontWeight={600} fill="#2f3130">
               {node.value}
             </text>
           </g>
