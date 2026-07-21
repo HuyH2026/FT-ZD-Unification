@@ -84,7 +84,7 @@ export function ConversationFlowSection() {
                 nodes: FLOW_SANKEY.nodes.map((n) => ({ name: n.name })),
                 links: FLOW_SANKEY.links.map((l) => ({ source: l.source, target: l.target, value: l.value })),
               }}
-              node={<FlowNode />}
+              node={<FlowNode containerWidth={size.width} />}
               link={<FlowLink />}
               nodePadding={28}
               margin={{ top: 10, bottom: 10, left: 90, right: 90 }}
