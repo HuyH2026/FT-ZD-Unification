@@ -320,7 +320,10 @@ function ApprovalsCard({ data }: { data: LevelData }) {
                     {a.slack.author.split(' ').map((w) => w[0]).slice(0, 2).join('')}
                   </span>
                   <span className="text-[12px] font-semibold" style={{ color: INK }}>{a.slack.author}</span>
-                  <span className="text-[11px] font-normal" style={{ color: MUTED }}>{a.slack.time}</span>
+                  {a.slack.role && (
+                    <span className="text-[11px] font-normal" style={{ color: MUTED }}>{a.slack.role}</span>
+                  )}
+                  <span className="text-[11px] font-normal" style={{ color: MUTED }}>· {a.slack.time}</span>
                 </div>
                 <p className="mt-1 pl-[24px] text-[12px] font-normal leading-[17px]" style={{ color: INK_SOFT }}>
                   {a.slack.message}
