@@ -60,6 +60,15 @@ export type LevelData = {
       confidence: string
       variants: { key: string; label: string; metric: string; value: string; winner: boolean }[]
     }
+    // Present when the approval originated from a Slack message; renders the
+    // original message as an embedded, forwarded-from-Slack quote block.
+    slack?: {
+      channel: string   // e.g. "#support-ai"
+      author: string    // "Sunny Kong"
+      role?: string      // "Support Lead"
+      time: string       // "10:24 AM"
+      message: string    // the quoted message text
+    }
   }[]
   gaps: {
     summary: { articlesGenerated: number; potentialCoverage: string }
@@ -167,6 +176,13 @@ export const DATA: Record<Level, LevelData> = {
         impact: '+4% resolution',
         author: 'Sunny Kong',
         person: { name: 'Sunny Kong', role: 'Support Lead' },
+        slack: {
+          channel: '#support-ai',
+          author: 'Sunny Kong',
+          role: 'Support Lead',
+          time: '10:24 AM',
+          message: 'Can we add a few macros and reroute refund intents to the billing skill? Resolution keeps stalling there.',
+        },
       },
       { id: 'a3', title: 'New knowledge contents created', body: 'Total coverage 12,470 tickets. Review and create content snippets.', impact: '12 gaps closed', author: 'Knowledge agent' },
     ],
