@@ -13,6 +13,7 @@ import {
   type WidgetId, type ColumnKey, type Layout,
   DATA, DEFAULT_LAYOUT,
 } from './dashboard-data'
+import { GenerateHomePanel } from './GenerateHomePanel'
 
 // Palette — one-off dashboard hues that have no design token yet (kept inline,
 // matching the prototype). Ink/muted map to the shared token values.
@@ -749,6 +750,18 @@ export function HomeScreen() {
   // Home is always the platform-level view; the org-level toggle was removed.
   const [editing, setEditing] = useState(false)
   const [layout, setLayout] = useState<Layout>(() => loadLayout())
+  const [showGenerate, setShowGenerate] = useState(false)
+  const [previewLayout, setPreviewLayout] = useState<Layout | null>(null)
+
+  const applyPreview = () => {
+    if (previewLayout) setLayout(previewLayout)
+    setPreviewLayout(null)
+    setShowGenerate(false)
+  }
+  const discardPreview = () => {
+    setPreviewLayout(null)
+    setShowGenerate(false)
+  }
   const data = DATA.platform
 
   useEffect(() => {
@@ -793,20 +806,22 @@ export function HomeScreen() {
 
   const resetLayout = () => setLayout(DEFAULT_LAYOUT)
 
+  const activeLayout = previewLayout ?? layout
   const renderColumn = (column: ColumnKey) => (
     <div className="flex flex-col gap-4">
-      {layout[column].map((id, index) => (
+      {activeLayout[column].map((id, index) => (
         <DraggableWidget key={id} id={id} column={column} index={index} editing={editing} onMove={moveWidget} onRemove={removeWidget}>
           {WIDGETS[id].render(data)}
         </DraggableWidget>
       ))}
-      {editing && <ColumnDropZone column={column} count={layout[column].length} onMove={moveWidget} />}
+      {editing && <ColumnDropZone column={column} count={activeLayout[column].length} onMove={moveWidget} />}
     </div>
   )
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div data-testid="screen-home" className="h-full overflow-y-auto rounded-[26px] bg-white">
+      <div className="flex h-full gap-2">
+      <div data-testid="screen-home" className="h-full flex-1 overflow-y-auto rounded-[26px] bg-white">
         <div className="min-w-[900px] px-10 pt-8 pb-10">
           {/* Greeting header */}
           <div className="mb-6 flex items-start justify-between">
@@ -831,10 +846,22 @@ export function HomeScreen() {
                   </button>
                 </>
               ) : (
-                <button onClick={() => setEditing(true)} className="flex h-9 items-center gap-1.5 rounded-full border border-solid bg-white px-3.5 outline-none" style={{ borderColor: BORDER }} title="Customize dashboard">
-                  <Pencil size={14} color={INK} />
-                  <span className="text-[13px] font-semibold" style={{ color: INK }}>Customize</span>
-                </button>
+                <>
+                  {previewLayout && (
+                    <span className="flex h-9 items-center gap-1.5 rounded-full px-3" style={{ backgroundColor: `${PURPLE}12` }}>
+                      <Sparkles size={13} color={PURPLE} />
+                      <span className="text-[12px] font-semibold" style={{ color: PURPLE }}>Preview</span>
+                    </span>
+                  )}
+                  <button onClick={() => setShowGenerate(true)} className="flex h-9 items-center gap-1.5 rounded-full border border-solid bg-white px-3.5 outline-none" style={{ borderColor: BORDER }} title="Generate a new Home">
+                    <Sparkles size={14} color={PURPLE} />
+                    <span className="text-[13px] font-semibold" style={{ color: INK }}>Generate</span>
+                  </button>
+                  <button onClick={() => setEditing(true)} className="flex h-9 items-center gap-1.5 rounded-full border border-solid bg-white px-3.5 outline-none" style={{ borderColor: BORDER }} title="Customize dashboard">
+                    <Pencil size={14} color={INK} />
+                    <span className="text-[13px] font-semibold" style={{ color: INK }}>Customize</span>
+                  </button>
+                </>
               )}
             </div>
           </div>
@@ -845,6 +872,16 @@ export function HomeScreen() {
             {renderColumn('right')}
           </div>
         </div>
+      </div>
+      {showGenerate && (
+        <GenerateHomePanel
+          hasPreview={previewLayout !== null}
+          onGenerate={setPreviewLayout}
+          onApply={applyPreview}
+          onDiscard={discardPreview}
+          onClose={discardPreview}
+        />
+      )}
       </div>
     </DndProvider>
   )

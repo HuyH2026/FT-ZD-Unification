@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { HomeScreen } from './HomeScreen'
 
@@ -122,5 +122,44 @@ describe('HomeScreen', () => {
     // The duplicate is collapsed to a single instance (one heading, not two).
     expect(screen.getAllByText('Overall agent health')).toHaveLength(1)
     expect(screen.getByText('Test coverage')).toBeInTheDocument()
+  })
+
+  it('opens the generate panel from the header', async () => {
+    const user = userEvent.setup()
+    render(<HomeScreen />)
+    expect(screen.queryByTestId('generate-home-panel')).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /generate/i }))
+    expect(screen.getByTestId('generate-home-panel')).toBeInTheDocument()
+  })
+
+  it('generates a preview and applies it to the dashboard', async () => {
+    const user = userEvent.setup()
+    render(<HomeScreen />)
+    await user.click(screen.getByRole('button', { name: /generate/i }))
+    const panel = screen.getByTestId('generate-home-panel')
+    // Answer Q1 + Q2 to enable generation.
+    await user.click(within(panel).getByRole('button', { name: /quality lead/i }))
+    await user.click(within(panel).getByRole('button', { name: /quality & testing/i }))
+    await user.click(within(panel).getByRole('button', { name: /generate my home/i }))
+    // Preview badge appears and Apply is offered.
+    expect(screen.getByText(/preview/i)).toBeInTheDocument()
+    await user.click(within(panel).getByRole('button', { name: /^apply$/i }))
+    // Panel closes; dashboard still renders widgets.
+    expect(screen.queryByTestId('generate-home-panel')).not.toBeInTheDocument()
+    expect(screen.getByText('Overall agent health')).toBeInTheDocument()
+  })
+
+  it('discards a preview without changing the saved dashboard', async () => {
+    const user = userEvent.setup()
+    render(<HomeScreen />)
+    await user.click(screen.getByRole('button', { name: /generate/i }))
+    const panel = screen.getByTestId('generate-home-panel')
+    await user.click(within(panel).getByRole('button', { name: /executive/i }))
+    await user.click(within(panel).getByRole('button', { name: /cost & usage/i }))
+    await user.click(within(panel).getByRole('button', { name: /generate my home/i }))
+    await user.click(within(panel).getByRole('button', { name: /discard/i }))
+    expect(screen.queryByTestId('generate-home-panel')).not.toBeInTheDocument()
+    // Default widgets still present.
+    expect(screen.getByText('Overall agent health')).toBeInTheDocument()
   })
 })
