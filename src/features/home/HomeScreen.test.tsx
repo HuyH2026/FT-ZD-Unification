@@ -94,6 +94,53 @@ describe('HomeScreen', () => {
     expect(screen.getByText(/no action needed right now/i)).toBeInTheDocument()
   })
 
+  // The channel filter lives in the agent-health card; scope queries to it.
+  function healthCard(): HTMLElement {
+    const title = screen.getByText('Overall agent health')
+    const card = title.closest('div.rounded-2xl')
+    if (!card) throw new Error('agent-health card not found')
+    return card as HTMLElement
+  }
+
+  it('defaults to all four channels selected with the platform score', () => {
+    render(<HomeScreen />)
+    const card = within(healthCard())
+    const boxes = card.getAllByRole('checkbox')
+    expect(boxes).toHaveLength(4)
+    expect(boxes.every((b) => b.getAttribute('aria-checked') === 'true')).toBe(true)
+    expect(card.getByText('94')).toBeInTheDocument()
+    // No "Filtered" caption when everything is selected.
+    expect(card.queryByText(/^Filtered/)).not.toBeInTheDocument()
+  })
+
+  it('re-scopes the card to a single channel', async () => {
+    const user = userEvent.setup()
+    render(<HomeScreen />)
+    const card = within(healthCard())
+    // Uncheck all but Voice.
+    await user.click(card.getByRole('checkbox', { name: /messaging/i }))
+    await user.click(card.getByRole('checkbox', { name: /email/i }))
+    await user.click(card.getByRole('checkbox', { name: /headless/i }))
+    expect(card.getByText('82')).toBeInTheDocument()       // voice score
+    // Scoped caption ("Filtered · Voice"). Narrower than /^Filtered/: the
+    // aggregated AI summary for this subset also starts with "Filtered to…",
+    // so a plain /^Filtered/ match is ambiguous within the card.
+    expect(card.getByText(/^Filtered ·/)).toBeInTheDocument()
+  })
+
+  it('does not allow unchecking the last channel', async () => {
+    const user = userEvent.setup()
+    render(<HomeScreen />)
+    const card = within(healthCard())
+    await user.click(card.getByRole('checkbox', { name: /messaging/i }))
+    await user.click(card.getByRole('checkbox', { name: /email/i }))
+    await user.click(card.getByRole('checkbox', { name: /headless/i }))
+    const voice = card.getByRole('checkbox', { name: /voice/i })
+    expect(voice.getAttribute('aria-checked')).toBe('true')
+    await user.click(voice) // no-op: last remaining channel
+    expect(voice.getAttribute('aria-checked')).toBe('true')
+  })
+
   // Finds a metric tile by its visible label (tiles are hoverable regions, not
   // buttons — the breakdown floats in a popover on hover/focus).
   function metricTile(label: string): HTMLElement {
@@ -109,13 +156,17 @@ describe('HomeScreen', () => {
     render(<HomeScreen />)
     // Breakdown is hidden until hover.
     expect(screen.queryByText(/resolution rate by channel/i)).not.toBeInTheDocument()
-    await user.hover(metricTile('Resolution rate'))
-    expect(screen.getByText(/resolution rate by channel/i)).toBeInTheDocument()
+    const tile = metricTile('Resolution rate')
+    await user.hover(tile)
+    // Scoped to the tile: the new channel-filter pills also render "Messaging"
+    // etc. at the card level, so a page-wide query would be ambiguous.
+    const popover = within(tile)
+    expect(popover.getByText(/resolution rate by channel/i)).toBeInTheDocument()
     for (const family of ['Messaging', 'Email', 'Voice', 'Headless']) {
-      expect(screen.getByText(family)).toBeInTheDocument()
+      expect(popover.getByText(family)).toBeInTheDocument()
     }
     // Unhovering hides it again.
-    await user.unhover(metricTile('Resolution rate'))
+    await user.unhover(tile)
     expect(screen.queryByText(/resolution rate by channel/i)).not.toBeInTheDocument()
   })
 
@@ -129,8 +180,10 @@ describe('HomeScreen', () => {
     ] as const) {
       const tile = metricTile(label)
       await user.hover(tile)
-      expect(screen.getByText(heading)).toBeInTheDocument()
-      expect(screen.getByText('Messaging')).toBeInTheDocument()
+      // Scoped to the tile — see note above on the channel-filter pills.
+      const popover = within(tile)
+      expect(popover.getByText(heading)).toBeInTheDocument()
+      expect(popover.getByText('Messaging')).toBeInTheDocument()
       await user.unhover(tile)
     }
   })

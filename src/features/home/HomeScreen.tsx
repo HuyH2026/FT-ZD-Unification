@@ -13,6 +13,7 @@ import {
   type WidgetId, type ColumnKey, type Layout,
   DATA, DEFAULT_LAYOUT,
 } from './dashboard-data'
+import { computeHealthView, CHANNEL_ORDER, CHANNEL_LABEL } from './health-aggregate'
 import { GenerateHomePanel } from './GenerateHomePanel'
 
 // Palette — one-off dashboard hues that have no design token yet (kept inline,
@@ -111,7 +112,7 @@ const CHANNEL_FAMILY_ICON: Record<ChannelKey, LucideIcon> = {
 // Voice / Headless) floats in a popover on hover or keyboard focus — the tile
 // itself stays compact. `barPct` is a precomputed 0-100 fill so the breakdown
 // stays unit-agnostic across metrics with different units (%, score, duration).
-function MetricTile({ metric }: { metric: HealthMetric }) {
+function MetricTile({ metric, selected }: { metric: HealthMetric; selected?: Set<ChannelKey> }) {
   const [open, setOpen] = useState(false)
   return (
     <div
@@ -143,8 +144,9 @@ function MetricTile({ metric }: { metric: HealthMetric }) {
           <p className="text-[12px] font-semibold" style={{ color: INK }}>{metric.label} by channel</p>
           {metric.byChannel.map((c) => {
             const Icon = CHANNEL_FAMILY_ICON[c.key]
+            const dim = selected ? !selected.has(c.key) : false
             return (
-              <div key={c.key}>
+              <div key={c.key} style={{ opacity: dim ? 0.4 : 1 }}>
                 <div className="mb-1.5 flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Icon size={14} color={MUTED} />
@@ -172,15 +174,60 @@ function MetricTile({ metric }: { metric: HealthMetric }) {
 }
 
 function AgentHealthCard({ data }: { data: LevelData }) {
-  const chart = useMemo(() => data.trend.map((v, i) => ({ i, v })), [data.trend])
-  const state = HEALTH_STATE_META[data.healthState]
+  const [selected, setSelected] = useState<Set<ChannelKey>>(
+    () => new Set(CHANNEL_ORDER),
+  )
+  const view = useMemo(() => computeHealthView(data, selected), [data, selected])
+  const chart = useMemo(() => view.trend.map((v, i) => ({ i, v })), [view.trend])
+  const state = HEALTH_STATE_META[view.healthState]
+  const allSelected = selected.size >= CHANNEL_ORDER.length
+
+  function toggle(key: ChannelKey) {
+    setSelected((prev) => {
+      const next = new Set(prev)
+      if (next.has(key)) {
+        if (next.size === 1) return prev // keep at least one channel
+        next.delete(key)
+      } else {
+        next.add(key)
+      }
+      return next
+    })
+  }
+
   return (
     <Card>
       <CardHeader icon={<Activity size={18} color={INK} strokeWidth={2} />} title="Overall agent health" action={<LinkButton label="Open Insights" />} />
+      {/* Channel filter — the whole card re-scopes to the selected channels. */}
+      <div className="mb-4 flex flex-wrap items-center gap-1.5">
+        {CHANNEL_ORDER.map((key) => {
+          const on = selected.has(key)
+          const Icon = CHANNEL_FAMILY_ICON[key]
+          return (
+            <button
+              key={key}
+              role="checkbox"
+              aria-checked={on}
+              aria-label={CHANNEL_LABEL[key]}
+              onClick={() => toggle(key)}
+              className="flex h-7 items-center gap-1.5 rounded-full border border-solid px-2.5 outline-none transition-colors"
+              style={{
+                borderColor: on ? INK : BORDER,
+                backgroundColor: on ? `${INK}0d` : '#fff',
+              }}
+            >
+              <Icon size={13} color={on ? INK : MUTED} />
+              <span className="text-[12px] font-semibold" style={{ color: on ? INK : MUTED }}>
+                {CHANNEL_LABEL[key]}
+              </span>
+            </button>
+          )
+        })}
+      </div>
       <div className="flex items-stretch gap-6">
         <div className="flex w-[168px] shrink-0 flex-col justify-center">
           <div className="flex items-end gap-1.5">
-            <span className="text-[44px] font-medium leading-[44px]" style={{ color: INK }}>{data.score}</span>
+            <span className="text-[44px] font-medium leading-[44px]" style={{ color: INK }}>{view.score}</span>
             <span className="mb-1.5 text-[16px] font-normal" style={{ color: MUTED }}>/ 100</span>
           </div>
           <div className="mt-2 flex items-center gap-1.5">
@@ -189,13 +236,18 @@ function AgentHealthCard({ data }: { data: LevelData }) {
               <span className="text-[12px] font-semibold" style={{ color: state.color }}>{state.label}</span>
             </span>
           </div>
+          {!allSelected && (
+            <p className="mt-2 text-[11px] font-normal" style={{ color: MUTED }}>
+              Filtered · {CHANNEL_ORDER.filter((k) => selected.has(k)).map((k) => CHANNEL_LABEL[k]).join(', ')}
+            </p>
+          )}
           <div className="mt-3 -mx-0.5 h-[44px]">
             <Sparkline data={chart} color={state.color} gradientId="healthFill" />
           </div>
         </div>
         <div className="grid flex-1 grid-cols-2 gap-3">
-          {data.metrics.map((m) => (
-            <MetricTile key={m.key} metric={m} />
+          {view.metrics.map((m) => (
+            <MetricTile key={m.key} metric={m} selected={selected} />
           ))}
         </div>
       </div>
@@ -206,7 +258,7 @@ function AgentHealthCard({ data }: { data: LevelData }) {
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-[11px] font-semibold uppercase tracking-[0.4px]" style={{ color: PURPLE }}>AI summary</p>
-          <p className="mt-0.5 text-[12px] font-normal leading-[17px]" style={{ color: INK_SOFT }}>{data.aiSummary}</p>
+          <p className="mt-0.5 text-[12px] font-normal leading-[17px]" style={{ color: INK_SOFT }}>{view.aiSummary}</p>
         </div>
       </div>
     </Card>
