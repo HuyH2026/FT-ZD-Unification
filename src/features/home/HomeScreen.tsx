@@ -9,7 +9,7 @@ import { Area, AreaChart } from 'recharts'
 import { DndProvider, useDrag, useDrop } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import {
-  type LevelData, type HealthState, type HealthMetric, type ChannelKey,
+  type LevelData, type HealthState, type HealthMetric, type ChannelKey, type BrandKey,
   type WidgetId, type ColumnKey, type Layout,
   DATA, DEFAULT_LAYOUT,
 } from './dashboard-data'
@@ -579,22 +579,78 @@ function ActivityCard({ data }: { data: LevelData }) {
 
 const INTENT_COLORS = [BLUE, PURPLE, GREEN, AMBER]
 
+// Per-tier fill colors for the intent brand breakdown (VIP / Premium / Vendor).
+const BRAND_COLORS: Record<BrandKey, string> = {
+  vip: PURPLE,
+  premium: BLUE,
+  vendor: AMBER,
+}
+
 function IntentsCard({ data }: { data: LevelData }) {
+  // Accordion: at most one intent expanded at a time (its id, or null).
+  const [openId, setOpenId] = useState<string | null>(null)
   return (
     <Card>
       <CardHeader icon={<ListChecks size={18} color={INK} strokeWidth={2} />} title="Top intents" action={<LinkButton label="Insights" />} />
       <div className="flex flex-col gap-3">
-        {data.intents.map((it, idx) => (
-          <div key={it.id}>
-            <div className="mb-1 flex items-center justify-between">
-              <p className="text-[13px] font-normal" style={{ color: INK }}>{it.name}</p>
-              <span className="text-[12px] font-semibold" style={{ color: INK }}>{it.share}%</span>
+        {data.intents.map((it, idx) => {
+          const open = openId === it.id
+          const panelId = `intent-brands-${it.id}`
+          return (
+            <div key={it.id}>
+              <button
+                type="button"
+                aria-expanded={open}
+                aria-controls={panelId}
+                onClick={() => setOpenId(open ? null : it.id)}
+                className="w-full text-left outline-none"
+              >
+                <div className="mb-1 flex items-center justify-between">
+                  <div className="flex items-center gap-1">
+                    <p className="text-[13px] font-normal" style={{ color: INK }}>{it.name}</p>
+                    <ChevronDown
+                      size={13}
+                      color={MUTED}
+                      className="transition-transform"
+                      style={{ transform: open ? 'rotate(180deg)' : 'none' }}
+                      aria-hidden
+                    />
+                  </div>
+                  <span className="text-[12px] font-semibold" style={{ color: INK }}>{it.share}%</span>
+                </div>
+                <div className="h-1.5 overflow-hidden rounded-full" style={{ backgroundColor: '#efeeec' }}>
+                  <div className="h-full rounded-full" style={{ width: `${it.share}%`, backgroundColor: INTENT_COLORS[idx % INTENT_COLORS.length] }} />
+                </div>
+              </button>
+              {open && (
+                <div
+                  id={panelId}
+                  role="region"
+                  aria-label={`${it.name} by brand`}
+                  className="mt-2.5 flex flex-col gap-2.5 rounded-xl border border-solid p-3 pt-2.5"
+                  style={{ borderColor: BORDER, backgroundColor: '#faf9f8' }}
+                >
+                  {it.byBrand.map((b) => (
+                    <div key={b.key}>
+                      <div className="mb-1 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="size-2 rounded-full" style={{ backgroundColor: BRAND_COLORS[b.key] }} />
+                          <span className="text-[12px] font-normal" style={{ color: INK }}>{b.label}</span>
+                        </div>
+                        <span className="text-[11px] font-normal" style={{ color: MUTED }}>
+                          {b.share}% · {b.tickets.toLocaleString('en-US')} tickets
+                        </span>
+                      </div>
+                      <div className="h-1.5 overflow-hidden rounded-full" style={{ backgroundColor: '#efeeec' }}>
+                        <div className="h-full rounded-full" style={{ width: `${b.share}%`, backgroundColor: BRAND_COLORS[b.key] }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-            <div className="h-1.5 overflow-hidden rounded-full" style={{ backgroundColor: '#efeeec' }}>
-              <div className="h-full rounded-full" style={{ width: `${it.share}%`, backgroundColor: INTENT_COLORS[idx % INTENT_COLORS.length] }} />
-            </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </Card>
   )

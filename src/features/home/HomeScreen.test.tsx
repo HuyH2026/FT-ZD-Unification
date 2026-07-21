@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { HomeScreen } from './HomeScreen'
@@ -288,5 +288,60 @@ describe('HomeScreen', () => {
     await user.click(within(panel).getByRole('button', { name: /generate my home/i }))
     // Preview active → Customize must be gone (prevents editing the real layout under a preview).
     expect(screen.queryByRole('button', { name: /customize/i })).not.toBeInTheDocument()
+  })
+})
+
+// The brand breakdown lives in the Top intents card; scope queries to it.
+function intentsCard(): HTMLElement {
+  const title = screen.getByText('Top intents')
+  const card = title.closest('div.rounded-2xl')
+  if (!card) throw new Error('Top intents card not found')
+  return card as HTMLElement
+}
+
+describe('Top intents brand breakdown', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  // DEFAULT_LAYOUT doesn't include the `intents` widget (it's an
+  // add-on card, not shown out of the box) — seed a stored layout that
+  // includes it so these accordion tests can find the card.
+  beforeEach(() => {
+    stubStorage(JSON.stringify({ left: ['intents'], right: [] }))
+  })
+
+  it('renders every intent collapsed by default', () => {
+    render(<HomeScreen />)
+    const card = within(intentsCard())
+    // No tier labels visible until a row is expanded.
+    expect(card.queryByText('VIP')).not.toBeInTheDocument()
+    expect(card.queryByText('Vendor')).not.toBeInTheDocument()
+    // Every intent row is a collapsed toggle.
+    const rows = card.getAllByRole('button', { expanded: false })
+    expect(rows.length).toBeGreaterThanOrEqual(4)
+  })
+
+  it('expands an intent to reveal its VIP/Premium/Vendor breakdown', async () => {
+    const user = userEvent.setup()
+    render(<HomeScreen />)
+    const card = within(intentsCard())
+    await user.click(card.getByRole('button', { name: /order status/i }))
+    expect(card.getByText('VIP')).toBeInTheDocument()
+    expect(card.getByText('Premium')).toBeInTheDocument()
+    expect(card.getByText('Vendor')).toBeInTheDocument()
+    // Order status → Vendor is 60% · 2,520 tickets.
+    expect(card.getByText(/60% · 2,520 tickets/)).toBeInTheDocument()
+    expect(card.getByRole('button', { name: /order status/i })).toHaveAttribute('aria-expanded', 'true')
+  })
+
+  it('keeps only one intent open at a time (accordion)', async () => {
+    const user = userEvent.setup()
+    render(<HomeScreen />)
+    const card = within(intentsCard())
+    await user.click(card.getByRole('button', { name: /order status/i }))
+    await user.click(card.getByRole('button', { name: /refund request/i }))
+    expect(card.getByRole('button', { name: /order status/i })).toHaveAttribute('aria-expanded', 'false')
+    expect(card.getByRole('button', { name: /refund request/i })).toHaveAttribute('aria-expanded', 'true')
+    // Exactly one panel open.
+    expect(card.getAllByRole('button', { expanded: true })).toHaveLength(1)
   })
 })
