@@ -31,6 +31,20 @@ describe('generateLayout', () => {
     expect(all).toContain('approvals')
   })
 
+  it('nudges core widgets (health, approvals) ahead in tie-break scenarios', () => {
+    // knowledge role + actions focus: both 'approvals' (actions-tagged) and 'activity' (actions-tagged)
+    // would tie at score 2, but the +0.5 core nudge should place 'approvals' ahead of 'activity'.
+    // Similarly, 'notifications' (actions-tagged) scores 2; 'approvals' should rank ahead.
+    const layout = generateLayout({ role: 'knowledge', focuses: ['actions'] })
+    const all = [...layout.left, ...layout.right]
+    const approvalsIdx = all.indexOf('approvals')
+    const activityIdx = all.indexOf('activity')
+    const notificationsIdx = all.indexOf('notifications')
+    // Core widget 'approvals' must rank ahead of non-core 'activity' and 'notifications' when tied.
+    expect(approvalsIdx).toBeLessThan(activityIdx)
+    expect(approvalsIdx).toBeLessThan(notificationsIdx)
+  })
+
   it('ranks quality-tagged widgets to the top of the left column when quality is the focus', () => {
     const layout = generateLayout({ role: 'quality', focuses: ['quality'] })
     // qa and policies are the quality-tagged widgets; the interleaved split places them

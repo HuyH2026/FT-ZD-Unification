@@ -189,4 +189,18 @@ describe('HomeScreen', () => {
     expect(after.length).toBeGreaterThan(0) // Sanity check: widgets rendered
     expect(after).toEqual(before) // Order unchanged — proves Discard is lossless
   })
+
+  it('hides Customize while a generate preview is active', async () => {
+    const user = userEvent.setup()
+    render(<HomeScreen />)
+    // Customize is available before previewing.
+    expect(screen.getByRole('button', { name: /customize/i })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /generate/i }))
+    const panel = screen.getByTestId('generate-home-panel')
+    await user.click(within(panel).getByRole('button', { name: /quality lead/i }))
+    await user.click(within(panel).getByRole('button', { name: /quality & testing/i }))
+    await user.click(within(panel).getByRole('button', { name: /generate my home/i }))
+    // Preview active → Customize must be gone (prevents editing the real layout under a preview).
+    expect(screen.queryByRole('button', { name: /customize/i })).not.toBeInTheDocument()
+  })
 })

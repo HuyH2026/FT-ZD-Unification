@@ -93,7 +93,7 @@ function LinkButton({ label }: { label: string }) {
 }
 
 // --- Cards ------------------------------------------------------------------
-const HEALTH_STATE_META: Record<HealthState, { label: string; color: string; Icon: typeof BadgeCheck }> = {
+const HEALTH_STATE_META: Record<HealthState, { label: string; color: string; Icon: LucideIcon }> = {
   good: { label: 'Good', color: GREEN, Icon: BadgeCheck },
   attention: { label: 'Attention needed', color: AMBER, Icon: AlertTriangle },
   critical: { label: 'Critical', color: RED, Icon: CircleAlert },
@@ -857,10 +857,12 @@ export function HomeScreen() {
                     <Sparkles size={14} color={PURPLE} />
                     <span className="text-[13px] font-semibold" style={{ color: INK }}>Generate</span>
                   </button>
-                  <button onClick={() => setEditing(true)} className="flex h-9 items-center gap-1.5 rounded-full border border-solid bg-white px-3.5 outline-none" style={{ borderColor: BORDER }} title="Customize dashboard">
-                    <Pencil size={14} color={INK} />
-                    <span className="text-[13px] font-semibold" style={{ color: INK }}>Customize</span>
-                  </button>
+                  {!previewLayout && (
+                    <button onClick={() => setEditing(true)} className="flex h-9 items-center gap-1.5 rounded-full border border-solid bg-white px-3.5 outline-none" style={{ borderColor: BORDER }} title="Customize dashboard">
+                      <Pencil size={14} color={INK} />
+                      <span className="text-[13px] font-semibold" style={{ color: INK }}>Customize</span>
+                    </button>
+                  )}
                 </>
               )}
             </div>
