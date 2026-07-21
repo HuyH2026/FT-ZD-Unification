@@ -37,21 +37,25 @@ function FlowLink(props: any) {
   )
 }
 
-// Node bar + label (name / value / pct) drawn to the right or left of the bar.
+// Node bar + label (name / pct on top, value below), anchored to the top edge of
+// the bar so the text clears the ribbons. The final "Total cost" node sits at the
+// far right, so its label is drawn to the left of the bar; all others to the right.
+const LAST_NODE_INDEX = FLOW_SANKEY.nodes.length - 1
+
 function FlowNode(props: any) {
-  const { x, y, width, height, index, containerWidth } = props
+  const { x, y, width, height, index } = props
   const node = FLOW_SANKEY.nodes[index]
-  const isRightHalf = x + width / 2 > containerWidth / 2
-  const labelX = isRightHalf ? x - 6 : x + width + 6
-  const anchor = isRightHalf ? 'end' : 'start'
+  const isLast = index === LAST_NODE_INDEX
+  const labelX = isLast ? x - 8 : x + width + 8
+  const anchor = isLast ? 'end' : 'start'
   return (
     <Layer>
-      <Rectangle x={x} y={y} width={width} height={height} fill="#293239" fillOpacity={0.85} />
-      <text x={labelX} y={y + height / 2 - 6} textAnchor={anchor} fontSize={11} fill="#8b8e89">
+      <Rectangle x={x} y={y} width={width} height={height} fill={node?.color ?? '#293239'} radius={2} />
+      <text x={labelX} y={y - 19} textAnchor={anchor} fontSize={11} fill="#8b8e89">
         {node?.name}
         {node?.pct ? ` ${node.pct}` : ''}
       </text>
-      <text x={labelX} y={y + height / 2 + 9} textAnchor={anchor} fontSize={13} fontWeight={600} fill="#2f3130">
+      <text x={labelX} y={y - 4} textAnchor={anchor} fontSize={14} fontWeight={600} fill="#2f3130">
         {node?.value}
       </text>
     </Layer>
@@ -75,7 +79,7 @@ export function ConversationFlowSection() {
             </div>
           ))}
         </div>
-        <div ref={ref} className="h-[220px] w-full">
+        <div ref={ref} className="h-[240px] w-full">
           {size.width > 0 && size.height > 0 && (
             <Sankey
               width={size.width}
@@ -84,10 +88,11 @@ export function ConversationFlowSection() {
                 nodes: FLOW_SANKEY.nodes.map((n) => ({ name: n.name })),
                 links: FLOW_SANKEY.links.map((l) => ({ source: l.source, target: l.target, value: l.value })),
               }}
-              node={<FlowNode containerWidth={size.width} />}
+              node={<FlowNode />}
               link={<FlowLink />}
-              nodePadding={28}
-              margin={{ top: 10, bottom: 10, left: 90, right: 90 }}
+              nodeWidth={10}
+              nodePadding={36}
+              margin={{ top: 30, bottom: 14, left: 10, right: 130 }}
             />
           )}
         </div>

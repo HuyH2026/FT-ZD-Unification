@@ -19,7 +19,7 @@ export const FLOW_HEADER: FlowStat[] = [
   { label: 'Resolved', value: '453,000', pct: '90%' },
 ]
 
-export type FlowNode = { name: string; value: string; pct?: string }
+export type FlowNode = { name: string; value: string; pct?: string; color: string }
 export type FlowLink = { source: number; target: number; value: number; color: string }
 
 // Node indices:
@@ -27,14 +27,14 @@ export type FlowLink = { source: number; target: number; value: number; color: s
 // 4 AI resolved | 5 Human resolved | 6 Not resolved | 7 Total cost
 export const FLOW_SANKEY: { nodes: FlowNode[]; links: FlowLink[] } = {
   nodes: [
-    { name: 'Total conversations', value: '550,000', pct: '100%' },
-    { name: 'AI handled', value: '234,800', pct: '55%' },
-    { name: 'Human handled', value: '221,720', pct: '35%' },
-    { name: 'Not handled', value: '55,000', pct: '10%' },
-    { name: 'AI resolved', value: '205,000', pct: '40%' },
-    { name: 'Human resolved', value: '218,000', pct: '50%' },
-    { name: 'Not resolved', value: '13,475', pct: '10%' },
-    { name: 'Total cost', value: '$2.3M' },
+    { name: 'Total conversations', value: '550,000', pct: '100%', color: TEAL },
+    { name: 'AI handled', value: '234,800', pct: '55%', color: BLUE },
+    { name: 'Human handled', value: '221,720', pct: '35%', color: BLUE },
+    { name: 'Not handled', value: '55,000', pct: '10%', color: GREY },
+    { name: 'AI resolved', value: '205,000', pct: '40%', color: TEAL },
+    { name: 'Human resolved', value: '218,000', pct: '50%', color: AMBER },
+    { name: 'Not resolved', value: '13,475', pct: '10%', color: RED },
+    { name: 'Total cost', value: '$2.3M', color: TEAL },
   ],
   links: [
     { source: 0, target: 1, value: 234800, color: BLUE },
