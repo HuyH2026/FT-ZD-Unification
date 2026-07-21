@@ -1,5 +1,3 @@
-import type { LucideIcon } from 'lucide-react'
-
 export type Channel = string
 
 export type Org = {
@@ -8,9 +6,17 @@ export type Org = {
   channels: Channel[]
 }
 
+export type NavIconProps = {
+  size?: number
+  className?: string
+  color?: string
+}
+
+export type NavIcon = (props: NavIconProps) => React.JSX.Element
+
 export type NavItem = {
   label: string
   path: string
-  icon: LucideIcon
+  icon: NavIcon
   submenu: string[]
 }

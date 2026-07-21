@@ -1,7 +1,8 @@
 import { Link, useLocation } from 'react-router'
 import { motion, AnimatePresence } from 'motion/react'
-import { ChevronRight } from 'lucide-react'
+import { PanelLeft } from 'lucide-react'
 import { PRIMARY_NAV, SECONDARY_NAV, findNavItemByPath } from '@/app/nav-config'
+import type { NavItem } from '@/types'
 import { useHoverIntent } from './useHoverIntent'
 
 interface SidebarProps {
@@ -10,6 +11,44 @@ interface SidebarProps {
 
 function kebabCase(str: string): string {
   return str.toLowerCase().replace(/\s+/g, '-')
+}
+
+// A single collapsed-rail entry: a 56×48 row (the hover/hit target) wrapping a
+// 32×32 pill that carries the active/hover background — matching the Figma spec,
+// where the pill is centered with margin rather than filling the rail.
+function NavRailItem({
+  item,
+  isActive,
+  onOpen,
+  onScheduleClose,
+}: {
+  item: NavItem
+  isActive: boolean
+  onOpen: (label: string) => void
+  onScheduleClose: () => void
+}) {
+  const Icon = item.icon
+  return (
+    <Link
+      to={item.path}
+      aria-current={isActive ? 'page' : undefined}
+      aria-label={item.label}
+      onMouseEnter={() => onOpen(item.label)}
+      onMouseLeave={onScheduleClose}
+      className="group flex h-12 w-14 items-center justify-center"
+    >
+      <span
+        className={`flex size-8 items-center justify-center rounded-lg transition-colors ${
+          isActive ? 'bg-nav-active' : 'group-hover:bg-[rgba(92,105,112,0.08)]'
+        }`}
+      >
+        <Icon
+          size={20}
+          className={isActive ? 'text-white' : 'text-ink group-hover:text-[#39434B]'}
+        />
+      </span>
+    </Link>
+  )
 }
 
 // Flyover positioning constants to match the flex rail layout
@@ -30,36 +69,20 @@ export function Sidebar({ onToggleExpand }: SidebarProps) {
   const { activeKey, open, scheduleClose } = useHoverIntent(140)
 
   const activeItem = PRIMARY_NAV.concat(SECONDARY_NAV).find((item) => activeKey === item.label)
-  const hasSubmenu = activeItem && activeItem.submenu.length > 0
 
   return (
-    <div className="relative flex h-full w-16 shrink-0 flex-col bg-white">
+    <div className="relative flex h-full w-14 shrink-0 flex-col">
       {/* Primary nav items */}
       <div className="flex flex-col items-center gap-0 py-3">
-        {PRIMARY_NAV.map((item) => {
-          const Icon = item.icon
-          const isActive = active?.label === item.label
-          return (
-            <Link
-              key={item.label}
-              to={item.path}
-              aria-current={isActive ? 'page' : undefined}
-              aria-label={item.label}
-              onMouseEnter={() => open(item.label)}
-              onMouseLeave={scheduleClose}
-              className={`flex h-12 w-12 items-center justify-center rounded-lg transition-colors ${
-                isActive
-                  ? 'bg-nav-active'
-                  : 'hover:bg-[rgba(92,105,112,0.08)]'
-              }`}
-            >
-              <Icon
-                size={20}
-                className={isActive ? 'text-white' : 'text-ink hover:text-[#39434B]'}
-              />
-            </Link>
-          )
-        })}
+        {PRIMARY_NAV.map((item) => (
+          <NavRailItem
+            key={item.label}
+            item={item}
+            isActive={active?.label === item.label}
+            onOpen={open}
+            onScheduleClose={scheduleClose}
+          />
+        ))}
       </div>
 
       {/* Separator */}
@@ -67,30 +90,15 @@ export function Sidebar({ onToggleExpand }: SidebarProps) {
 
       {/* Secondary nav items (Organization) */}
       <div className="flex flex-col items-center gap-0">
-        {SECONDARY_NAV.map((item) => {
-          const Icon = item.icon
-          const isActive = active?.label === item.label
-          return (
-            <Link
-              key={item.label}
-              to={item.path}
-              aria-current={isActive ? 'page' : undefined}
-              aria-label={item.label}
-              onMouseEnter={() => open(item.label)}
-              onMouseLeave={scheduleClose}
-              className={`flex h-12 w-12 items-center justify-center rounded-lg transition-colors ${
-                isActive
-                  ? 'bg-nav-active'
-                  : 'hover:bg-[rgba(92,105,112,0.08)]'
-              }`}
-            >
-              <Icon
-                size={20}
-                className={isActive ? 'text-white' : 'text-ink hover:text-[#39434B]'}
-              />
-            </Link>
-          )
-        })}
+        {SECONDARY_NAV.map((item) => (
+          <NavRailItem
+            key={item.label}
+            item={item}
+            isActive={active?.label === item.label}
+            onOpen={open}
+            onScheduleClose={scheduleClose}
+          />
+        ))}
       </div>
 
       {/* Expand toggle button pinned to bottom */}
@@ -98,33 +106,42 @@ export function Sidebar({ onToggleExpand }: SidebarProps) {
         <button
           aria-label="Expand sidebar"
           onClick={onToggleExpand}
-          className="flex h-12 w-12 items-center justify-center rounded-lg transition-colors hover:bg-[rgba(92,105,112,0.08)]"
+          className="flex size-8 items-center justify-center rounded-full bg-white transition-colors hover:bg-[#f5f6f7]"
         >
-          <ChevronRight size={20} className="text-ink" />
+          <PanelLeft size={16} className="text-ink" />
         </button>
       </div>
 
-      {/* Hover flyover menu */}
+      {/* Hover flyover menu — shown for every hovered item; the label always
+          renders, and the submenu list only when the item has one. */}
       <AnimatePresence>
-        {activeKey && hasSubmenu && (
+        {activeKey && activeItem && (
           <motion.div
+            data-testid="nav-flyover"
             initial={{ opacity: 0, x: -8 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -8 }}
             transition={{ duration: 0.15 }}
             onMouseEnter={() => open(activeKey)}
             onMouseLeave={scheduleClose}
-            className="absolute left-[63.2px] z-50 w-[226px] overflow-hidden rounded-[8px] border border-[#eae9e8] bg-white pt-[11px] shadow-[0px_16px_24px_0px_rgba(10,13,14,0.16)]"
+            className={`absolute left-14 z-50 w-[226px] overflow-hidden rounded-[8px] border border-[#eae9e8] bg-white pt-[11px] shadow-[0px_16px_24px_0px_rgba(10,13,14,0.16)] ${
+              activeItem.submenu.length > 0 ? 'pb-0' : 'pb-[11px]'
+            }`}
             style={{
               top: `${flyoverTop(activeKey)}px`,
             }}
           >
-            {/* Label (non-interactive, just shows the item label) */}
-            <div className="mb-[12px] flex items-center pl-[11px]">
+            {/* Label — links to the item itself */}
+            <Link
+              to={activeItem.path}
+              className={`flex items-center pl-[11px] ${
+                activeItem.submenu.length > 0 ? 'mb-[12px]' : 'mb-0'
+              }`}
+            >
               <div className="w-[146px] text-[14px] font-semibold leading-[20px] tracking-[-0.154px] text-[#0c0c0d]">
                 {activeKey}
               </div>
-            </div>
+            </Link>
 
             {/* Submenu items */}
             {activeItem.submenu.length > 0 && (

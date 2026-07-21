@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router'
 import { Sidebar } from './Sidebar'
@@ -25,6 +25,15 @@ describe('Sidebar', () => {
     await user.hover(screen.getByRole('link', { name: /insights/i }))
     expect(await screen.findByText('CX Journey')).toBeInTheDocument()
     expect(screen.getByText('AI Performances')).toBeInTheDocument()
+  })
+
+  it('opens a label-only flyover on hover for items without a submenu', async () => {
+    const user = userEvent.setup()
+    renderSidebar()
+    // Tools has no submenu — the flyover should still appear, showing its label.
+    await user.hover(screen.getByRole('link', { name: /tools/i }))
+    const flyover = await screen.findByTestId('nav-flyover')
+    expect(within(flyover).getByText('Tools')).toBeInTheDocument()
   })
 
   it('calls onToggleExpand when the expand toggle is clicked', async () => {

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router'
+import { PanelLeft } from 'lucide-react'
 import { PRIMARY_NAV, SECONDARY_NAV } from '@/app/nav-config'
 
 type ExpandedSidebarProps = {
@@ -136,7 +137,7 @@ export function ExpandedSidebar({ activeLabel, onCollapse }: ExpandedSidebarProp
   const secondaryStartTop = separatorTop + 28
 
   return (
-    <div className="relative h-full w-[234px] shrink-0 bg-[#f8f7f6] overflow-hidden">
+    <div className="relative h-full w-[234px] shrink-0 overflow-hidden">
       {/* PRIMARY NAV */}
       {renderSection(PRIMARY_NAV, 22)}
 
@@ -149,22 +150,13 @@ export function ExpandedSidebar({ activeLabel, onCollapse }: ExpandedSidebarProp
       {/* SECONDARY NAV */}
       {renderSection(SECONDARY_NAV, secondaryStartTop)}
 
-      {/* Collapse toggle, bottom-right (rotated to point inward) */}
+      {/* Collapse toggle, bottom-left, aligned under the icon column */}
       <button
         onClick={onCollapse}
         aria-label="Collapse sidebar"
-        className="absolute right-[16px] bottom-[12px] size-[32px] bg-[#293239] rounded-[16px] flex items-center justify-center cursor-pointer outline-none"
+        className="absolute left-[16px] bottom-[12px] flex size-8 items-center justify-center rounded-full bg-white transition-colors hover:bg-[#f5f6f7]"
       >
-        <div className="relative size-[20px] rotate-180">
-          <svg className="size-full" fill="none" viewBox="0 0 15 15">
-            <path
-              clipRule="evenodd"
-              d="M5.5 3.5a.5.5 0 0 1 .854-.354l4 4a.5.5 0 0 1 0 .708l-4 4A.5.5 0 0 1 5.5 11.5v-8Z"
-              fill="#ffffff"
-              fillRule="evenodd"
-            />
-          </svg>
-        </div>
+        <PanelLeft size={16} className="text-ink" />
       </button>
     </div>
   )

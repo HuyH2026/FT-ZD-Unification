@@ -4,9 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A **greenfield React + Vite + TypeScript front end** for the FT Unification console — an AI platform for customer support automation. This is the **foundation layer only**: persistent chrome (navigation rail, expanded sidebar, top bar, org switching), real routing, design tokens, and the initial feature screens (Home, Insights, Organization). It was rebuilt from a Figma Make prototype; all Figma Make artifacts have been removed.
+A **greenfield React + Vite + TypeScript front end** for the FT Unification console — an AI platform for customer support automation. This is the **foundation layer**: persistent chrome (navigation rail, expanded sidebar, top bar, org switching), real routing, design tokens, and feature screens (Home dashboard, Insights, Organization). It was rebuilt from a Figma Make prototype; all Figma Make artifacts have been removed, but the prototype is still used as a visual/behavioral reference (its source can be read via the Figma MCP `get_design_context` on the Make file, then `ReadMcpResourceTool`).
 
-Product logic for the five planned products — **Solve, Triage, Assist, Discover, AI Studio** — is out of scope for this phase. Those nav destinations currently render a shared "Coming soon" placeholder.
+The **Home screen is a full mock dashboard** (`src/features/home/`): agent-health, notifications, approvals, knowledge gaps, QA, cost, activity, intents, and improved-policies widgets, with a Platform/Organization level toggle and drag-and-drop customization (react-dnd) persisted to `localStorage`. All data is mocked in `src/features/home/dashboard-data.ts` (no backend). The **Organization screen** has an `AiStudioPanel` (right-side assistant shell, header-toggled) and a decorative `OrgIllustration` (flora-glow SVG).
+
+Product logic for the five planned products — **Solve, Triage, Assist, Discover, AI Studio** — is out of scope for this phase. Those nav destinations currently render a shared "Coming soon" placeholder. (The `AiStudioPanel` on the Organization screen is a small assistant-shell mock, not the full AI Studio product.)
 
 ## Commands
 
@@ -29,7 +31,7 @@ If `pnpm` is not on PATH, the `npx` equivalents work: `npx vitest run`, `npx tsc
 
 ### Navigation is URL-driven from a single source of truth
 `src/app/nav-config.ts` is the one place nav is defined. It exports:
-- `NAV_ITEMS: NavItem[]` — every item in order (`Home, Insights, AI Agents, Knowledge, Tools, Experiments, Orchestrator, Integrations, Log, Settings, Organization`), each `{ label, path, icon (LucideIcon), submenu: string[] }`.
+- `NAV_ITEMS: NavItem[]` — every item in order (`Home, Insights, AI Agents, Knowledge, Tools, Experiments, Orchestrator, Integrations, Log, Settings, Organization`), each `{ label, path, icon (NavIcon), submenu: string[] }`. The nav `icon`s are pixel-exact custom SVG components in `src/components/nav-icons.tsx` (ported from the Figma design for fidelity), not lucide — their shared prop type is `NavIcon`/`NavIconProps` in `src/types/index.ts`.
 - `PRIMARY_NAV` = `NAV_ITEMS.slice(0, 10)`, `SECONDARY_NAV` = `NAV_ITEMS.slice(10)` (Organization).
 - `findNavItemByPath(pathname)` — resolves the active item from the URL, including nested routes (e.g. `/insights/ai-performances` → Insights). Active nav state is **always derived from the URL**, never held in a `useState` string.
 
@@ -57,9 +59,9 @@ React Router **v7** (`createBrowserRouter`). Everything imports from `react-rout
 `src/app/org-context.tsx` exports `OrgProvider` and `useOrgs()` → `{ orgs, currentOrg, setCurrentOrg, addOrg(name, channels) }`. Seeded with SpaceX and Tesla. `addOrg` mints a **deterministic** id from a module `seq` counter (not `Date.now()`/`Math.random()`, which are unavailable/nondeterministic here) and sets the new org current.
 
 ### Feature screens (`src/features/`)
-- `home/HomeScreen.tsx` — fluid white content surface (intentionally minimal, matching the prototype).
+- `home/HomeScreen.tsx` — the full mock dashboard (widgets, level toggle, react-dnd edit mode). Mock data + widget/layout types live in `home/dashboard-data.ts`. Layout is persisted to `localStorage` (key `home-dashboard-layout-v2`); access is guarded (`window.localStorage?.`) so it degrades gracefully where the API is absent (e.g. jsdom tests).
 - `insights/InsightsScreen.tsx` — surface with a nested `<Outlet/>`; sub-views `CxJourneyView.tsx` and `AiPerformancesView.tsx` are titled empty regions (the prototype had no real chart data — do not fabricate metrics).
-- `organization/OrganizationScreen.tsx` — fluid org table built from `useOrgs().orgs`, using `OrgRow.tsx` and `ChannelChip.tsx`. `CreateOrgFlow.tsx` is the create form (`useOrgs().addOrg` then navigate back).
+- `organization/OrganizationScreen.tsx` — org table built from `useOrgs().orgs` (`OrgRow.tsx`, `ChannelChip.tsx`), with `OrgIllustration.tsx` (decorative flora-glow SVG) and a header-toggled `AiStudioPanel.tsx` (right-side assistant shell — presentational, no backend). `CreateOrgFlow.tsx` is the create form (`useOrgs().addOrg` then navigate back).
 
 ### Layout model: desktop-fluid
 There is **no fixed canvas / `ScaledStage` / transform-scale** (the prototype's approach, removed). `AppLayout` is a full-height flex layout with a `min-w-[1024px]` floor; content fills available width fluidly. Target range is desktop (≥ ~1024px) — no mobile/tablet states.
@@ -75,8 +77,9 @@ There is **no fixed canvas / `ScaledStage` / transform-scale** (the prototype's 
 - `src/components/ui/` — the full shadcn/ui kit + Radix primitives, retained as a toolkit for future products even where currently unused. `src/components/ui/utils.ts` exports `cn()`.
 - `src/components/figma/ImageWithFallback.tsx` — a generic image-error fallback helper (the only remaining "figma"-named file; it is not Figma Make tooling).
 - `src/lib/cn.ts` — `cn()` (clsx + tailwind-merge). `src/lib/channel-meta.ts` — `channelMeta(label)` and `CHANNEL_META` mapping a channel label to its display name, brand color, and Lucide icon; extend `CHANNEL_META` there rather than hardcoding per component.
-- `src/types/index.ts` — shared types: `Org`, `Channel`, `NavItem`.
-- Icons come from `lucide-react`.
+- `src/types/index.ts` — shared types: `Org`, `Channel`, `NavItem`, `NavIcon`, `NavIconProps`.
+- `src/components/nav-icons.tsx` — custom SVG nav icons (see Navigation above). `src/components/ZendeskLogo.tsx` — the header logomark.
+- Icons: **nav rail** uses the custom SVGs in `nav-icons.tsx`; everywhere else (chrome, header, dashboard widgets, channel chips) uses `lucide-react`.
 
 ## Conventions
 
@@ -86,5 +89,6 @@ There is **no fixed canvas / `ScaledStage` / transform-scale** (the prototype's 
 
 ## Scope notes
 
-- **Foundation only** — no backend, no real product logic; org data is in-memory/mocked.
-- **Solve / Triage / Assist / Discover / AI Studio** are placeholders; each will be its own future spec (see `docs/superpowers/specs/`).
+- **No backend** — org data, the Home dashboard, and the AI Studio panel are all in-memory/mocked; the AI Studio composer is presentational.
+- The Home dashboard and the Organization `AiStudioPanel` are **mock UI ported from the Figma Make prototype at the user's request** — richer than a pure "foundation" layer, but still frontend-only.
+- **Solve / Triage / Assist / Discover** (and the standalone AI Studio product) remain placeholders rendering "Coming soon"; each will be its own future spec (see `docs/superpowers/specs/`). Note: the `AiStudioPanel` on the org screen is a small assistant shell, distinct from the full AI Studio *product*.

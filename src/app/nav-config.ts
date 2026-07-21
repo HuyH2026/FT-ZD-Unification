@@ -1,21 +1,21 @@
 import {
-  Home, BarChart3, Bot, BookOpen, Wrench, FlaskConical,
-  Workflow, Plug, ScrollText, Settings, Building2,
-} from 'lucide-react'
+  HomeIcon, InsightsIcon, AiAgentsIcon, KnowledgeIcon, ToolsIcon, ExperimentsIcon,
+  OrchestratorIcon, IntegrationsIcon, LogIcon, SettingsIcon, OrganizationIcon,
+} from '@/components/nav-icons'
 import type { NavItem } from '@/types'
 
 export const NAV_ITEMS: NavItem[] = [
-  { label: 'Home', path: '/', icon: Home, submenu: [] },
-  { label: 'Insights', path: '/insights', icon: BarChart3, submenu: ['CX Journey', 'AI Performances'] },
-  { label: 'AI Agents', path: '/ai-agents', icon: Bot, submenu: ['Agent Builder', 'Configuration', 'QA'] },
-  { label: 'Knowledge', path: '/knowledge', icon: BookOpen, submenu: ['Insights', 'Contents', 'Coaching'] },
-  { label: 'Tools', path: '/tools', icon: Wrench, submenu: [] },
-  { label: 'Experiments', path: '/experiments', icon: FlaskConical, submenu: ['A/B Test', 'Test Suite', 'Simulations'] },
-  { label: 'Orchestrator', path: '/orchestrator', icon: Workflow, submenu: [] },
-  { label: 'Integrations', path: '/integrations', icon: Plug, submenu: [] },
-  { label: 'Log', path: '/log', icon: ScrollText, submenu: [] },
-  { label: 'Settings', path: '/settings', icon: Settings, submenu: ['Account', 'Security'] },
-  { label: 'Organization', path: '/organization', icon: Building2, submenu: [] },
+  { label: 'Home', path: '/', icon: HomeIcon, submenu: [] },
+  { label: 'Insights', path: '/insights', icon: InsightsIcon, submenu: ['CX Journey', 'AI Performances'] },
+  { label: 'AI Agents', path: '/ai-agents', icon: AiAgentsIcon, submenu: ['Agent Builder', 'Configuration', 'QA'] },
+  { label: 'Knowledge', path: '/knowledge', icon: KnowledgeIcon, submenu: ['Insights', 'Contents', 'Coaching'] },
+  { label: 'Tools', path: '/tools', icon: ToolsIcon, submenu: [] },
+  { label: 'Experiments', path: '/experiments', icon: ExperimentsIcon, submenu: ['A/B Test', 'Test Suite', 'Simulations'] },
+  { label: 'Orchestrator', path: '/orchestrator', icon: OrchestratorIcon, submenu: [] },
+  { label: 'Integrations', path: '/integrations', icon: IntegrationsIcon, submenu: [] },
+  { label: 'Log', path: '/log', icon: LogIcon, submenu: [] },
+  { label: 'Settings', path: '/settings', icon: SettingsIcon, submenu: ['Account', 'Security'] },
+  { label: 'Organization', path: '/organization', icon: OrganizationIcon, submenu: [] },
 ]
 
 export const PRIMARY_NAV = NAV_ITEMS.slice(0, 10)

@@ -1,17 +1,42 @@
+import { ChevronDown, Users, Braces, ChartPie, Globe, CircleHelp, Sparkles } from 'lucide-react'
+import { ZendeskLogo } from '@/components/ZendeskLogo'
 import { OrgSwitcher } from './OrgSwitcher'
+
+const ICON_BUTTONS = [Users, Braces, ChartPie, Globe, CircleHelp]
 
 export function TopBar() {
   return (
-    <div className="flex items-center justify-between h-[55px] bg-app-backdrop border-b border-surface-border px-4">
-      {/* Left: OrgSwitcher */}
-      <div className="flex items-center">
+    <div className="flex shrink-0 items-center justify-between h-[55px] bg-app-backdrop px-5">
+      {/* Left: logo, product switcher, org switcher */}
+      <div className="flex items-center gap-2">
+        <div className="flex size-8 items-center justify-center">
+          <ZendeskLogo size={24} className="text-ink" />
+        </div>
+
+        <button className="flex items-center gap-2 rounded-lg px-3 py-1.5 transition-colors hover:bg-[rgba(92,105,112,0.08)]">
+          <span className="text-[14px] font-semibold leading-5 tracking-[-0.154px] text-ink">
+            AI Agent
+          </span>
+          <ChevronDown size={16} className="text-ink" />
+        </button>
+
         <OrgSwitcher />
       </div>
 
-      {/* Right: Profile/actions placeholder */}
-      <div className="flex items-center gap-3">
-        {/* Static placeholder for avatar/actions */}
-        <div className="size-8 rounded-full bg-[#d9d7d5]" />
+      {/* Right: icon cluster + avatar */}
+      <div className="flex items-center gap-2">
+        {ICON_BUTTONS.map((Icon, i) => (
+          <button
+            key={i}
+            className="flex size-8 items-center justify-center rounded-lg transition-colors hover:bg-[rgba(92,105,112,0.08)]"
+          >
+            <Icon size={20} className="text-ink" />
+          </button>
+        ))}
+        <button className="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-[#8d59b1] to-[#406cc4]">
+          <Sparkles size={20} className="text-white" />
+        </button>
+        <div className="size-6 rounded-full bg-[#d9d7d5]" />
       </div>
     </div>
   )

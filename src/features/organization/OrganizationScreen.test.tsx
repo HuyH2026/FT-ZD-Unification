@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router'
 import { OrgProvider } from '@/app/org-context'
 import { OrganizationScreen } from './OrganizationScreen'
@@ -27,5 +28,13 @@ describe('OrganizationScreen', () => {
     expect(screen.getByText('Tesla')).toBeInTheDocument()
     // SpaceX has 4 channels -> 3 chips + "+1"
     expect(screen.getByText('+1')).toBeInTheDocument()
+  })
+
+  it('shows the AI Studio panel and toggles it off', async () => {
+    const user = userEvent.setup()
+    renderScreen()
+    expect(screen.getByTestId('ai-studio-panel')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /hide ai studio/i }))
+    expect(screen.queryByTestId('ai-studio-panel')).not.toBeInTheDocument()
   })
 })

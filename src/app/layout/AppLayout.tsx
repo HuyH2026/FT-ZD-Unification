@@ -17,19 +17,24 @@ export function AppLayout() {
     <OrgProvider>
       <div className="flex flex-col h-screen min-w-[1024px] bg-app-backdrop">
         <TopBar />
-        <div className="flex flex-1 overflow-hidden">
-          {isExpanded ? (
+        {isExpanded ? (
+          <div className="flex flex-1 min-h-0 ml-2 mb-2 mr-2 rounded-[26px] border border-white bg-white/60">
             <ExpandedSidebar
               activeLabel={activeLabel}
               onCollapse={() => setIsExpanded(false)}
             />
-          ) : (
-            <Sidebar onToggleExpand={() => setIsExpanded((v) => !v)} />
-          )}
-          <main className="flex-1 overflow-hidden p-2">
-            <Outlet />
-          </main>
-        </div>
+            <main className="flex-1 overflow-hidden rounded-[26px]">
+              <Outlet />
+            </main>
+          </div>
+        ) : (
+          <div className="flex flex-1 min-h-0 ml-2 mb-2 mr-2 rounded-[26px] border border-white bg-white/60">
+            <Sidebar onToggleExpand={() => setIsExpanded(true)} />
+            <main className="flex-1 overflow-hidden rounded-[26px]">
+              <Outlet />
+            </main>
+          </div>
+        )}
       </div>
     </OrgProvider>
   )

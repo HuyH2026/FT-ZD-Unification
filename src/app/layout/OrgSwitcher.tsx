@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router'
+import { ChevronDown, Building2 } from 'lucide-react'
 import { useOrgs } from '@/app/org-context'
 import { useHoverIntent } from './useHoverIntent'
 import { useState } from 'react'
@@ -24,16 +25,18 @@ export function OrgSwitcher() {
   return (
     <div className="relative">
       {/* Current org display */}
-      <div className="flex items-center gap-2 px-3 py-2">
+      <div className="flex items-center gap-2 rounded-lg px-3 py-1.5">
+        <Building2 size={16} className="text-ink" />
         <span className="font-semibold text-ink text-[14px] tracking-[-0.154px] leading-[20px]">
           {currentOrg}
         </span>
+        <ChevronDown size={16} className="text-ink" />
       </div>
 
       {/* Hover/click trigger */}
       <button
         aria-label="Switch organization"
-        className="absolute inset-0 cursor-pointer outline-none"
+        className="absolute inset-0 cursor-pointer rounded-lg outline-none transition-colors hover:bg-[rgba(92,105,112,0.08)]"
         onMouseEnter={() => open('org-menu')}
         onMouseLeave={scheduleClose}
         onClick={() => setClickOpen((v) => !v)}
