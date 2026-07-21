@@ -41,3 +41,30 @@ export function channelMeta(label: string) {
     }
   );
 }
+
+export type ChannelSection = {
+  title: string
+  channels: string[]
+}
+
+// Ordered channel groups shown in the create-org flow, mirroring the Figma
+// "Full page" frame. Every entry is a key of CHANNEL_META; together the
+// sections cover all channels exactly once.
+export const CHANNEL_SECTIONS: ChannelSection[] = [
+  {
+    title: 'Messaging',
+    channels: [
+      'Web Widget',
+      'Slack',
+      'Facebook Messenger',
+      'WhatsApp',
+      'Instagram Direct',
+      'Android',
+      'iOS',
+      'LINE',
+    ],
+  },
+  { title: 'Email', channels: ['Email'] },
+  { title: 'Voice', channels: ['Inbound Voice', 'Outbound Voice', 'Web Call'] },
+  { title: 'Headless', channels: ['API'] },
+]
