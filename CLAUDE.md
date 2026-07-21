@@ -69,6 +69,7 @@ There is **no fixed canvas / `ScaledStage` / transform-scale** (the prototype's 
 - `src/styles/theme.css` — design tokens as CSS variables, exposed to Tailwind via `@theme inline`. Product tokens: `--color-app-backdrop`, `--color-nav-active`, `--color-ink`, `--color-ink-muted`, `--color-accent-blue`, `--color-surface-border`, plus the shadcn base tokens. Fonts use the system SF stack via `--font-sans` (no committed font files).
 - **Tailwind v4** via `@tailwindcss/vite` — no `tailwind.config`, no PostCSS plugins needed.
 - Use semantic token classes (`bg-nav-active`, `text-ink`, `border-surface-border`) rather than raw hex. Some one-off grays and per-channel brand colors have no token and are inline — that's expected. Do **not** reintroduce `font-['SF_Pro_*']` arbitrary font-family classes (carried over from the prototype and deliberately removed).
+- **`DESIGN.md`** (repo root) — describes the design system (Zendesk Flora/Garden v10) as machine-readable tokens + rationale, for agent/human reference. `src/styles/theme.css` remains the runtime source of truth; DESIGN.md does not generate it. Validate with `pnpm design:lint`; `pnpm design:export` emits a scratch theme (`.design/`, gitignored) for drift-checking against `theme.css`. Canonical token values come from the internal `zendesk/ui` repo (`packages/alpha/ReactComponents/src/theming/`).
 
 ### Components & lib
 - `src/components/ui/` — the full shadcn/ui kit + Radix primitives, retained as a toolkit for future products even where currently unused. `src/components/ui/utils.ts` exports `cn()`.
