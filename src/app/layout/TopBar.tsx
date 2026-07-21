@@ -16,7 +16,7 @@ export function TopBar() {
       {/* Left: logo, product switcher, org switcher */}
       <div className="flex items-center gap-2">
         <div className="flex size-8 items-center justify-center">
-          <ZendeskLogo size={24} className="text-ink" />
+          <ZendeskLogo size={20} className="text-ink" />
         </div>
 
         <button className="flex items-center gap-2 rounded-lg px-3 py-1.5 transition-colors hover:bg-[rgba(92,105,112,0.08)]">

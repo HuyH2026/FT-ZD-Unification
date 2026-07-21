@@ -4,17 +4,18 @@ type ZendeskLogoProps = {
   color?: string
 }
 
-// Zendesk logomark — the two "sail" shapes: a solid triangle pointing up (its
-// apex at top, base at the bottom) beside a rounded fan whose flat edge sits at
-// the top. Rendered single-color so it inherits `currentColor` from the chrome.
+// Zendesk logomark, traced from the design file (Figma node 491:22591).
+// Rendered single-color so it inherits `currentColor` from the chrome.
 export function ZendeskLogo({ size = 20, className, color }: ZendeskLogoProps) {
   const fill = color ?? 'currentColor'
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
-      {/* Left sail: solid triangle, apex top-right, base along the bottom */}
-      <path d="M11 6.5V22H0L11 6.5Z" fill={fill} />
-      {/* Right sail: rounded fan, flat edge at the top, curving down to a point */}
-      <path d="M13 22C13 16.7 17.7 12 23 12C23 17.3 18.3 22 13 22Z" fill={fill} />
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M11.3309 8.28418V19.438H2.1001L11.3309 8.28418ZM11.3309 4.28418C11.3309 6.82264 9.25394 8.89956 6.71548 8.89956C4.17702 8.89956 2.1001 6.82264 2.1001 4.28418H11.3309ZM12.8693 19.438C12.8693 16.8996 14.9463 14.8226 17.4847 14.8226C20.0232 14.8226 22.1001 16.8996 22.1001 19.438H12.8693ZM12.8693 15.438V4.28418H22.1001L12.8693 15.438Z"
+        fill={fill}
+      />
     </svg>
   )
 }
