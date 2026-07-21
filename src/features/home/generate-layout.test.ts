@@ -33,8 +33,9 @@ describe('generateLayout', () => {
 
   it('ranks quality-tagged widgets to the top of the left column when quality is the focus', () => {
     const layout = generateLayout({ role: 'quality', focuses: ['quality'] })
-    // qa and policies are the quality-tagged widgets; one of them leads the left column.
-    expect(['qa', 'policies']).toContain(layout.left[0])
+    // qa and policies are the quality-tagged widgets; the interleaved split places them
+    // at the first position of each column (left[0] and right[0]).
+    expect([layout.left[0], layout.right[0]].sort()).toEqual(['policies', 'qa'])
   })
 
   it('boosts a widget when the free-text prompt mentions its theme', () => {

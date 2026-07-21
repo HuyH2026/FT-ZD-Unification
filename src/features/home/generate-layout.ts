@@ -104,15 +104,9 @@ export function generateLayout(input: {
     return WIDGET_ORDER.indexOf(a) - WIDGET_ORDER.indexOf(b)
   })
 
-  // Ensure core widgets are present (they always are, since WIDGET_ORDER is the
-  // full set — this guards against future edits to WIDGET_ORDER).
-  for (const id of CORE) {
-    if (!ranked.includes(id)) ranked.push(id)
-  }
-
   // Split into two columns: highest-ranked to the top of the left column,
-  // alternating so both columns fill (left gets the odd picks, matching how
-  // DEFAULT_LAYOUT weights the left/primary column).
+  // alternating so both columns fill. Even indices (0, 2, 4…) — the highest-ranked
+  // picks — go to the left/primary column.
   const left: WidgetId[] = []
   const right: WidgetId[] = []
   ranked.forEach((id, i) => {
