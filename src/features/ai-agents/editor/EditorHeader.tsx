@@ -1,5 +1,6 @@
 // Sticky editor header: back, editable title + version chip, centered channel
 // tabs, and inert Preview/Versions/Publish actions.
+import { useState } from 'react'
 import { ArrowLeft, MoreVertical, MessageSquare, Phone, Globe, Code2 } from 'lucide-react'
 import type { ChannelKey } from '../agent-builder-data'
 
@@ -20,6 +21,14 @@ export function EditorHeader({
   onBack: () => void
   onTitleChange: (t: string) => void
 }) {
+  const [localTitle, setLocalTitle] = useState(title)
+
+  const commit = () => {
+    if (localTitle !== title) {
+      onTitleChange(localTitle)
+    }
+  }
+
   return (
     <div className="flex items-center gap-4 border-b border-surface-border bg-white px-8 py-4">
       <button type="button" aria-label="Back to agents" onClick={onBack} className="text-ink">
@@ -27,8 +36,10 @@ export function EditorHeader({
       </button>
       <input
         aria-label="Agent title"
-        value={title}
-        onChange={(e) => onTitleChange(e.target.value)}
+        value={localTitle}
+        onChange={(e) => setLocalTitle(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => { if (e.key === 'Enter') { e.currentTarget.blur() } }}
         className="min-w-0 max-w-[240px] bg-transparent text-[20px] font-medium text-ink outline-none"
       />
       <span className="rounded-md bg-[#f4f3f1] px-2 py-0.5 text-[12px] text-ink-muted">{version}</span>

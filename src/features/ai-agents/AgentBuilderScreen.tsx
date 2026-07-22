@@ -1,12 +1,11 @@
-// Agent Builder — the AI Agents landing screen. Owns three pieces of local
-// state: the selected channel, the selected agent tab, and a per-row on/off
-// override map (keyed by agent id; effective state is override ?? agent.on).
-// Switching channels clears the overrides so each channel starts from its
-// authored toggles. All search/filter/action affordances are inert (mock scope).
+// Agent Builder — the AI Agents landing screen. Owns two pieces of local
+// state: the selected channel and the selected agent tab. Agent list and toggle
+// state are read from the store (single source of truth). All search/filter/action
+// affordances are inert (mock scope).
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { Calendar, ChevronDown, Code2, Globe, MessageSquare, Phone, Plus, Search } from 'lucide-react'
-import { CHANNELS, type Agent, type ChannelKey } from './agent-builder-data'
+import { CHANNELS, type ChannelKey } from './agent-builder-data'
 import { MetricStrip } from './MetricStrip'
 import { AgentsTable } from './AgentsTable'
 import { useAgentStore } from './agent-store'
@@ -34,25 +33,15 @@ export function AgentBuilderScreen() {
   const store = useAgentStore()
   const [channelKey, setChannelKey] = useState<ChannelKey>('widget')
   const [tab, setTab] = useState<AgentTab>('all')
-  // Per-row on/off overrides; cleared on channel switch.
-  const [overrides, setOverrides] = useState<Record<string, boolean>>({})
   const [creating, setCreating] = useState(false)
 
   const channel = CHANNELS.find((c) => c.key === channelKey)!
-  const isOn = (a: Agent) => overrides[a.id] ?? a.on
-  const toggle = (id: string) =>
-    setOverrides((prev) => {
-      const current = prev[id] ?? channel.agents.find((a) => a.id === id)!.on
-      return { ...prev, [id]: !current }
-    })
 
-  const selectChannel = (key: ChannelKey) => {
-    setChannelKey(key)
-    setOverrides({})
-  }
+  // Derive agents from store, filtered by current channel
+  const channelAgents = store.agents.filter((a) => a.channel === channelKey)
 
-  const visibleAgents = channel.agents.filter((a) => {
-    if (tab === 'active') return isOn(a)
+  const visibleAgents = channelAgents.filter((a) => {
+    if (tab === 'active') return a.on
     if (tab === 'subagents') return a.isSubagent
     return true
   })
@@ -80,7 +69,7 @@ export function AgentBuilderScreen() {
                 type="button"
                 role="tab"
                 aria-selected={active}
-                onClick={() => selectChannel(c.key)}
+                onClick={() => setChannelKey(c.key)}
                 className="flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[13px] font-medium transition-colors"
                 style={{
                   backgroundColor: active ? '#ffffff' : 'transparent',
@@ -162,8 +151,8 @@ export function AgentBuilderScreen() {
       {/* Agents table */}
       <AgentsTable
         agents={visibleAgents}
-        isOn={isOn}
-        onToggle={toggle}
+        isOn={(a) => a.on}
+        onToggle={(id) => store.toggleAgent(id)}
         onRowClick={(id) => navigate(`/ai-agents/${id}`)}
       />
 

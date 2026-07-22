@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, beforeEach } from 'vitest'
 import { createMemoryRouter, RouterProvider } from 'react-router'
@@ -49,5 +49,20 @@ describe('AgentBuilderScreen — create flow', () => {
     renderApp()
     await user.click(screen.getByRole('button', { name: 'Open Knowledge Retrieval' }))
     expect(screen.getByTestId('view-agent-editor')).toBeInTheDocument()
+  })
+
+  it('shows the newly-created agent in the builder list after navigating back', async () => {
+    const user = userEvent.setup()
+    renderApp()
+    await user.click(screen.getByRole('button', { name: 'New Agent' }))
+    await user.type(screen.getByLabelText('Agent display name'), 'Refund helper')
+    await user.click(screen.getByRole('button', { name: 'Create Agent' }))
+    // Wait for navigation to editor.
+    await screen.findByTestId('view-agent-editor')
+    // Navigate back to the builder.
+    await user.click(screen.getByLabelText('Back to agents'))
+    // The created agent should now appear in the list.
+    const builderView = within(screen.getByTestId('view-agent-builder'))
+    expect(builderView.getByRole('button', { name: 'Open Refund helper' })).toBeInTheDocument()
   })
 })

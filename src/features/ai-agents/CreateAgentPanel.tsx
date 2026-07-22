@@ -22,7 +22,7 @@ export function CreateAgentPanel({
 
   const addPhrase = () => {
     const v = draft.trim()
-    if (!v) return
+    if (!v || phrases.includes(v)) return
     setPhrases((p) => [...p, v])
     setDraft('')
   }

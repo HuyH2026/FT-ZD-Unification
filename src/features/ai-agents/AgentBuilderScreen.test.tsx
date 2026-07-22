@@ -1,6 +1,6 @@
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import { AgentBuilderScreen } from './AgentBuilderScreen'
 
 // Mock useNavigate since these tests render the component bare (no router).
@@ -10,6 +10,14 @@ vi.mock('react-router', async () => {
     ...actual,
     useNavigate: () => vi.fn(),
   }
+})
+
+// Clear localStorage before and after each test for deterministic store state.
+beforeEach(() => {
+  window.localStorage?.clear()
+})
+afterEach(() => {
+  window.localStorage?.clear()
 })
 
 function surface(): HTMLElement {

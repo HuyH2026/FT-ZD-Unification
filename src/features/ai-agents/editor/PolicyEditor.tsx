@@ -7,7 +7,7 @@ import {
 } from 'lucide-react'
 import { useDrop } from 'react-dnd'
 import {
-  chipVariantForStep, nextId, removeChip, insertChip,
+  chipVariantForStep, nextId, removeChip, insertChip, STEP_TITLE,
   type PolicyDoc, type PolicySegment,
 } from '../agent-store'
 import { PolicyChipView } from './PolicyChipView'
@@ -23,7 +23,7 @@ export function PolicyEditor({ doc, onChange }: { doc: PolicyDoc; onChange: (doc
     accept: EDITOR_DND_TYPE,
     collect: (m) => ({ isOver: m.isOver() }),
     drop: (item) => {
-      const chip = { kind: 'chip' as const, id: nextId('c'), variant: chipVariantForStep(item.stepType), label: item.stepType }
+      const chip = { kind: 'chip' as const, id: nextId('c'), variant: chipVariantForStep(item.stepType), label: STEP_TITLE[item.stepType] }
       onChange(insertChip(doc, doc.segments.length, chip))
     },
   })
