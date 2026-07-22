@@ -29,7 +29,7 @@ function StateBadge({ state }: { state: ToolState }) {
 
 // Slate-tinted pill naming the agents in use, with a "+N" suffix.
 function AgentsChip({ agents }: { agents: ToolAction['agents'] }) {
-  if (!agents) return <span className="text-[13px] text-grey-400">n/a</span>
+  if (!agents) return <span className="text-[12px] text-grey-400">n/a</span>
   return (
     <span
       className="inline-flex items-center gap-1.5 rounded-[4px] px-2 py-1 text-[12px] font-medium text-grey-700"
@@ -85,7 +85,7 @@ export function ToolsTable() {
         <HeaderCell label="Revealed # of conversations" />
         <HeaderCell label="State" info />
         <HeaderCell label="Last modified" />
-        <div className="border-l border-surface-border" aria-hidden />
+        <div aria-hidden />
       </div>
 
       {/* Rows */}
@@ -114,7 +114,7 @@ export function ToolsTable() {
           <div className="flex items-center border-r border-surface-border px-3.5 py-3 text-[11px] text-black last:border-r-0">
             {a.lastModified}
           </div>
-          <div className="flex items-center justify-center border-l border-surface-border bg-[#fbfbfb] px-2">
+          <div className="flex items-center justify-center bg-[#fbfbfb] px-2">
             <button type="button" aria-label={`${a.name} options`} className="text-ink-muted">
               <MoreVertical size={16} aria-hidden />
             </button>
