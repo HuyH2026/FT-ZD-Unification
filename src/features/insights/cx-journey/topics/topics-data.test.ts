@@ -3,6 +3,7 @@ import {
   COACHING_BARS,
   sentimentBand,
   TOP_MOVERS,
+  TOPIC_COLORS,
   TOPIC_ROWS,
   TOPIC_STATS,
 } from './topics-data'
@@ -48,5 +49,33 @@ describe('topics-data', () => {
     expect(sentimentBand(75).label).toBe('good')
     expect(sentimentBand(50).label).toBe('ok')
     expect(sentimentBand(30).label).toBe('bad')
+  })
+
+  it('gives every top-level row a color and the full tooltip metric set', () => {
+    for (const row of TOPIC_ROWS) {
+      expect(row.color).toMatch(/^#/)
+      expect(row.avgFirstResTime).toBeTruthy()
+      expect(row.avgFullResTime).toBeTruthy()
+      expect(row.agentReplyTime).toBeTruthy()
+      expect(row.agentReplies).toBeTruthy()
+      expect(row.csat).toBeTruthy()
+    }
+  })
+
+  it('gives every sub-topic and leaf the full tooltip metric set', () => {
+    for (const row of TOPIC_ROWS) {
+      for (const sub of row.children) {
+        expect(sub.avgFirstResTime).toBeTruthy()
+        expect(sub.agentReplies).toBeTruthy()
+        for (const leaf of sub.children) {
+          expect(leaf.avgFirstResTime).toBeTruthy()
+          expect(leaf.agentReplies).toBeTruthy()
+        }
+      }
+    }
+  })
+
+  it('exposes at least as many palette colors as top-level rows', () => {
+    expect(TOPIC_COLORS.length).toBeGreaterThanOrEqual(TOPIC_ROWS.length)
   })
 })

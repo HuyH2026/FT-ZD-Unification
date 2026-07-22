@@ -7,11 +7,12 @@
 import { useState } from 'react'
 import {
   ArrowDown, Calendar, Check, ChevronDown, ChevronRight, ChevronsDownUp, Download,
-  Frown, Info, List, Meh, MoreVertical, Network, Search, Settings2, Smile,
+  Frown, Info, LayoutGrid, List, Meh, MoreVertical, Network, Search, Settings2, Smile,
   Table as TableIcon, type LucideIcon,
 } from 'lucide-react'
 import { RED, TEAL } from '../cx-journey-data'
 import { type TopicRow, type TopicSub, TOPIC_ROWS, sentimentBand } from './topics-data'
+import { TopicTreemap } from './TopicTreemap'
 
 // Signed-percentage text: green when negative (improvement), red when positive.
 function ChangeText({ pct, abs }: { pct: number; abs: string }) {
@@ -48,7 +49,7 @@ function Metric({ label, children }: { label: string; children: React.ReactNode 
   )
 }
 
-function Toolbar() {
+function Toolbar({ view, onToggleTreemap }: { view: 'table' | 'treemap'; onToggleTreemap: () => void }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
       <div className="flex items-center gap-2 rounded-lg border border-surface-border bg-white px-3 py-1.5">
@@ -80,6 +81,15 @@ function Toolbar() {
         Group topics
       </label>
       <div className="ml-auto flex items-center gap-1">
+        <button
+          type="button"
+          aria-label="Treemap view"
+          aria-pressed={view === 'treemap'}
+          onClick={onToggleTreemap}
+          className={`rounded-lg border p-1.5 ${view === 'treemap' ? 'border-nav-active bg-nav-active text-white' : 'border-surface-border bg-white text-ink-muted'}`}
+        >
+          <LayoutGrid className="h-3.5 w-3.5" />
+        </button>
         <button type="button" className="rounded-lg border border-surface-border bg-white p-1.5" aria-label="Export">
           <Download className="h-3.5 w-3.5 text-ink-muted" />
         </button>
@@ -220,6 +230,7 @@ function SortHeader({ label, className = '' }: { label: string; className?: stri
 }
 
 export function TopicsTable() {
+  const [view, setView] = useState<'table' | 'treemap'>('table')
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set(['payment']))
   const toggle = (id: string) =>
     setExpanded((prev) => {
@@ -230,20 +241,26 @@ export function TopicsTable() {
     })
   return (
     <section className="flex flex-col gap-4">
-      <Toolbar />
-      {/* Column header strip (sits above the row cards). */}
-      <div className="flex items-center gap-4 px-5">
-        <SortHeader label={`Topic (${TOPIC_ROWS.length})`} className="flex-1" />
-        <SortHeader label="Tickets" />
-        <SortHeader label="First contact resolution" />
-        <SortHeader label="Sentiment" />
-        <span className="w-4" />
-      </div>
-      <div className="flex flex-col gap-2.5">
-        {TOPIC_ROWS.map((row) => (
-          <TopicCard key={row.id} row={row} open={expanded.has(row.id)} onToggle={() => toggle(row.id)} />
-        ))}
-      </div>
+      <Toolbar view={view} onToggleTreemap={() => setView((v) => (v === 'treemap' ? 'table' : 'treemap'))} />
+      {view === 'treemap' ? (
+        <TopicTreemap />
+      ) : (
+        <>
+          {/* Column header strip (sits above the row cards). */}
+          <div className="flex items-center gap-4 px-5">
+            <SortHeader label={`Topic (${TOPIC_ROWS.length})`} className="flex-1" />
+            <SortHeader label="Tickets" />
+            <SortHeader label="First contact resolution" />
+            <SortHeader label="Sentiment" />
+            <span className="w-4" />
+          </div>
+          <div className="flex flex-col gap-2.5">
+            {TOPIC_ROWS.map((row) => (
+              <TopicCard key={row.id} row={row} open={expanded.has(row.id)} onToggle={() => toggle(row.id)} />
+            ))}
+          </div>
+        </>
+      )}
     </section>
   )
 }

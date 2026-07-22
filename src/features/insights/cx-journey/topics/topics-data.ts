@@ -1,6 +1,6 @@
 // Mock data + types for the CX Journey → Topics screen. All values are
 // illustrative (no backend); numbers match the Figma design (CX Journey_01).
-import { AMBER, RED, TEAL } from '../cx-journey-data'
+import { AMBER, BLUE, DEEP_TEAL, GREY, RED, TEAL } from '../cx-journey-data'
 
 // --- Zone 1a: top movers table --------------------------------------------
 // `comparisonPct` is signed: negative = fewer tickets than the previous period
@@ -53,6 +53,12 @@ export type TopicLeaf = {
   fullResTime: string
   fullResChangePct: number
   fullResChangeAbs: string
+  // Tooltip metrics (treemap view)
+  avgFirstResTime: string
+  avgFullResTime: string
+  agentReplyTime: string
+  agentReplies: string
+  csat: string
 }
 
 // A sub-topic row (level 2): a leaf that itself expands to `children`.
@@ -68,8 +74,18 @@ export type TopicRow = {
   ticketsPct: string
   firstContactResolution: string
   sentiment: number
+  color: string
+  avgFirstResTime: string
+  avgFullResTime: string
+  agentReplyTime: string
+  agentReplies: string
+  csat: string
   children: TopicSub[]
 }
+
+// Per-top-level-topic treemap colors. Reuses the CX Journey accent palette and
+// adds a few distinct hues so all eight top-level rows read apart.
+export const TOPIC_COLORS = [RED, BLUE, TEAL, AMBER, '#7b5ea7', DEEP_TEAL, GREY, '#5a8f4d'] as const
 
 // Terse leaf builder so the mock tree stays readable.
 function leaf(
@@ -83,7 +99,22 @@ function leaf(
   fullResChangePct: number,
   fullResChangeAbs: string,
 ): TopicLeaf {
-  return { id, name, tickets, ticketsPct, ticketsChangePct, ticketsChangeAbs, fullResTime, fullResChangePct, fullResChangeAbs }
+  return {
+    id,
+    name,
+    tickets,
+    ticketsPct,
+    ticketsChangePct,
+    ticketsChangeAbs,
+    fullResTime,
+    fullResChangePct,
+    fullResChangeAbs,
+    avgFirstResTime: '20.9 hrs',
+    avgFullResTime: '25.6 hrs',
+    agentReplyTime: '9.5 hrs',
+    agentReplies: '1.12',
+    csat: '4.1',
+  }
 }
 
 // Payment Management is the one row shown expanded in Figma; its sub-tree is
@@ -158,14 +189,134 @@ function genericChildren(parentId: string): TopicSub[] {
 }
 
 export const TOPIC_ROWS: TopicRow[] = [
-  { id: 'account', name: 'Account Management', count: 16, tickets: 25286, ticketsPct: '40.89%', firstContactResolution: '69.4%', sentiment: 48.6, children: genericChildren('account') },
-  { id: 'verification', name: 'Verification and Security', count: 16, tickets: 14286, ticketsPct: '22.89%', firstContactResolution: '87.3%', sentiment: 54.7, children: genericChildren('verification') },
-  { id: 'payment', name: 'Payment Management', count: 18, tickets: 8879, ticketsPct: '14.39%', firstContactResolution: '71.5%', sentiment: 75.1, children: PAYMENT_CHILDREN },
-  { id: 'profile', name: 'Profile Management', count: 21, tickets: 3404, ticketsPct: '5.5%', firstContactResolution: '91.2%', sentiment: 38.3, children: genericChildren('profile') },
-  { id: 'contract', name: 'Contract and Job Management', count: 14, tickets: 2920, ticketsPct: '4.72%', firstContactResolution: '73.4%', sentiment: 90.4, children: genericChildren('contract') },
-  { id: 'legal', name: 'Legal and Compliance', count: 10, tickets: 2450, ticketsPct: '3.96%', firstContactResolution: '84.4%', sentiment: 60.4, children: genericChildren('legal') },
-  { id: 'support-a', name: 'Support Services', count: 15, tickets: 1188, ticketsPct: '1.89%', firstContactResolution: '55.4%', sentiment: 44.8, children: genericChildren('support-a') },
-  { id: 'support-b', name: 'Support Services', count: 15, tickets: 1188, ticketsPct: '1.89%', firstContactResolution: '55.4%', sentiment: 44.8, children: genericChildren('support-b') },
+  {
+    id: 'account',
+    name: 'Account Management',
+    count: 16,
+    tickets: 25286,
+    ticketsPct: '40.89%',
+    firstContactResolution: '69.4%',
+    sentiment: 48.6,
+    color: TOPIC_COLORS[0],
+    avgFirstResTime: '20.9 hrs',
+    avgFullResTime: '25.6 hrs',
+    agentReplyTime: '9.5 hrs',
+    agentReplies: '1.12',
+    csat: '4.1',
+    children: genericChildren('account'),
+  },
+  {
+    id: 'verification',
+    name: 'Verification and Security',
+    count: 16,
+    tickets: 14286,
+    ticketsPct: '22.89%',
+    firstContactResolution: '87.3%',
+    sentiment: 54.7,
+    color: TOPIC_COLORS[1],
+    avgFirstResTime: '18.5 hrs',
+    avgFullResTime: '22.3 hrs',
+    agentReplyTime: '8.2 hrs',
+    agentReplies: '1.08',
+    csat: '4.3',
+    children: genericChildren('verification'),
+  },
+  {
+    id: 'payment',
+    name: 'Payment Management',
+    count: 18,
+    tickets: 8879,
+    ticketsPct: '14.39%',
+    firstContactResolution: '71.5%',
+    sentiment: 75.1,
+    color: TOPIC_COLORS[2],
+    avgFirstResTime: '22.4 hrs',
+    avgFullResTime: '27.1 hrs',
+    agentReplyTime: '10.3 hrs',
+    agentReplies: '1.18',
+    csat: '3.9',
+    children: PAYMENT_CHILDREN,
+  },
+  {
+    id: 'profile',
+    name: 'Profile Management',
+    count: 21,
+    tickets: 3404,
+    ticketsPct: '5.5%',
+    firstContactResolution: '91.2%',
+    sentiment: 38.3,
+    color: TOPIC_COLORS[3],
+    avgFirstResTime: '16.2 hrs',
+    avgFullResTime: '19.8 hrs',
+    agentReplyTime: '7.1 hrs',
+    agentReplies: '0.95',
+    csat: '4.4',
+    children: genericChildren('profile'),
+  },
+  {
+    id: 'contract',
+    name: 'Contract and Job Management',
+    count: 14,
+    tickets: 2920,
+    ticketsPct: '4.72%',
+    firstContactResolution: '73.4%',
+    sentiment: 90.4,
+    color: TOPIC_COLORS[4],
+    avgFirstResTime: '21.7 hrs',
+    avgFullResTime: '26.9 hrs',
+    agentReplyTime: '9.8 hrs',
+    agentReplies: '1.14',
+    csat: '4.0',
+    children: genericChildren('contract'),
+  },
+  {
+    id: 'legal',
+    name: 'Legal and Compliance',
+    count: 10,
+    tickets: 2450,
+    ticketsPct: '3.96%',
+    firstContactResolution: '84.4%',
+    sentiment: 60.4,
+    color: TOPIC_COLORS[5],
+    avgFirstResTime: '19.3 hrs',
+    avgFullResTime: '24.5 hrs',
+    agentReplyTime: '8.9 hrs',
+    agentReplies: '1.10',
+    csat: '4.2',
+    children: genericChildren('legal'),
+  },
+  {
+    id: 'support-a',
+    name: 'Support Services',
+    count: 15,
+    tickets: 1188,
+    ticketsPct: '1.89%',
+    firstContactResolution: '55.4%',
+    sentiment: 44.8,
+    color: TOPIC_COLORS[6],
+    avgFirstResTime: '23.1 hrs',
+    avgFullResTime: '28.4 hrs',
+    agentReplyTime: '11.2 hrs',
+    agentReplies: '1.25',
+    csat: '3.8',
+    children: genericChildren('support-a'),
+  },
+  {
+    id: 'support-b',
+    name: 'Support Services',
+    count: 15,
+    tickets: 1188,
+    ticketsPct: '1.89%',
+    firstContactResolution: '55.4%',
+    sentiment: 44.8,
+    color: TOPIC_COLORS[7],
+    avgFirstResTime: '20.5 hrs',
+    avgFullResTime: '25.2 hrs',
+    agentReplyTime: '9.3 hrs',
+    agentReplies: '1.11',
+    csat: '4.0',
+    children: genericChildren('support-b'),
+  },
 ]
 
 // --- Sentiment banding -----------------------------------------------------
