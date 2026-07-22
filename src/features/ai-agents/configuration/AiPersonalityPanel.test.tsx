@@ -52,4 +52,13 @@ describe('AiPersonalityPanel', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Brands' }))
     expect(props.onSectionChange).toHaveBeenCalledWith('brands')
   })
+
+  it('disables the preset chips and freeform textarea when their toggles are off', async () => {
+    const props = setup() // vip: toneUsePresets=false, toneUseFreeform=false
+    const chip = screen.getByRole('button', { name: 'Empathetic' })
+    expect(chip).toBeDisabled()
+    expect(screen.getByLabelText('Tone of Voice')).toBeDisabled()
+    await userEvent.click(chip)
+    expect(props.onPersonalityChange).not.toHaveBeenCalled()
+  })
 })
