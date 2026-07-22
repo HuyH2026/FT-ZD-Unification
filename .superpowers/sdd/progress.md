@@ -1,17 +1,21 @@
-# Slack-sourced Approval — Progress Ledger
+# Orchestrator Screen — Progress Ledger
 
-Branch: feature/slack-approval-source
-Plan: docs/superpowers/plans/2026-07-21-slack-approval-source.md
-Base (before Task 1): c5e1e4e
+Branch: main (user consented to implement on main)
+Plan: docs/superpowers/plans/2026-07-21-orchestrator-screen.md
+Base (before Task 1): 12b96684
 
-Note: pre-existing uncommitted changes on TopBar.tsx, ZendeskLogo.tsx, HomeScreen.tsx (health-card) carried in working tree — unrelated, left untouched.
+Tasks:
+- Task 1: complete (commit 8061200b, review clean — spec ✅, quality Approved; 6/6 tests, tsc OK)
+  Minors (deferred, match brief): OrchMetric.key typed string not literal union; tests use `!` after .find() (idiomatic for static-data tests).
+- Task 2: complete (commit 0d939396, review clean — spec ✅, quality Approved; 3/3 tests, tsc OK)
+  Minors (deferred): tests don't cover sentiment-smiley / absent-field cases; inline hex per CLAUDE.md convention.
+- Task 3: complete (commit 085833dd, review clean — spec ✅, quality Approved; 4/4 tests, tsc OK; no findings)
+- Task 4: complete (commit ec697c6a, review clean — spec ✅, quality Approved; 3/3 tests incl. onToggle callback, full suite 133/133, tsc OK; no findings)
+- Task 5: complete (commit a31ff239, review clean — spec ✅, quality Approved; 2/2 tests incl. toggle flip true→false→true, tsc OK; toolbar confirmed inert; no findings)
+- Task 6: complete (commit 025bb40a, review clean — spec ✅, quality Approved; full suite 138/138, tsc OK; BUILT set updated to prevent duplicate route; no findings)
 
-Task 1: complete (commit dd3aa55, review clean — spec ✅, quality Approved; exact slack shape + values, person/impact/author preserved, tsc clean)
-Task 2: complete (commit 9dc2125, review clean after controller adjudication — spec ✅, quality Approved).
-  - Reviewer claimed the @ts-expect-error 6133 was unnecessary and failed spec. Controller verified EMPIRICALLY (removed directive, ran tsc): TS6133 DOES fire on the unused top-level SlackGlyph under noUnusedLocals. The brief's premise ("tsc does not error on unused top-level functions") was WRONG; the implementer's bridge is correct and necessary.
-  - COUPLING FOR TASK 3: Task 3 MUST delete the `// @ts-expect-error 6133` line when wiring in SlackGlyph, else tsc errors TS2578 (unused directive).
-  - Note: commit 9dc2125 also swept in the pre-existing health-card line removal ("Across 2 organizations and 6 channels.") — unrelated, out of scope, acceptable.
-Task 3: complete (commit 5444446, review clean — spec ✅, quality Approved). TDD RED→GREEN, 18/18 HomeScreen tests, tsc + vite build clean. @ts-expect-error directive removed (verified TS2578 does not fire). Reviewer independently re-ran tsc + vitest.
-  - Sound deviation: brief's test regex /reroute refund intents to the billing skill/i collides across body + slack.message (getByText throws on multiple). Implementer switched to /resolution keeps stalling there/i (unique to slack.message), preserving intent. Reviewer confirmed via grep.
-Final whole-branch review (Opus, c5e1e4e..HEAD): READY TO MERGE, no Critical/Important. Two Minors: (1) slack.role unrendered → FIXED in 7b6b0e9 (renders role in Slack block); (2) test regex deviation — already triaged, correct. Note: AgentHealthCard 3-line deletion is pre-existing out-of-scope working-tree change swept into Task 2 commit.
-Status: ALL TASKS COMPLETE. tsc clean, 18/18 HomeScreen tests. Feature ready.
+Feature commits (in order): 8061200b, 0d939396, 085833dd, ec697c6a, a31ff239, 025bb40a.
+ALL 6 TASKS COMPLETE. Full suite 138/138, tsc clean.
+
+Final whole-feature review (Opus, base 12b96684..025bb40a, 6 commits): READY TO MERGE — yes. No Critical/Important. 21/21 orchestrator tests pass, tsc clean. Deferred minors triaged acceptable: OrchMetric.key string vs literal union (values pinned by test); toggle lacks focus-visible ring (repo-wide gap in all switches, not introduced here — future sweep); MetricStrip tests don't assert sentiment/absent-field branches (exercised at render). Ship it.
+Status: FEATURE COMPLETE + final review clean.
