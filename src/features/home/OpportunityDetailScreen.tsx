@@ -56,7 +56,7 @@ function StatsStrip({ d }: { d: OpportunityDetail }) {
           </span>
         </div>
         <span className="mt-1 text-[28px] font-semibold leading-[30px]" style={{ color: INK }}>{opp.revenue}</span>
-        <MiniBar pct={62} color="#e53112" />
+        <MiniBar pct={62} color={revColor} />
       </div>
       <div className="w-px shrink-0" style={{ backgroundColor: BORDER }} />
       {/* Volume */}

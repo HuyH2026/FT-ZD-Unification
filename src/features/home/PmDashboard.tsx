@@ -247,7 +247,7 @@ function OpportunityCard({
   const toolLabel = integration.tool ? PM_TOOL_LABEL[integration.tool] : null
 
   return (
-    <div className={`rounded-2xl border border-solid p-4 ${viewMode === 'grid' ? '' : 'flex gap-4'}`} style={{ borderColor: BORDER, backgroundColor: '#fff' }}>
+    <div className={`rounded-2xl border border-solid p-4 ${viewMode === 'grid' ? '' : 'flex flex-wrap gap-4'}`} style={{ borderColor: BORDER, backgroundColor: '#fff' }}>
       <Link
         to={`/opportunity/${opp.id}`}
         className={`group block outline-none ${viewMode === 'grid' ? '' : 'flex flex-1 gap-4'}`}
