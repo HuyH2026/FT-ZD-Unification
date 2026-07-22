@@ -1,7 +1,16 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { render, screen, within } from '@testing-library/react'
+import { render as rtlRender, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router'
+import type { ReactElement } from 'react'
 import { HomeScreen } from './HomeScreen'
+
+// HomeScreen renders PmDashboard for PM views, whose feed cards / spotlight rows
+// use react-router <Link>s — so every render needs a router context. Wrap here so
+// the many call sites stay `render(<HomeScreen />)` unchanged.
+function render(ui: ReactElement) {
+  return rtlRender(<MemoryRouter>{ui}</MemoryRouter>)
+}
 
 const STORAGE_KEY = 'home-dashboard-layout-v2'
 
