@@ -15,8 +15,8 @@ describe('routing + layout', () => {
   })
 
   it('renders the Placeholder for an undesigned destination', () => {
-    renderAt('/tools')
-    expect(screen.getByText('Tools')).toBeInTheDocument()
+    renderAt('/knowledge')
+    expect(screen.getByText('Knowledge')).toBeInTheDocument()
     expect(screen.getByText('Coming soon')).toBeInTheDocument()
   })
 
