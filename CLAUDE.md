@@ -68,9 +68,9 @@ There is **no fixed canvas / `ScaledStage` / transform-scale** (the prototype's 
 
 ### Styles & tokens
 - `src/styles/index.css` — entry (imports fonts, Tailwind, `tw-animate-css`, theme).
-- `src/styles/theme.css` — design tokens as CSS variables, exposed to Tailwind via `@theme inline`. Product tokens: `--color-app-backdrop`, `--color-nav-active`, `--color-ink`, `--color-ink-muted`, `--color-accent-blue`, `--color-surface-border`, plus the shadcn base tokens. Fonts use the system SF stack via `--font-sans` (no committed font files).
+- `src/styles/theme.css` — design tokens as CSS variables, exposed to Tailwind via `@theme inline`. Product tokens: `--color-app-backdrop`, `--color-nav-active`, `--color-ink`, `--color-ink-muted`, `--color-accent-blue`, `--color-surface-border`, plus a subset of raw Garden palette scales exposed as classes (`grey-200/400/500/700/800/1200`, `blue-700` — the canonical Flora accent) and the shadcn base tokens. Fonts use the system SF stack via `--font-sans` (no committed font files).
 - **Tailwind v4** via `@tailwindcss/vite` — no `tailwind.config`, no PostCSS plugins needed.
-- Use semantic token classes (`bg-nav-active`, `text-ink`, `border-surface-border`) rather than raw hex. Some one-off grays and per-channel brand colors have no token and are inline — that's expected. Do **not** reintroduce `font-['SF_Pro_*']` arbitrary font-family classes (carried over from the prototype and deliberately removed).
+- Use semantic token classes (`bg-nav-active`, `text-ink`, `border-surface-border`) or the exposed Garden palette classes (`text-grey-700`, `border-grey-400`, `text-blue-700`, …) rather than raw hex — if a hex exactly equals a palette value, use the token. Some genuinely one-off grays/surface tints (e.g. `#f5f6f7`) and per-channel brand colors have no token and are inline — that's expected. Do **not** reintroduce `font-['SF_Pro_*']` arbitrary font-family classes (carried over from the prototype and deliberately removed).
 - **`DESIGN.md`** (repo root) — describes the design system (Zendesk Flora/Garden v10) as machine-readable tokens + rationale, for agent/human reference. `src/styles/theme.css` remains the runtime source of truth; DESIGN.md does not generate it. Validate with `pnpm design:lint`; `pnpm design:export` emits a scratch theme (`.design/`, gitignored) for drift-checking against `theme.css`. Canonical token values come from the internal `zendesk/ui` repo (`packages/alpha/ReactComponents/src/theming/`).
 
 ### Components & lib
@@ -79,7 +79,7 @@ There is **no fixed canvas / `ScaledStage` / transform-scale** (the prototype's 
 - `src/lib/cn.ts` — `cn()` (clsx + tailwind-merge). `src/lib/channel-meta.ts` — `channelMeta(label)` and `CHANNEL_META` mapping a channel label to its display name, brand color, and Lucide icon; extend `CHANNEL_META` there rather than hardcoding per component.
 - `src/types/index.ts` — shared types: `Org`, `Channel`, `NavItem`, `NavIcon`, `NavIconProps`.
 - `src/components/nav-icons.tsx` — custom SVG nav icons (see Navigation above). `src/components/ZendeskLogo.tsx` — the header logomark.
-- Icons: **nav rail** uses the custom SVGs in `nav-icons.tsx`; everywhere else (chrome, header, dashboard widgets, channel chips) uses `lucide-react`.
+- Icons: **nav rail** uses the custom SVGs in `nav-icons.tsx`; **canonical Garden glyphs** come from `@zendeskgarden/svg-icons` via `src/components/garden-icon.tsx` (`<GardenIcon name="…" />`, rendered inline from `?raw` SVGs so they inherit size/color) — use these where a design frame names a specific Garden icon (e.g. the AI Agents → Configuration screen); everywhere else (chrome, header, dashboard widgets, channel chips) uses `lucide-react`.
 
 ## Conventions
 

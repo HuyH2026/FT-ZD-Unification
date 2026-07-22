@@ -138,6 +138,17 @@ The app exposes a small set of product tokens (in `theme.css`) on top of these:
   current Flora `blue.700`.
 - **`surface-border` (#d8dcde)** — default card/table border.
 
+On top of the product tokens, a subset of the raw **Garden palette scales** is
+exposed directly as Tailwind classes (`theme.css`), so screens ported from Figma
+use the exact design-system value instead of transcribing raw hex: `grey-200`
+(#eae9e8), `grey-400` (#b7b7b3), `grey-500` (#999b97), `grey-700` (#646864),
+`grey-800` (#404241), `grey-1200` (#0c0c0d), and `blue-700` (#406cc4 — the
+canonical Flora accent, distinct from the legacy `accent-blue`; see **Known
+deltas**). Reach for these before an arbitrary `text-[#…]`/`bg-[#…]`; extend the
+set from the front-matter scales as new screens need more steps. Truly one-off
+values with no palette match (e.g. a few `#f5f6f7` surface tints, per-channel
+brand colors) stay inline — that's expected.
+
 Full 100–1200 scales for grey/blue/red/green are in the front matter. Other
 Garden hues are available in `zendesk/ui` and pulled in per-product.
 
@@ -164,8 +175,14 @@ range is desktop (≥ ~1024px) only. Spacing follows Garden's 4px base scale
 ## Components
 
 - **Navigation rail** uses pixel-exact custom SVG icons
-  (`src/components/nav-icons.tsx`), not lucide. Everywhere else — chrome, header,
-  dashboard widgets, channel chips — uses `lucide-react`.
+  (`src/components/nav-icons.tsx`), not lucide.
+- **Canonical Garden glyphs** come from `@zendeskgarden/svg-icons`, rendered
+  inline (they use `currentColor`) via `src/components/garden-icon.tsx`
+  (`<GardenIcon name="…" />`). Use these where a design frame calls out a
+  specific Garden icon — the AI Agents → Configuration screen sources all its
+  glyphs this way. Add a glyph by importing its `?raw` SVG into `GARDEN_ICONS`.
+- Everywhere else — general chrome, dashboard widgets, channel chips — uses
+  `lucide-react`.
 - **Channel chips** map a channel to a brand color + icon via
   `src/lib/channel-meta.ts`. Per-channel brand colors are intentionally inline
   (no token). Garden `product` brand colors (support #00a656, explore #30aabc,

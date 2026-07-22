@@ -9,9 +9,9 @@ function renderAt(path: string) {
 }
 
 describe('Insights routing', () => {
-  it('shows AI Performances by default at /insights', () => {
+  it('shows CX Journey by default at /insights', () => {
     renderAt('/insights')
-    expect(screen.getByTestId('view-ai-performances')).toBeInTheDocument()
+    expect(screen.getByTestId('view-cx-journey')).toBeInTheDocument()
   })
 
   it('shows CX Journey at /insights/cx-journey', () => {

@@ -124,7 +124,7 @@ export function Sidebar({ onToggleExpand }: SidebarProps) {
             transition={{ duration: 0.15 }}
             onMouseEnter={() => open(activeKey)}
             onMouseLeave={scheduleClose}
-            className={`absolute left-14 z-50 w-[226px] overflow-hidden rounded-[8px] border border-[#eae9e8] bg-white pt-[11px] shadow-[0px_16px_24px_0px_rgba(10,13,14,0.16)] ${
+            className={`absolute left-14 z-50 w-[226px] overflow-hidden rounded-[8px] border border-grey-200 bg-white pt-[11px] shadow-[0px_16px_24px_0px_rgba(10,13,14,0.16)] ${
               activeItem.submenu.length > 0 ? 'pb-0' : 'pb-[11px]'
             }`}
             style={{
@@ -138,7 +138,7 @@ export function Sidebar({ onToggleExpand }: SidebarProps) {
                 activeItem.submenu.length > 0 ? 'mb-3' : 'mb-0'
               }`}
             >
-              <div className="w-[146px] text-[14px] font-semibold leading-[20px] tracking-[-0.154px] text-[#0c0c0d]">
+              <div className="w-[146px] text-[14px] font-semibold leading-[20px] tracking-[-0.154px] text-grey-1200">
                 {activeKey}
               </div>
             </Link>

@@ -50,12 +50,12 @@ export function OrgSwitcher() {
           onMouseEnter={() => open('org-menu')}
           onMouseLeave={scheduleClose}
         >
-          <div aria-hidden className="absolute border border-[#d8dcde] border-solid inset-0 pointer-events-none rounded-[4px]" />
+          <div aria-hidden className="absolute border border-surface-border border-solid inset-0 pointer-events-none rounded-[4px]" />
 
           {/* Header label */}
           <div className="flex gap-2 items-start pl-3 pr-9 py-2 w-full">
             <div className="h-[20px] w-[16px] shrink-0" />
-            <div className="font-semibold text-[#293239] text-[14px] tracking-[-0.154px] leading-[20px]">
+            <div className="font-semibold text-nav-active text-[14px] tracking-[-0.154px] leading-[20px]">
               Organization
             </div>
           </div>
@@ -83,7 +83,7 @@ export function OrgSwitcher() {
                   </div>
                 )}
               </div>
-              <div className="text-[#293239] text-[14px] tracking-[-0.154px] leading-[20px]">
+              <div className="text-nav-active text-[14px] tracking-[-0.154px] leading-[20px]">
                 {org.name}
               </div>
             </button>

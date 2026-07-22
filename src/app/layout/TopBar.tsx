@@ -42,7 +42,7 @@ export function TopBar() {
         ))}
         <button
           aria-label="AI assistant"
-          className="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-[#8d59b1] to-[#406cc4]"
+          className="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-[#8d59b1] to-blue-700"
         >
           <Sparkles size={20} className="text-white" />
         </button>

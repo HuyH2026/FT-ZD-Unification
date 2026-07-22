@@ -49,4 +49,27 @@ describe('ConfigurationView', () => {
     await userEvent.click(sw)
     expect(sw).toHaveAttribute('aria-checked', 'false')
   })
+
+  it('swaps to AI Personality when the Sentiment rail icon is clicked, and back', async () => {
+    render(<ConfigurationView />)
+    const v = view()
+    expect(v.getByText('Branded widget')).toBeInTheDocument()
+    await userEvent.click(v.getByRole('button', { name: 'Sentiment' }))
+    expect(v.getByText('AI Personality')).toBeInTheDocument()
+    expect(v.queryByText('Branded widget')).not.toBeInTheDocument()
+    await userEvent.click(v.getByRole('button', { name: 'Brands' }))
+    expect(v.getByText('Branded widget')).toBeInTheDocument()
+  })
+
+  it('shows per-brand personality values on the AI Personality panel', async () => {
+    render(<ConfigurationView />)
+    const v = view()
+    await userEvent.click(v.getByRole('button', { name: 'Sentiment' }))
+    const ctx = v.getByLabelText('General Context')
+    await userEvent.type(ctx, 'VIP context')
+    expect(v.getByLabelText('General Context')).toHaveValue('VIP context')
+    // Switch to Member: their General Context is still empty.
+    await userEvent.click(v.getByRole('button', { name: /Member/ }))
+    expect(v.getByLabelText('General Context')).toHaveValue('')
+  })
 })

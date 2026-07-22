@@ -46,6 +46,17 @@
   --color-ink-muted: #8b8e89;
   --color-accent-blue: #1f73b7;
   --color-surface-border: #d8dcde;
+  /* Garden palette scales (canonical zendesk/ui values) — see DESIGN.md front
+   * matter. Exposed so screens ported from Figma can use the exact design-system
+   * grey/blue instead of transcribing raw hex. `blue-700` is the canonical Flora
+   * accent (distinct from the legacy `accent-blue` #1f73b7 — see Known deltas). */
+  --color-grey-200: #eae9e8;
+  --color-grey-400: #b7b7b3;
+  --color-grey-500: #999b97;
+  --color-grey-700: #646864;
+  --color-grey-800: #404241;
+  --color-grey-1200: #0c0c0d;
+  --color-blue-700: #406cc4;
 }
 
 .dark {
@@ -130,6 +141,13 @@
   --color-ink-muted: var(--color-ink-muted);
   --color-accent-blue: var(--color-accent-blue);
   --color-surface-border: var(--color-surface-border);
+  --color-grey-200: var(--color-grey-200);
+  --color-grey-400: var(--color-grey-400);
+  --color-grey-500: var(--color-grey-500);
+  --color-grey-700: var(--color-grey-700);
+  --color-grey-800: var(--color-grey-800);
+  --color-grey-1200: var(--color-grey-1200);
+  --color-blue-700: var(--color-blue-700);
 }
 
 @layer base {

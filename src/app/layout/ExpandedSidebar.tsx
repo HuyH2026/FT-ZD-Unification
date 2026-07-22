@@ -43,7 +43,7 @@ export function ExpandedSidebar({ activeLabel, onCollapse }: ExpandedSidebarProp
           {/* Active-with-submenu pill (light, rounded-8, wraps the submenu) */}
           {activeWithSub && (
             <div
-              className="absolute left-[8px] w-[219px] bg-[#eae9e8] rounded-[8px] z-0"
+              className="absolute left-[8px] w-[219px] bg-grey-200 rounded-[8px] z-0"
               style={{ top: top - 7, height: 51 + submenuHeight }}
             />
           )}
@@ -51,7 +51,7 @@ export function ExpandedSidebar({ activeLabel, onCollapse }: ExpandedSidebarProp
           {/* Active-no-submenu pill (dark, rounded-4, wraps the 34px row) */}
           {activeNoSub && (
             <div
-              className="absolute left-[8px] w-[219px] h-[34px] bg-[#2f3130] rounded-[4px] z-0"
+              className="absolute left-[8px] w-[219px] h-[34px] bg-ink rounded-[4px] z-0"
               style={{ top }}
             />
           )}
@@ -103,7 +103,7 @@ export function ExpandedSidebar({ activeLabel, onCollapse }: ExpandedSidebarProp
                     }
                     className={`flex items-center pl-6 pr-2.5 py-[7px] rounded-[4px] w-[203px] no-underline transition-colors ${
                       selected
-                        ? 'bg-[#2f3130]'
+                        ? 'bg-ink'
                         : subHovered
                         ? 'bg-[rgba(100,104,100,0.08)]'
                         : ''

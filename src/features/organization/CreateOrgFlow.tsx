@@ -132,7 +132,7 @@ export function CreateOrgFlow() {
                     <span className="flex size-10 items-center justify-center">
                       <ChevronDown
                         size={20}
-                        className={`text-[#646864] transition-transform ${
+                        className={`text-grey-700 transition-transform ${
                           isCollapsed ? '-rotate-90' : ''
                         }`}
                       />
@@ -149,7 +149,7 @@ export function CreateOrgFlow() {
                             key={label}
                             onClick={() => toggleChannel(label)}
                             aria-pressed={isSelected}
-                            className="flex h-[120px] flex-col items-center justify-center gap-4 rounded-xl border border-[#eae9e8] bg-white outline-none transition-shadow"
+                            className="flex h-[120px] flex-col items-center justify-center gap-4 rounded-xl border border-grey-200 bg-white outline-none transition-shadow"
                             style={{
                               boxShadow: isSelected ? '0 0 0 2px #373a4d inset' : undefined,
                             }}

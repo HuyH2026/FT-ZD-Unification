@@ -37,10 +37,10 @@ describe('ExpandedSidebar', () => {
     const aiPerformancesLink = screen.getByRole('link', { name: /ai performances/i })
     expect(aiPerformancesLink).toBeInTheDocument()
     // Selected links have the dark background class and white text
-    expect(aiPerformancesLink.className).toContain('bg-[#2f3130]')
+    expect(aiPerformancesLink.className).toContain('bg-ink')
 
     // CX Journey should NOT be selected
     const cxJourneyLink = screen.getByRole('link', { name: /cx journey/i })
-    expect(cxJourneyLink.className).not.toContain('bg-[#2f3130]')
+    expect(cxJourneyLink.className).not.toContain('bg-ink')
   })
 })

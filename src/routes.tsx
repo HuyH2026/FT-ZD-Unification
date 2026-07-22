@@ -1,4 +1,5 @@
 import type { RouteObject } from 'react-router'
+import { Navigate } from 'react-router'
 import { RootLayout } from '@/app/layout/RootLayout'
 import { AppLayout } from '@/app/layout/AppLayout'
 import { HomeScreen } from '@/features/home/HomeScreen'
@@ -33,7 +34,7 @@ export const routes: RouteObject[] = [
             path: 'insights',
             element: <InsightsScreen />,
             children: [
-              { index: true, element: <AiPerformancesView /> },
+              { index: true, element: <Navigate to="cx-journey" replace /> },
               { path: 'cx-journey', element: <CxJourneyView /> },
               { path: 'ai-performances', element: <AiPerformancesView /> },
             ],
