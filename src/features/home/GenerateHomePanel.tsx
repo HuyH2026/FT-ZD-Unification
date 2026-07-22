@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Check, Sparkles, X } from 'lucide-react'
 import type { NewView } from './views-store'
 import {
-  generateLayout, ROLES, FOCUS_AREAS, type Role, type FocusArea,
+  generateLayout, ROLES, FOCUS_AREAS, DEFAULT_PM_LAYOUT, type Role, type FocusArea,
 } from './generate-layout'
 
 // Local palette to match the HomeScreen widget cards.
@@ -25,15 +25,20 @@ export function GenerateHomePanel({
   const [focuses, setFocuses] = useState<FocusArea[]>([])
   const [prompt, setPrompt] = useState('')
 
-  const canGenerate = role !== null && focuses.length > 0
+  const canGenerate = role !== null && (role === 'pm' || focuses.length > 0)
 
   const toggleFocus = (key: FocusArea) =>
     setFocuses((prev) => (prev.includes(key) ? prev.filter((f) => f !== key) : [...prev, key]))
 
   const handleGenerate = () => {
-    if (!role || focuses.length === 0) return
+    if (!role) return
+    if (role === 'pm') {
+      onGenerate({ name: 'Product manager', kind: 'pm', role: 'pm', pmLayout: [...DEFAULT_PM_LAYOUT] })
+      return
+    }
+    if (focuses.length === 0) return
     const label = ROLES.find((r) => r.key === role)?.label ?? 'Generated'
-    onGenerate({ name: label, role, layout: generateLayout({ role, focuses, prompt }) })
+    onGenerate({ name: label, kind: 'grid', role, layout: generateLayout({ role, focuses, prompt }) })
   }
 
   return (

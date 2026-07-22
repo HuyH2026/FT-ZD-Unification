@@ -388,4 +388,35 @@ describe('HomeScreen — dashboard views', () => {
     await user.click(within(screen.getByTestId('view-switcher')).getByRole('button', { name: /default/i }))
     expect(screen.queryByRole('button', { name: /delete default/i })).not.toBeInTheDocument()
   })
+
+  it('generating with the Product manager role creates a PM view that renders the PM dashboard', async () => {
+    const user = userEvent.setup()
+    render(<HomeScreen />)
+    await user.click(screen.getByRole('button', { name: /generate/i }))
+    const panel = screen.getByTestId('generate-home-panel')
+    await user.click(within(panel).getByRole('button', { name: /product manager/i }))
+    // PM needs no focus area — generate is enabled immediately.
+    await user.click(within(panel).getByRole('button', { name: /generate my home/i }))
+    await user.click(within(panel).getByRole('button', { name: /^apply$/i }))
+    // The PM dashboard surface is now shown, and the switcher names it.
+    expect(screen.getByTestId('screen-pm')).toBeInTheDocument()
+    expect(screen.getByTestId('view-switcher')).toHaveTextContent('Product manager')
+    expect(within(screen.getByTestId('screen-pm')).getByText('ARR at risk')).toBeInTheDocument()
+  })
+
+  it('switching from a PM view back to Default restores the grid dashboard', async () => {
+    const user = userEvent.setup()
+    render(<HomeScreen />)
+    await user.click(screen.getByRole('button', { name: /generate/i }))
+    const panel = screen.getByTestId('generate-home-panel')
+    await user.click(within(panel).getByRole('button', { name: /product manager/i }))
+    await user.click(within(panel).getByRole('button', { name: /generate my home/i }))
+    await user.click(within(panel).getByRole('button', { name: /^apply$/i }))
+    expect(screen.getByTestId('screen-pm')).toBeInTheDocument()
+    // Switch back to Default.
+    await user.click(within(screen.getByTestId('view-switcher')).getByRole('button', { name: /product manager/i }))
+    await user.click(screen.getByRole('button', { name: /^Default$/ }))
+    expect(screen.queryByTestId('screen-pm')).not.toBeInTheDocument()
+    expect(screen.getByText('Overall agent health')).toBeInTheDocument()
+  })
 })

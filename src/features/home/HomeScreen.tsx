@@ -21,7 +21,10 @@ import {
   type ViewsState, type NewView,
   loadViewsState, persistViewsState, getActiveView,
   addView, renameView, deleteView, setActiveView, updateActiveLayout,
+  movePmWidget, removePmWidget, addPmWidget, resetPmLayout,
 } from './views-store'
+import { PmDashboard } from './PmDashboard'
+import { DEFAULT_PM_LAYOUT, PM_WIDGET_ID_LIST, type PmWidgetId } from './generate-layout'
 
 // Palette — one-off dashboard hues that have no design token yet (kept inline,
 // matching the prototype). Ink/muted map to the shared token values.
@@ -774,6 +777,13 @@ const WIDGETS: Record<WidgetId, { title: string; render: (data: LevelData) => Re
   knowledge: { title: 'New knowledge content', render: (d) => <KnowledgeContentCard data={d} /> },
 }
 
+const PM_WIDGET_TITLE: Record<PmWidgetId, string> = {
+  'pm-kpis': 'KPI summary',
+  'pm-spotlight': 'Spotlight',
+  'pm-lifecycle': 'Lifecycle',
+  'pm-feed': 'Opportunity feed',
+}
+
 
 // --- Drag & drop wrapper ----------------------------------------------------
 const DND_TYPE = 'dashboard-widget'
@@ -872,6 +882,31 @@ function AddWidgetMenu({ available, onAdd }: { available: WidgetId[]; onAdd: (id
   )
 }
 
+function PmAddWidgetMenu({ available, onAdd }: { available: PmWidgetId[]; onAdd: (id: PmWidgetId) => void }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="relative">
+      <button onClick={() => setOpen((o) => !o)} disabled={available.length === 0} className="flex h-9 items-center gap-1.5 rounded-full px-3.5 outline-none disabled:cursor-not-allowed disabled:opacity-50" style={{ backgroundColor: INK }}>
+        <Plus size={15} color="#fff" />
+        <span className="text-[13px] font-semibold text-white">Add widget</span>
+      </button>
+      {open && available.length > 0 && (
+        <>
+          <div className="fixed inset-0 z-[60]" onClick={() => setOpen(false)} />
+          <div className="absolute right-0 top-[42px] z-[61] w-60 rounded-xl border border-solid bg-white py-1.5 shadow-[0px_16px_24px_0px_rgba(10,13,14,0.16)]" style={{ borderColor: BORDER }}>
+            {available.map((id) => (
+              <button key={id} onClick={() => { onAdd(id); setOpen(false) }} className="flex w-full items-center gap-2 px-3 py-2 text-left outline-none hover:bg-[#f5f5f4]">
+                <LayoutGrid size={14} color={MUTED} />
+                <span className="text-[13px] font-normal" style={{ color: INK }}>{PM_WIDGET_TITLE[id]}</span>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
 // --- Root -------------------------------------------------------------------
 export function HomeScreen() {
   // Home is always the platform-level view; the org-level toggle was removed.
@@ -882,9 +917,23 @@ export function HomeScreen() {
   const [previewView, setPreviewView] = useState<NewView | null>(null)
 
   const activeView = getActiveView(viewsState)
-  // Preview overrides the active view (layout + role) until applied/discarded.
+
+  // Compute the active kind and layout (preview overrides active).
+  const activeKind = previewView ? (previewView.kind ?? 'grid') : activeView.kind
   const activeRole = previewView ? previewView.role : activeView.role
-  const activeLayout = previewView ? previewView.layout : activeView.layout
+  const activeLayout =
+    previewView && previewView.kind !== 'pm'
+      ? previewView.layout
+      : activeView.kind === 'grid'
+      ? activeView.layout
+      : DEFAULT_LAYOUT
+  const activePmLayout =
+    previewView?.kind === 'pm'
+      ? previewView.pmLayout
+      : activeView.kind === 'pm'
+      ? activeView.pmLayout
+      : DEFAULT_PM_LAYOUT
+
   const data = useMemo(() => deriveRoleData(DATA.platform, activeRole), [activeRole])
 
   const applyPreview = () => {
@@ -901,12 +950,24 @@ export function HomeScreen() {
     persistViewsState(viewsState)
   }, [viewsState])
 
-  const used = [...activeLayout.left, ...activeLayout.right]
-  const available = (Object.keys(WIDGETS) as WidgetId[]).filter((id) => !used.includes(id))
+  // Grid-only computations — only run when a grid view is active.
+  const used = activeKind === 'grid' ? [...activeLayout.left, ...activeLayout.right] : []
+  const available = activeKind === 'grid' ? (Object.keys(WIDGETS) as WidgetId[]).filter((id) => !used.includes(id)) : []
+
+  // PM handlers
+  const movePm = (fromIndex: number, toIndex: number) =>
+    setViewsState((prev) => movePmWidget(prev, fromIndex, toIndex))
+  const removePm = (id: PmWidgetId) =>
+    setViewsState((prev) => removePmWidget(prev, id))
+  const addPm = (id: PmWidgetId) =>
+    setViewsState((prev) => addPmWidget(prev, id))
+  const resetPm = () => setViewsState((prev) => resetPmLayout(prev))
 
   const moveWidget = (from: DragItem, toColumn: ColumnKey, toIndex: number) => {
     setViewsState((prev) => {
-      const cur = getActiveView(prev).layout
+      const view = getActiveView(prev)
+      if (view.kind !== 'grid') return prev
+      const cur = view.layout
       const next: Layout = { left: [...cur.left], right: [...cur.right] }
       const srcArr = next[from.column]
       const realIdx = srcArr.indexOf(from.id)
@@ -921,7 +982,9 @@ export function HomeScreen() {
 
   const removeWidget = (column: ColumnKey, index: number) => {
     setViewsState((prev) => {
-      const cur = getActiveView(prev).layout
+      const view = getActiveView(prev)
+      if (view.kind !== 'grid') return prev
+      const cur = view.layout
       const next: Layout = { left: [...cur.left], right: [...cur.right] }
       next[column].splice(index, 1)
       return updateActiveLayout(prev, next)
@@ -930,7 +993,9 @@ export function HomeScreen() {
 
   const addWidget = (id: WidgetId) => {
     setViewsState((prev) => {
-      const cur = getActiveView(prev).layout
+      const view = getActiveView(prev)
+      if (view.kind !== 'grid') return prev
+      const cur = view.layout
       const target: ColumnKey = cur.left.length <= cur.right.length ? 'left' : 'right'
       const next: Layout = { left: [...cur.left], right: [...cur.right] }
       next[target].push(id)
@@ -981,8 +1046,15 @@ export function HomeScreen() {
             <div className="flex items-center gap-2.5">
               {editing ? (
                 <>
-                  <AddWidgetMenu available={available} onAdd={addWidget} />
-                  <button onClick={resetLayout} className="flex h-9 items-center rounded-full border border-solid bg-white px-3.5 outline-none" style={{ borderColor: BORDER }}>
+                  {activeKind === 'grid' ? (
+                    <AddWidgetMenu available={available} onAdd={addWidget} />
+                  ) : (
+                    <PmAddWidgetMenu
+                      available={PM_WIDGET_ID_LIST.filter((id) => !activePmLayout.includes(id))}
+                      onAdd={addPm}
+                    />
+                  )}
+                  <button onClick={activeKind === 'pm' ? resetPm : resetLayout} className="flex h-9 items-center rounded-full border border-solid bg-white px-3.5 outline-none" style={{ borderColor: BORDER }}>
                     <span className="text-[13px] font-semibold" style={{ color: INK }}>Reset</span>
                   </button>
                   <button onClick={() => setEditing(false)} className="flex h-9 items-center gap-1.5 rounded-full px-4 outline-none" style={{ backgroundColor: INK }}>
@@ -1013,11 +1085,20 @@ export function HomeScreen() {
             </div>
           </div>
 
-          {/* Two-column customizable grid */}
-          <div className="grid grid-cols-[1fr_360px] items-start gap-4">
-            {renderColumn('left')}
-            {renderColumn('right')}
-          </div>
+          {/* Dashboard body: PM or grid */}
+          {activeKind === 'pm' ? (
+            <PmDashboard
+              pmLayout={activePmLayout}
+              editing={editing}
+              onMove={movePm}
+              onRemove={removePm}
+            />
+          ) : (
+            <div className="grid grid-cols-[1fr_360px] items-start gap-4">
+              {renderColumn('left')}
+              {renderColumn('right')}
+            </div>
+          )}
         </div>
       </div>
       {showGenerate && (
