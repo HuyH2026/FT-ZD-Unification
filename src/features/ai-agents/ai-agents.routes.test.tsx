@@ -10,9 +10,9 @@ function renderAt(path: string) {
 }
 
 describe('AI Agents routing', () => {
-  it('renders Configuration at /ai-agents (index)', () => {
+  it('renders Agent Builder at /ai-agents (index)', () => {
     renderAt('/ai-agents')
-    expect(screen.getByTestId('view-configuration')).toBeInTheDocument()
+    expect(screen.getByTestId('view-agent-builder')).toBeInTheDocument()
   })
 
   it('renders Configuration at /ai-agents/configuration', () => {
@@ -20,10 +20,9 @@ describe('AI Agents routing', () => {
     expect(screen.getByTestId('view-configuration')).toBeInTheDocument()
   })
 
-  it('renders a placeholder at /ai-agents/agent-builder', () => {
+  it('renders Agent Builder at /ai-agents/agent-builder', () => {
     renderAt('/ai-agents/agent-builder')
-    expect(screen.getByText('Agent Builder')).toBeInTheDocument()
-    expect(screen.getByText('Coming soon')).toBeInTheDocument()
+    expect(screen.getByTestId('view-agent-builder')).toBeInTheDocument()
   })
 
   it('resolves /ai-agents/configuration to the AI Agents nav item', () => {

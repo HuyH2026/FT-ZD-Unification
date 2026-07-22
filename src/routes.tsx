@@ -6,6 +6,7 @@ import { InsightsScreen } from '@/features/insights/InsightsScreen'
 import { AiPerformancesView } from '@/features/insights/AiPerformancesView'
 import { CxJourneyView } from '@/features/insights/cx-journey/CxJourneyView'
 import { AiAgentsScreen } from '@/features/ai-agents/AiAgentsScreen'
+import { AgentBuilderScreen } from '@/features/ai-agents/AgentBuilderScreen'
 import { ConfigurationView } from '@/features/ai-agents/configuration/ConfigurationView'
 import { OrganizationScreen } from '@/features/organization/OrganizationScreen'
 import { CreateOrgFlow } from '@/features/organization/CreateOrgFlow'
@@ -40,9 +41,9 @@ export const routes: RouteObject[] = [
             path: 'ai-agents',
             element: <AiAgentsScreen />,
             children: [
-              { index: true, element: <ConfigurationView /> },
+              { index: true, element: <AgentBuilderScreen /> },
               { path: 'configuration', element: <ConfigurationView /> },
-              { path: 'agent-builder', element: <PlaceholderScreen title="Agent Builder" /> },
+              { path: 'agent-builder', element: <AgentBuilderScreen /> },
               { path: 'qa', element: <PlaceholderScreen title="QA" /> },
             ],
           },
