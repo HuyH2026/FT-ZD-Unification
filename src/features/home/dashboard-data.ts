@@ -114,6 +114,13 @@ export type WidgetId =
 export type Layout = { left: WidgetId[]; right: WidgetId[] }
 export type ColumnKey = keyof Layout
 
+// Runtime list of every widget id (mirrors the WidgetId union). Used to validate
+// persisted layouts/views. Keep in sync with WidgetId and the WIDGETS registry.
+export const WIDGET_ID_LIST: WidgetId[] = [
+  'health', 'qa', 'gaps', 'approvals', 'notifications',
+  'cost', 'activity', 'intents', 'policies', 'knowledge',
+]
+
 export const DEFAULT_LAYOUT: Layout = {
   left: ['health', 'policies', 'qa', 'gaps'],
   right: ['approvals', 'intents', 'knowledge', 'notifications'],
