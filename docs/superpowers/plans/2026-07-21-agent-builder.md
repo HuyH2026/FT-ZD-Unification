@@ -4,7 +4,7 @@
 
 **Goal:** Build the Agent Builder screen at `/ai-agents` — a channel switcher (Widget/Voice/Web Call/Headless), a five-metric strip, and a tabbed agents table (All/Active/Active subagents) with per-row on/off toggles — as presentational mock UI with light client state.
 
-**Architecture:** Authored mock data in `agent-builder-data.ts` (one `CHANNELS` array; each channel holds 5 metrics + its agent rows). `AgentBuilderScreen` owns three pieces of local state — selected channel, selected agent-tab, and a per-row on/off override map — and composes `MetricStrip` + `AgentsTable`. No backend, no persistence, no runtime derivation of authored numbers.
+**Architecture:** Authored mock data in `agent-builder-data.ts` (one `CHANNELS` array; each channel holds 5 metrics + its agent rows). `AgentBuilderScreen` owns three pieces of local state — selected channel, selected agent-tab, and a per-row on/off override map — and composes `MetricStrip` + `AgentsTable`. It is a **nested view** rendered inside the existing `AiAgentsScreen` shell's `<Outlet/>` (a parallel session built that shell), wired as both the `/ai-agents` index and `/ai-agents/agent-builder`. No backend, no persistence, no runtime derivation of authored numbers.
 
 **Tech Stack:** React 19, TypeScript (strict, pinned 5.9), Tailwind v4, react-router v7, lucide-react, Vitest + React Testing Library.
 
@@ -17,7 +17,7 @@
 - **Icons:** lucide-react only. No custom SVGs.
 - **Widget channel data must match the Figma frame exactly** (values in Task 1). Other channels are authored plausibly within the stated shape.
 - **`deflectionRate` is an authored display string** (matches `/^\d+%$/`), NOT derived from counts at runtime.
-- **Surface pattern:** the screen is a full-height white surface `rounded-[26px] bg-white p-10` with `data-testid="screen-ai-agents"`, mirroring `OrganizationScreen`.
+- **Nested view (revised at execution):** a parallel session already built `/ai-agents` as a nested-route surface — `AiAgentsScreen` (`src/features/ai-agents/AiAgentsScreen.tsx`) renders `h-full rounded-[26px] bg-white` with a `data-testid="screen-ai-agents"` wrapper around an `<Outlet/>`, and their `ConfigurationView` is a nested child (`data-testid="view-configuration"`, `flex h-full flex-col`, no surface chrome of its own). Agent Builder is a sibling nested view: it must NOT re-declare the surface (`rounded`/`bg-white`) or reuse `screen-ai-agents`. Use `data-testid="view-agent-builder"` and `className="h-full overflow-y-auto p-10"`. It renders inside their shell's Outlet in the app and stands alone in its unit test.
 - **A11y:** channel switcher and agent tabs use `role="tab"` + `aria-selected`; row toggle is `role="switch"` with `aria-checked` and an accessible name including the agent name.
 
 ---
@@ -441,7 +441,7 @@ import { describe, expect, it } from 'vitest'
 import { AgentBuilderScreen } from './AgentBuilderScreen'
 
 function surface(): HTMLElement {
-  return screen.getByTestId('screen-ai-agents')
+  return screen.getByTestId('view-agent-builder')
 }
 
 // Row presence is asserted via each row's toggle, whose accessible name
@@ -568,9 +568,11 @@ export function AgentBuilderScreen() {
   })
 
   return (
+    // Nested view: the AiAgentsScreen shell already provides the white rounded
+    // surface via its Outlet, so this view only supplies scroll + padding.
     <div
-      data-testid="screen-ai-agents"
-      className="h-full flex-1 overflow-y-auto rounded-[26px] bg-white p-10"
+      data-testid="view-agent-builder"
+      className="h-full overflow-y-auto p-10"
     >
       {/* Header: title + date caption (left), channel switcher (right) */}
       <div className="mb-8 flex items-center justify-between">
@@ -692,54 +694,111 @@ git commit -m "feat: add Agent Builder screen with channel + agent-tab state"
 
 ---
 
-### Task 5: Wire the route
+### Task 5: Wire the nested routes
+
+**Context:** A parallel session already built `/ai-agents` as a nested-route surface. `src/routes.tsx` currently has (verify before editing — the exact block may differ slightly):
+
+```tsx
+          {
+            path: 'ai-agents',
+            element: <AiAgentsScreen />,
+            children: [
+              { index: true, element: <ConfigurationView /> },
+              { path: 'configuration', element: <ConfigurationView /> },
+              { path: 'agent-builder', element: <PlaceholderScreen title="Agent Builder" /> },
+              { path: 'qa', element: <PlaceholderScreen title="QA" /> },
+            ],
+          },
+```
+
+`/ai-agents` is already in the `BUILT` set — do NOT change `BUILT`. `AiAgentsScreen` and `ConfigurationView` imports already exist. The routes test lives at `src/features/ai-agents/ai-agents.routes.test.tsx`.
 
 **Files:**
 - Modify: `src/routes.tsx`
+- Modify: `src/features/ai-agents/ai-agents.routes.test.tsx`
 
 **Interfaces:**
-- Consumes: `AgentBuilderScreen` (Task 4).
-- Produces: `/ai-agents` now renders `AgentBuilderScreen` instead of `PlaceholderScreen`.
+- Consumes: `AgentBuilderScreen` (Task 4), existing `AiAgentsScreen` shell.
+- Produces: `/ai-agents` (index) and `/ai-agents/agent-builder` both render `AgentBuilderScreen` inside the shell; `/ai-agents/configuration` still renders `ConfigurationView`.
 
-- [ ] **Step 1: Add the import**
+- [ ] **Step 1: Update the failing routes test first**
 
-In `src/routes.tsx`, add after the `OrganizationScreen`/`CreateOrgFlow` imports:
+The parallel session's test currently asserts Configuration at the index and a placeholder at `/ai-agents/agent-builder`. Under this feature, the index becomes Agent Builder and `/agent-builder` is the real view. In `src/features/ai-agents/ai-agents.routes.test.tsx`, replace the first and third `it(...)` blocks:
+
+Replace:
+
+```tsx
+  it('renders Configuration at /ai-agents (index)', () => {
+    renderAt('/ai-agents')
+    expect(screen.getByTestId('view-configuration')).toBeInTheDocument()
+  })
+```
+
+with:
+
+```tsx
+  it('renders Agent Builder at /ai-agents (index)', () => {
+    renderAt('/ai-agents')
+    expect(screen.getByTestId('view-agent-builder')).toBeInTheDocument()
+  })
+```
+
+Replace:
+
+```tsx
+  it('renders a placeholder at /ai-agents/agent-builder', () => {
+    renderAt('/ai-agents/agent-builder')
+    expect(screen.getByText('Agent Builder')).toBeInTheDocument()
+    expect(screen.getByText('Coming soon')).toBeInTheDocument()
+  })
+```
+
+with:
+
+```tsx
+  it('renders Agent Builder at /ai-agents/agent-builder', () => {
+    renderAt('/ai-agents/agent-builder')
+    expect(screen.getByTestId('view-agent-builder')).toBeInTheDocument()
+  })
+```
+
+Leave the `/ai-agents/configuration` and `findNavItemByPath` tests unchanged.
+
+- [ ] **Step 2: Run the routes test to verify it fails**
+
+Run: `npx vitest run ai-agents.routes`
+Expected: the index and agent-builder tests FAIL (`view-agent-builder` not found — still routed to Configuration/placeholder).
+
+- [ ] **Step 3: Add the import**
+
+In `src/routes.tsx`, add alongside the existing `AiAgentsScreen`/`ConfigurationView` imports:
 
 ```tsx
 import { AgentBuilderScreen } from '@/features/ai-agents/AgentBuilderScreen'
 ```
 
-- [ ] **Step 2: Add `/ai-agents` to the BUILT set**
+- [ ] **Step 4: Repoint the index and agent-builder child routes**
 
-Change:
-
-```tsx
-const BUILT = new Set(['/', '/insights', '/organization'])
-```
-
-to:
+In the `ai-agents` route's `children` array, change the `index` and `agent-builder` entries to render `AgentBuilderScreen` (leave `configuration` and `qa` untouched):
 
 ```tsx
-const BUILT = new Set(['/', '/insights', '/organization', '/ai-agents'])
+            children: [
+              { index: true, element: <AgentBuilderScreen /> },
+              { path: 'configuration', element: <ConfigurationView /> },
+              { path: 'agent-builder', element: <AgentBuilderScreen /> },
+              { path: 'qa', element: <PlaceholderScreen title="QA" /> },
+            ],
 ```
 
-- [ ] **Step 3: Add the child route**
+- [ ] **Step 5: Full gates**
 
-In the `AppLayout` children array, add after the `organization` route (before `...placeholderRoutes`):
+Run: `npx vitest run ai-agents.routes` → pass; then `npx tsc --noEmit` → clean; `npx vitest run` → all pass; `npx vite build` → succeeds.
 
-```tsx
-          { path: 'ai-agents', element: <AgentBuilderScreen /> },
-```
-
-- [ ] **Step 4: Full gates**
-
-Run: `npx tsc --noEmit` → clean; `npx vitest run` → all pass; `npx vite build` → succeeds.
-
-- [ ] **Step 5: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
-git add src/routes.tsx
-git commit -m "feat: route /ai-agents to the Agent Builder screen"
+git add src/routes.tsx src/features/ai-agents/ai-agents.routes.test.tsx
+git commit -m "feat: route /ai-agents index + agent-builder to the Agent Builder screen"
 ```
 
 ---
@@ -747,7 +806,7 @@ git commit -m "feat: route /ai-agents to the Agent Builder screen"
 ## Self-Review
 
 - **Spec coverage:**
-  - Route replaces `/ai-agents` placeholder — Task 5 (BUILT set + child route). ✅
+  - Route: `/ai-agents` index + `/ai-agents/agent-builder` render Agent Builder inside the existing nested shell; Configuration untouched — Task 5. ✅
   - Header title + date caption + channel switcher — Task 4 Step 3. ✅
   - Five-metric strip with delta pills + CSAT accent — Task 2. ✅
   - Agent tabs (All/Active/Active subagents) + inert `+` — Task 4. ✅
@@ -759,7 +818,7 @@ git commit -m "feat: route /ai-agents to the Agent Builder screen"
   - Widget data Figma-exact; other channels authored — Task 1. ✅
   - `deflectionRate` authored display string — Task 1 + data test. ✅
   - A11y: channel switcher + agent tabs `role="tab"`/`aria-selected`; toggle `role="switch"`/`aria-checked`/labelled — Tasks 3 & 4. ✅
-  - Tests (data invariants + behavior scoped to `screen-ai-agents`) — Tasks 1 & 4. ✅
+  - Tests (data invariants + behavior scoped to `view-agent-builder`) — Tasks 1 & 4. ✅
 - **Placeholder scan:** none — every step carries real code/commands.
 - **Type consistency:** `Metric`/`Agent`/`Channel`/`ChannelKey` defined in Task 1, imported unchanged in Tasks 2–4. `AgentsTable` props (`agents`/`isOn`/`onToggle`) match the screen's call site in Task 4. `MetricStrip` prop `metrics` matches. `CHANNEL_ICON` keyed by `ChannelKey`. Metric key order `['chats','resolutions','fallback','csat','cost']` consistent between data, data test, and render.
 - **Test note:** agent names appear verbatim in BOTH the Agents column and the Type column (e.g. "Knowledge Retrieval", "Fallback"), so a bare text query on a name would match two cells and throw. Behavior tests therefore assert row presence via each row's toggle, whose accessible name `"Activate <agent name>"` is unique per row. Headline-metric assertions (`21,590`, `8,120`) are unique strings and are queried directly.
