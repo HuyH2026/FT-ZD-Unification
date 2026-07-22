@@ -24,4 +24,18 @@ describe('AutomationTable', () => {
     fireEvent.click(screen.getByLabelText('Activate Refund request'))
     expect(onToggle).toHaveBeenCalledWith('a2')
   })
+
+  it('calls onOpen with the automation id when a row is clicked', () => {
+    const onOpen = vi.fn()
+    render(<AutomationTable automations={AUTOMATIONS} isOn={(a) => a.on} onToggle={() => {}} onOpen={onOpen} />)
+    fireEvent.click(screen.getByText('Call users with issues'))
+    expect(onOpen).toHaveBeenCalledWith('a1')
+  })
+
+  it('does not call onOpen when the toggle is clicked', () => {
+    const onOpen = vi.fn()
+    render(<AutomationTable automations={AUTOMATIONS} isOn={(a) => a.on} onToggle={() => {}} onOpen={onOpen} />)
+    fireEvent.click(screen.getByLabelText('Activate Call users with issues'))
+    expect(onOpen).not.toHaveBeenCalled()
+  })
 })

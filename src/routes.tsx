@@ -12,6 +12,7 @@ import { ConfigurationView } from '@/features/ai-agents/configuration/Configurat
 import { OrganizationScreen } from '@/features/organization/OrganizationScreen'
 import { CreateOrgFlow } from '@/features/organization/CreateOrgFlow'
 import { OrchestratorScreen } from '@/features/orchestrator/OrchestratorScreen'
+import { AutomationDetailScreen } from '@/features/orchestrator/AutomationDetailScreen'
 import { ToolsScreen } from '@/features/tools/ToolsScreen'
 import { PlaceholderScreen } from '@/features/_placeholder/PlaceholderScreen'
 import { NAV_ITEMS } from '@/app/nav-config'
@@ -52,6 +53,7 @@ export const routes: RouteObject[] = [
           },
           { path: 'organization', element: <OrganizationScreen /> },
           { path: 'orchestrator', element: <OrchestratorScreen /> },
+          { path: 'orchestrator/:id', element: <AutomationDetailScreen /> },
           { path: 'tools', element: <ToolsScreen /> },
           ...placeholderRoutes,
         ],

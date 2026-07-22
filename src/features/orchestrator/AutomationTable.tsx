@@ -16,7 +16,7 @@ function Toggle({ automation, on, onToggle }: { automation: Automation; on: bool
         role="switch"
         aria-checked={on}
         aria-label={`Activate ${automation.name}`}
-        onClick={() => onToggle(automation.id)}
+        onClick={(e) => { e.stopPropagation(); onToggle(automation.id) }}
         className="relative h-5 w-9 rounded-full transition-colors"
         style={{ backgroundColor: on ? GREEN : '#c9c7c3' }}
       >
@@ -31,11 +31,12 @@ function Toggle({ automation, on, onToggle }: { automation: Automation; on: bool
 }
 
 export function AutomationTable({
-  automations, isOn, onToggle,
+  automations, isOn, onToggle, onOpen,
 }: {
   automations: Automation[]
   isOn: (a: Automation) => boolean
   onToggle: (id: string) => void
+  onOpen?: (id: string) => void
 }) {
   return (
     <div>
@@ -53,7 +54,16 @@ export function AutomationTable({
         {automations.map((a) => (
           <div
             key={a.id}
-            className="grid grid-cols-[1.4fr_1fr_1.6fr_0.5fr_1fr_0.7fr] items-center gap-4 rounded-2xl border border-surface-border bg-white px-5 py-4"
+            role="button"
+            tabIndex={0}
+            onClick={() => onOpen?.(a.id)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                onOpen?.(a.id)
+              }
+            }}
+            className="grid cursor-pointer grid-cols-[1.4fr_1fr_1.6fr_0.5fr_1fr_0.7fr] items-center gap-4 rounded-2xl border border-surface-border bg-white px-5 py-4"
           >
             <div>
               <div className="text-[15px] font-semibold" style={{ color: INK }}>{a.name}</div>
