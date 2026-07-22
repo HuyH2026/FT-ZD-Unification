@@ -3,6 +3,7 @@ import { Navigate } from 'react-router'
 import { RootLayout } from '@/app/layout/RootLayout'
 import { AppLayout } from '@/app/layout/AppLayout'
 import { HomeScreen } from '@/features/home/HomeScreen'
+import { OpportunityDetailScreen } from '@/features/home/OpportunityDetailScreen'
 import { InsightsScreen } from '@/features/insights/InsightsScreen'
 import { AiPerformancesView } from '@/features/insights/AiPerformancesView'
 import { CxJourneyView } from '@/features/insights/cx-journey/CxJourneyView'
@@ -55,6 +56,7 @@ export const routes: RouteObject[] = [
           { path: 'orchestrator', element: <OrchestratorScreen /> },
           { path: 'orchestrator/:id', element: <AutomationDetailScreen /> },
           { path: 'tools', element: <ToolsScreen /> },
+          { path: 'opportunity/:id', element: <OpportunityDetailScreen /> },
           ...placeholderRoutes,
         ],
       },
