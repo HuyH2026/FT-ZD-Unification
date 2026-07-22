@@ -12,8 +12,10 @@ const TABS = ['Overview', 'Topics', 'Automations']
 export function CxJourneyView() {
   const [granularity, setGranularity] = useState<Granularity>('weekly')
   return (
-    <div data-testid="view-cx-journey" className="h-full overflow-y-auto px-8 py-6">
-      <div className="mb-6 flex items-center gap-6 border-b border-surface-border">
+    <div data-testid="view-cx-journey" className="h-full overflow-y-auto">
+      {/* Sticky header: stays pinned to the top of the scroll area with a
+          frosted backdrop so content scrolls softly beneath it (per Figma). */}
+      <div className="sticky top-0 z-10 flex items-center gap-6 rounded-t-[26px] bg-white/80 px-8 pb-4 pt-6 backdrop-blur-md">
         <h1 className="pb-3 text-[20px] font-semibold text-ink">CX Journey</h1>
         {TABS.map((tab, i) => (
           <span
@@ -28,7 +30,7 @@ export function CxJourneyView() {
           </span>
         ))}
       </div>
-      <div className="flex flex-col gap-12">
+      <div className="flex flex-col gap-12 px-8 pb-8">
         <ConversationFlowSection />
         <AgentsBreakdownTable />
         <TrendsSection granularity={granularity} onGranularityChange={setGranularity} />
