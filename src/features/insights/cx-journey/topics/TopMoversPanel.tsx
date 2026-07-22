@@ -37,7 +37,7 @@ function TopMoversCard() {
         <tbody>
           {TOP_MOVERS.map((m) => (
             <tr key={m.topic} className="text-[12px]">
-              <td className="py-1.5 text-nav-active">{m.topic}</td>
+              <td className="py-1.5 text-accent-blue">{m.topic}</td>
               <td className="py-1.5 text-ink">{m.tickets}</td>
               <td className="py-1.5 text-ink-muted">({m.previous})</td>
               <td className="py-1.5 font-medium" style={{ color: m.comparisonPct < 0 ? TEAL : RED }}>
