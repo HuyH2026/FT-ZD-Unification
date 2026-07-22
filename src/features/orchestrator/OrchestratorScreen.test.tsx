@@ -1,10 +1,16 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent, within } from '@testing-library/react'
+import { createMemoryRouter, RouterProvider } from 'react-router'
 import { OrchestratorScreen } from './OrchestratorScreen'
+
+function renderOrchestratorScreen() {
+  const router = createMemoryRouter([{ path: '/', element: <OrchestratorScreen /> }], { initialEntries: ['/'] })
+  return render(<RouterProvider router={router} />)
+}
 
 describe('OrchestratorScreen', () => {
   it('renders the screen surface with title, metrics, and toolbar', () => {
-    render(<OrchestratorScreen />)
+    renderOrchestratorScreen()
     const screenEl = screen.getByTestId('screen-orchestrator')
     expect(within(screenEl).getByRole('heading', { name: 'Orchestrator' })).toBeInTheDocument()
     expect(within(screenEl).getByText('Total runs')).toBeInTheDocument()
@@ -13,7 +19,7 @@ describe('OrchestratorScreen', () => {
   })
 
   it('toggles a row on and off', () => {
-    render(<OrchestratorScreen />)
+    renderOrchestratorScreen()
     const toggle = screen.getByLabelText('Activate Call users with issues')
     expect(toggle).toHaveAttribute('aria-checked', 'true')
     fireEvent.click(toggle)

@@ -3,12 +3,14 @@
 // automations table. Only the row On/Off toggles carry state (local useState);
 // every toolbar control is inert. No backend.
 import { useState } from 'react'
+import { useNavigate } from 'react-router'
 import { Search, Calendar, ChevronDown } from 'lucide-react'
 import { METRICS, AUTOMATIONS, type Automation } from './orchestrator-data'
 import { MetricStrip } from './MetricStrip'
 import { AutomationTable } from './AutomationTable'
 
 export function OrchestratorScreen() {
+  const navigate = useNavigate()
   const [automations, setAutomations] = useState<Automation[]>(AUTOMATIONS)
 
   const onToggle = (id: string) =>
@@ -51,7 +53,7 @@ export function OrchestratorScreen() {
       </div>
 
       <div className="mt-6">
-        <AutomationTable automations={automations} isOn={(a) => a.on} onToggle={onToggle} />
+        <AutomationTable automations={automations} isOn={(a) => a.on} onToggle={onToggle} onOpen={(id) => navigate(`/orchestrator/${id}`)} />
       </div>
     </div>
   )
