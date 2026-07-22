@@ -13,6 +13,28 @@ export const CHANNEL_TABS: ChannelTab[] = [
   { id: 'headless', label: 'Headless', color: '#2f99b3' },
 ]
 
+// Per-brand AI Personality config (the Sentiment rail section). Freeform text +
+// optional preset tone chips. Both `toneUse*` flags gate their control in the UI.
+export type Personality = {
+  generalContext: string
+  glossary: string
+  toneFreeform: string
+  toneUseFreeform: boolean
+  toneUsePresets: boolean
+  tonePresets: string[]
+}
+
+export function emptyPersonality(): Personality {
+  return {
+    generalContext: '',
+    glossary: '',
+    toneFreeform: '',
+    toneUseFreeform: false,
+    toneUsePresets: false,
+    tonePresets: [],
+  }
+}
+
 // A brand a customer can configure a widget for. `swatch` is the list dot color;
 // `name` is the editable brand name shown in the preview header + panel input.
 export type Brand = {
@@ -22,12 +44,13 @@ export type Brand = {
   tags: string[]
   isDefault: boolean
   enabled: boolean
+  personality: Personality
 }
 
 export const SEED_BRANDS: Brand[] = [
-  { id: 'vip', name: 'SpaceX support', swatch: '#e0559a', tags: ['Existing Tag 1', 'Existing Tag 2', 'Existing Tag 3', 'Existing Tag 4'], isDefault: true, enabled: true },
-  { id: 'member', name: 'Member', swatch: '#4f8bf0', tags: ['Existing Tag 1'], isDefault: false, enabled: true },
-  { id: 'partner', name: 'Partner', swatch: '#a06cf0', tags: [], isDefault: false, enabled: false },
+  { id: 'vip', name: 'SpaceX support', swatch: '#e0559a', tags: ['Existing Tag 1', 'Existing Tag 2', 'Existing Tag 3', 'Existing Tag 4'], isDefault: true, enabled: true, personality: emptyPersonality() },
+  { id: 'member', name: 'Member', swatch: '#4f8bf0', tags: ['Existing Tag 1'], isDefault: false, enabled: true, personality: emptyPersonality() },
+  { id: 'partner', name: 'Partner', swatch: '#a06cf0', tags: [], isDefault: false, enabled: false, personality: emptyPersonality() },
 ]
 
 // The list shows a short label (VIP / Member / Partner); the editable `name`
@@ -66,3 +89,37 @@ export function summarizeTags(tags: string[]): string {
   if (tags.length <= 2) return tags.join(', ')
   return `${tags.slice(0, 2).join(', ')}, +${tags.length - 2}`
 }
+
+// Tone presets shown as toggle chips in the AI Personality panel.
+export const TONE_PRESET_OPTIONS = [
+  'Empathetic', 'Friendly', 'Professional', 'Straightforward', 'Humorous', 'Formal',
+] as const
+
+// Static copy for the AI Personality panel's three sections (mirrors Figma Config_02).
+export const AI_PERSONALITY_COPY = {
+  intro:
+    "General AI Instructions define the AI's overall tone and behavior. Use them to set the voice, preferred terminology, formatting standards, and how the AI should respond to different user types.",
+  generalContext: {
+    label: 'General Context',
+    helper: 'What should the AI know about your company and customers?',
+    placeholder:
+      'Example:\nWe sell products to both buyers and sellers.\nBuyer Persona: Focused on product details, pricing, shipping, and support.\nSeller Persona: Focused on inventory, sales tools, and account features.',
+    footnote: 'Keep it under 100 words',
+  },
+  glossary: {
+    label: 'Glossary',
+    helper: 'What key terms from the glossary should the AI know?',
+    placeholder:
+      'Example:\n"NPF" for product feature\n"PF" stand for Paid Feature\n"FT" stands for Fee Trial',
+    footnote: 'Keep it under 100 words',
+  },
+  tone: {
+    label: 'Tone of Voice',
+    helper: "What is your company's style, and how should the AI communicate?",
+    freeformCheckboxLabel: 'Describe tone in your own words',
+    presetsCheckboxLabel: 'Choose from presets',
+    placeholder:
+      'Example:\nFormal and professional tone.\nCasual and friendly tone.\nTechnical and actionable tone when giving advice.\nUse a numerical format to break down complex information for clarity.',
+    footnote: 'Keep it under 100 words',
+  },
+} as const

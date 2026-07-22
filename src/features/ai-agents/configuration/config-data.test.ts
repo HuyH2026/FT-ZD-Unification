@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest'
-import { CHANNEL_TABS, SEED_BRANDS, BRAND_LIST_LABELS, RAIL_SECTIONS, summarizeTags } from './config-data'
+import {
+  CHANNEL_TABS, SEED_BRANDS, BRAND_LIST_LABELS, RAIL_SECTIONS, summarizeTags,
+  emptyPersonality, TONE_PRESET_OPTIONS, AI_PERSONALITY_COPY,
+} from './config-data'
 
 describe('config-data', () => {
   it('has four channel tabs starting with widget', () => {
@@ -31,5 +34,37 @@ describe('config-data', () => {
     expect(summarizeTags(['A'])).toBe('A')
     expect(summarizeTags(['A', 'B'])).toBe('A, B')
     expect(summarizeTags(['A', 'B', 'C', 'D'])).toBe('A, B, +2')
+  })
+
+  it('seeds every brand with an empty personality', () => {
+    for (const b of SEED_BRANDS) {
+      expect(b.personality).toEqual({
+        generalContext: '',
+        glossary: '',
+        toneFreeform: '',
+        toneUseFreeform: false,
+        toneUsePresets: false,
+        tonePresets: [],
+      })
+    }
+  })
+
+  it('exposes the six tone presets in order', () => {
+    expect(TONE_PRESET_OPTIONS).toEqual([
+      'Empathetic', 'Friendly', 'Professional', 'Straightforward', 'Humorous', 'Formal',
+    ])
+  })
+
+  it('provides copy for the three AI Personality sections', () => {
+    expect(AI_PERSONALITY_COPY.generalContext.label).toBe('General Context')
+    expect(AI_PERSONALITY_COPY.glossary.label).toBe('Glossary')
+    expect(AI_PERSONALITY_COPY.tone.label).toBe('Tone of Voice')
+  })
+
+  it('emptyPersonality returns a fresh empty object each call', () => {
+    const a = emptyPersonality()
+    const b = emptyPersonality()
+    expect(a).toEqual(b)
+    expect(a).not.toBe(b)
   })
 })
