@@ -10,7 +10,13 @@ const ICON_BUTTONS: { Icon: typeof Users; label: string }[] = [
   { Icon: CircleHelp, label: 'Help' },
 ]
 
-export function TopBar() {
+export function TopBar({
+  onToggleAiStudio,
+  isAiStudioOpen = false,
+}: {
+  onToggleAiStudio?: () => void
+  isAiStudioOpen?: boolean
+} = {}) {
   return (
     <div className="flex shrink-0 items-center justify-between h-[55px] bg-app-backdrop px-5">
       {/* Left: logo, product switcher, org switcher */}
@@ -42,6 +48,8 @@ export function TopBar() {
         ))}
         <button
           aria-label="AI assistant"
+          aria-pressed={isAiStudioOpen}
+          onClick={onToggleAiStudio}
           className="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-[#8d59b1] to-blue-700"
         >
           <Sparkles size={20} className="text-white" />
