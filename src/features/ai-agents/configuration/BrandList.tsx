@@ -25,7 +25,7 @@ export function BrandList({ brands, selectedId, onSelect }: BrandListProps) {
             type="button"
             aria-pressed={selected}
             onClick={() => onSelect(brand.id)}
-            className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left text-[14px] text-ink ${selected ? 'bg-nav-active' : ''}`}
+            className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left text-[14px] text-ink ${selected ? 'bg-app-backdrop' : ''}`}
           >
             <span className="h-3 w-3 shrink-0 rounded-[3px]" style={{ backgroundColor: brand.swatch }} />
             <span className="flex-1">{BRAND_LIST_LABELS[brand.id] ?? brand.name}</span>
