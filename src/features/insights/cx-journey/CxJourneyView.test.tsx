@@ -31,4 +31,16 @@ describe('CxJourneyView', () => {
     expect(monthly).toHaveAttribute('aria-selected', 'true')
     expect(weekly).toHaveAttribute('aria-selected', 'false')
   })
+
+  it('switches to the Automation tab and back to Overview', async () => {
+    const user = userEvent.setup()
+    render(<CxJourneyView />)
+    const view = within(screen.getByTestId('view-cx-journey'))
+    await user.click(view.getByRole('tab', { name: 'Automation' }))
+    expect(view.getByText('6,908')).toBeInTheDocument()
+    expect(view.getByText('Reactivate account')).toBeInTheDocument()
+    expect(view.queryByText('Total conversations (AI + Human)')).not.toBeInTheDocument()
+    await user.click(view.getByRole('tab', { name: 'Overview' }))
+    expect(view.getByText('Total conversations (AI + Human)')).toBeInTheDocument()
+  })
 })
