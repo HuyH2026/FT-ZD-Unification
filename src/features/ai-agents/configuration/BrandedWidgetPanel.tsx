@@ -4,7 +4,8 @@
 // Only the 'brands' rail section has designed content; other sections highlight
 // on click but keep this same panel (deferred).
 import { GardenIcon } from '@/components/garden-icon'
-import { type Brand, RAIL_SECTIONS, RAIL_TRAILING_START } from './config-data'
+import { type Brand } from './config-data'
+import { SectionRail } from './SectionRail'
 
 type BrandedWidgetPanelProps = {
   brand: Brand
@@ -104,24 +105,7 @@ export function BrandedWidgetPanel({
       </div>
 
       {/* Icon rail */}
-      <div className="flex w-[64px] shrink-0 flex-col items-center gap-2 border-l border-[#eaeaea] px-2 py-5">
-        {RAIL_SECTIONS.map((section) => {
-          const active = section.id === activeSection
-          return (
-            <div key={section.id} className="contents">
-              {section.id === RAIL_TRAILING_START ? <span className="my-1 w-[30px] border-t border-[#e4e7f0]" /> : null}
-              <button
-                type="button"
-                aria-label={section.label}
-                onClick={() => onSectionChange(section.id)}
-                className={`flex size-8 items-center justify-center rounded-lg ${active ? 'bg-[#ebf5f7] text-[#193d50]' : 'text-ink-muted'}`}
-              >
-                <GardenIcon name={section.icon} className="h-4 w-4" />
-              </button>
-            </div>
-          )
-        })}
-      </div>
+      <SectionRail activeSection={activeSection} onSectionChange={onSectionChange} />
     </div>
   )
 }
