@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest'
-import { generateLayout, ROLES, FOCUS_AREAS, type Role } from './generate-layout'
+import {
+  generateLayout, ROLES, FOCUS_AREAS, PM_WIDGET_ID_LIST, DEFAULT_PM_LAYOUT,
+  type Role, type PmWidgetId,
+} from './generate-layout'
 
 const ALL_IDS = [
   'health', 'qa', 'gaps', 'approvals', 'notifications',
@@ -7,15 +10,16 @@ const ALL_IDS = [
 ]
 
 describe('generateLayout', () => {
-  it('exposes four roles and five focus areas for the UI', () => {
-    expect(ROLES.map((r) => r.key)).toEqual(['ops', 'quality', 'knowledge', 'exec'])
+  it('exposes five roles and five focus areas for the UI', () => {
+    expect(ROLES.map((r) => r.key)).toEqual(['ops', 'quality', 'knowledge', 'exec', 'pm'])
     expect(FOCUS_AREAS.map((f) => f.key)).toEqual([
       'resolution', 'actions', 'quality', 'knowledge', 'cost',
     ])
   })
 
   it('only ever emits valid widget ids with no duplicates across columns', () => {
-    for (const role of ROLES.map((r) => r.key) as Role[]) {
+    const gridRoles = ROLES.map((r) => r.key).filter((r) => r !== 'pm') as Role[]
+    for (const role of gridRoles) {
       const layout = generateLayout({ role, focuses: [] })
       const all = [...layout.left, ...layout.right]
       expect(all.every((id) => ALL_IDS.includes(id))).toBe(true)
@@ -64,5 +68,29 @@ describe('generateLayout', () => {
     const a = generateLayout({ role: 'ops', focuses: ['resolution', 'actions'], prompt: 'x' })
     const b = generateLayout({ role: 'ops', focuses: ['resolution', 'actions'], prompt: 'x' })
     expect(a).toEqual(b)
+  })
+})
+
+describe('generate-layout — PM role & widgets', () => {
+  it('includes a Product manager role keyed pm', () => {
+    const pm = ROLES.find((r) => r.key === 'pm')
+    expect(pm).toBeDefined()
+    expect(pm!.label).toBe('Product manager')
+  })
+
+  it('keeps the four grid roles present', () => {
+    for (const k of ['ops', 'quality', 'knowledge', 'exec'] as Role[]) {
+      expect(ROLES.some((r) => r.key === k)).toBe(true)
+    }
+  })
+
+  it('lists all four PM widget ids', () => {
+    const expected: PmWidgetId[] = ['pm-kpis', 'pm-spotlight', 'pm-lifecycle', 'pm-feed']
+    expect(PM_WIDGET_ID_LIST).toEqual(expected)
+  })
+
+  it('DEFAULT_PM_LAYOUT contains every PM widget once', () => {
+    expect([...DEFAULT_PM_LAYOUT].sort()).toEqual([...PM_WIDGET_ID_LIST].sort())
+    expect(new Set(DEFAULT_PM_LAYOUT).size).toBe(DEFAULT_PM_LAYOUT.length)
   })
 })

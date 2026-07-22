@@ -4,7 +4,9 @@
 // yields the same output. The widget id universe mirrors WidgetId in dashboard-data.
 import type { WidgetId, Layout } from './dashboard-data'
 
-export type Role = 'ops' | 'quality' | 'knowledge' | 'exec'
+export type Role = 'ops' | 'quality' | 'knowledge' | 'exec' | 'pm'
+// Grid roles reorder the shared support widgets; 'pm' renders a bespoke layout.
+export type GridRole = Exclude<Role, 'pm'>
 export type FocusArea = 'resolution' | 'actions' | 'quality' | 'knowledge' | 'cost'
 
 // UI option lists (order matters — tests and the panel rely on it).
@@ -13,6 +15,7 @@ export const ROLES: { key: Role; label: string }[] = [
   { key: 'quality', label: 'Quality lead' },
   { key: 'knowledge', label: 'Knowledge manager' },
   { key: 'exec', label: 'Executive' },
+  { key: 'pm', label: 'Product manager' },
 ]
 
 export const FOCUS_AREAS: { key: FocusArea; label: string }[] = [
@@ -39,7 +42,7 @@ const WIDGET_TAGS: Record<WidgetId, FocusArea[]> = {
 }
 
 // Focus areas implied by a role when the user picks none.
-const ROLE_BASELINE: Record<Role, FocusArea[]> = {
+const ROLE_BASELINE: Record<GridRole, FocusArea[]> = {
   ops: ['resolution', 'actions'],
   quality: ['quality', 'resolution'],
   knowledge: ['knowledge', 'actions'],
@@ -77,7 +80,8 @@ export function generateLayout(input: {
   focuses: FocusArea[]
   prompt?: string
 }): Layout {
-  const effective = input.focuses.length > 0 ? input.focuses : ROLE_BASELINE[input.role]
+  const baseline = input.role === 'pm' ? [] : ROLE_BASELINE[input.role]
+  const effective = input.focuses.length > 0 ? input.focuses : baseline
   const focusSet = new Set<FocusArea>(effective)
 
   // Prompt keywords add extra weight to their focus.
@@ -116,3 +120,8 @@ export function generateLayout(input: {
 
   return { left, right }
 }
+
+// --- PM dashboard widgets (bespoke layout, ordered list not two columns) -----
+export type PmWidgetId = 'pm-kpis' | 'pm-spotlight' | 'pm-lifecycle' | 'pm-feed'
+export const PM_WIDGET_ID_LIST: PmWidgetId[] = ['pm-kpis', 'pm-spotlight', 'pm-lifecycle', 'pm-feed']
+export const DEFAULT_PM_LAYOUT: PmWidgetId[] = ['pm-kpis', 'pm-spotlight', 'pm-lifecycle', 'pm-feed']

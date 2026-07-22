@@ -3,11 +3,11 @@
 // reordered and the AI summary reframed for that role. role === null (the
 // built-in Default view) returns the base untouched. No LLM, no Date.now().
 import type { LevelData } from './dashboard-data'
-import type { Role } from './generate-layout'
+import type { Role, GridRole } from './generate-layout'
 
 // Per-role ordering of the health metric tiles, by metric key. Any metric key
 // not listed is appended in its original order, so adding metrics later is safe.
-const METRIC_PRIORITY: Record<Role, string[]> = {
+const METRIC_PRIORITY: Record<GridRole, string[]> = {
   ops: ['res', 'esc', 'aht', 'csat'],
   quality: ['esc', 'aht', 'csat', 'res'],
   knowledge: ['res', 'csat', 'esc', 'aht'],
@@ -15,7 +15,7 @@ const METRIC_PRIORITY: Record<Role, string[]> = {
 }
 
 // One-line, role-framed read on agent health (mock copy).
-const ROLE_SUMMARY: Record<Role, string> = {
+const ROLE_SUMMARY: Record<GridRole, string> = {
   ops: 'Resolution is up and escalations are down — throughput is healthy. Voice handle time is the one area worth a look.',
   quality: 'Failure signals are low: escalations down 1.2% and handle time trending down. Voice flows carry the most test failures.',
   knowledge: 'Outcomes are strong and CSAT is climbing. Refund-eligibility gaps are still driving avoidable misses.',
@@ -33,7 +33,7 @@ function reorderByKey<T extends { key: string }>(items: T[], order: string[]): T
 }
 
 export function deriveRoleData(base: LevelData, role: Role | null): LevelData {
-  if (role === null) return base
+  if (role === null || role === 'pm') return base
   return {
     ...base,
     metrics: reorderByKey(base.metrics, METRIC_PRIORITY[role]),
