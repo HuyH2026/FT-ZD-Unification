@@ -29,3 +29,11 @@ vitest.config.js
 
 # design.md CLI scratch output (not source of truth)
 .design/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+# Ad-hoc visual screenshots (pnpm shot)
+.shots/
