@@ -84,8 +84,9 @@ export type Metric = {
   accent?: boolean   // true → value text rendered green
 }
 
-// One agent row. `deflectionRate` is authored as round(deflections/conversations*100)+"%"
-// — one authored source per number, not derived at runtime.
+// One agent row. `deflectionRate` is authored as a displayed string (matching the
+// Figma frame, which shows a headline rate independent of the raw counts) — not
+// derived from deflections/conversations at runtime.
 export type Agent = {
   id: string
   name: string
@@ -136,9 +137,9 @@ Agents (three rows, matching Figma):
 switching visibly changes data). Author each with 5 metrics (same order/keys) and an agent
 set sized: Voice = 2 agents, Web Call = 1 agent, Headless = 4 agents. Each channel must have
 at least one On agent and at least one `isSubagent: true` agent so all three tabs are
-non-empty. `deflectionRate` = `round(deflections/conversations*100)+"%"` for every row.
-Exact numbers are the implementer's to author within these constraints (the plan will fix
-them so tests can assert).
+non-empty. `deflectionRate` is authored as a displayed percentage string per row (like the
+Figma frame — not derived from the raw counts). Exact numbers are the implementer's to author
+within these constraints (the plan will fix them so tests can assert).
 
 ## Styling
 
@@ -178,7 +179,7 @@ Two files, matching the CX Journey split.
   `['chats','resolutions','fallback','csat','cost']`.
 - Agent counts per channel: widget 3, voice 2, webcall 1, headless 4.
 - Every channel has ≥1 On agent and ≥1 subagent (so all tabs are non-empty).
-- For every agent, `deflectionRate === Math.round(deflections/conversations*100)+'%'`.
+- Every agent's `deflectionRate` matches `/^\d+%$/` (a displayed percentage string).
 
 **`AgentBuilderScreen.test.tsx` (behavior), scoped to `screen-ai-agents`:**
 - Renders the Widget channel by default: "Agent Builder" title, "Total Chats" with
