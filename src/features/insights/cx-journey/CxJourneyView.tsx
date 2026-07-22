@@ -7,6 +7,7 @@ import { AgentsBreakdownTable } from './AgentsBreakdownTable'
 import { AutomationView } from './AutomationView'
 import { ConversationFlowSection } from './ConversationFlowSection'
 import { type Granularity } from './cx-journey-data'
+import { TopicsView } from './topics/TopicsView'
 import { TrendsSection } from './TrendsSection'
 
 type CxTab = 'Overview' | 'Topics' | 'Automation'
@@ -50,11 +51,7 @@ export function CxJourneyView() {
           </>
         )}
         {tab === 'Automation' && <AutomationView />}
-        {tab === 'Topics' && (
-          <div className="flex h-64 items-center justify-center text-[14px] text-ink-muted">
-            Coming soon
-          </div>
-        )}
+        {tab === 'Topics' && <TopicsView />}
       </div>
     </div>
   )
