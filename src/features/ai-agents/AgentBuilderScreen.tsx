@@ -4,6 +4,7 @@
 // Switching channels clears the overrides so each channel starts from its
 // authored toggles. All search/filter/action affordances are inert (mock scope).
 import { useState } from 'react'
+import { useNavigate } from 'react-router'
 import { Calendar, ChevronDown, Code2, Globe, MessageSquare, Phone, Plus, Search } from 'lucide-react'
 import { CHANNELS, type Agent, type ChannelKey } from './agent-builder-data'
 import { MetricStrip } from './MetricStrip'
@@ -27,6 +28,7 @@ const CHANNEL_ICON: Record<ChannelKey, typeof MessageSquare> = {
 }
 
 export function AgentBuilderScreen() {
+  const navigate = useNavigate()
   const [channelKey, setChannelKey] = useState<ChannelKey>('widget')
   const [tab, setTab] = useState<AgentTab>('all')
   // Per-row on/off overrides; cleared on channel switch.
@@ -154,7 +156,12 @@ export function AgentBuilderScreen() {
       </div>
 
       {/* Agents table */}
-      <AgentsTable agents={visibleAgents} isOn={isOn} onToggle={toggle} />
+      <AgentsTable
+        agents={visibleAgents}
+        isOn={isOn}
+        onToggle={toggle}
+        onRowClick={(id) => navigate(`/ai-agents/${id}`)}
+      />
     </div>
   )
 }

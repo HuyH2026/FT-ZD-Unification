@@ -1,7 +1,12 @@
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { AgentBuilderScreen } from './AgentBuilderScreen'
+
+// Mock useNavigate since these tests render the component bare (no router).
+vi.mock('react-router', () => ({
+  useNavigate: () => vi.fn(),
+}))
 
 function surface(): HTMLElement {
   return screen.getByTestId('view-agent-builder')

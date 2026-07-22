@@ -33,11 +33,12 @@ function Toggle({ agent, on, onToggle }: { agent: Agent; on: boolean; onToggle: 
 }
 
 export function AgentsTable({
-  agents, isOn, onToggle,
+  agents, isOn, onToggle, onRowClick,
 }: {
   agents: Agent[]
   isOn: (a: Agent) => boolean
   onToggle: (id: string) => void
+  onRowClick?: (id: string) => void
 }) {
   return (
     <div className="overflow-x-auto">
@@ -58,7 +59,17 @@ export function AgentsTable({
               <td className="px-3 py-4 align-middle">
                 <span className="inline-block size-4 rounded border border-surface-border" aria-hidden />
               </td>
-              <td className="px-3 py-4 align-middle text-[14px] font-medium" style={{ color: INK }}>{a.name}</td>
+              <td className="px-3 py-4 align-middle text-[14px] font-medium">
+                <button
+                  type="button"
+                  aria-label={`Open ${a.name}`}
+                  onClick={() => onRowClick?.(a.id)}
+                  className="text-left hover:underline"
+                  style={{ color: INK }}
+                >
+                  {a.name}
+                </button>
+              </td>
               <td className="px-3 py-4 align-middle">
                 <Toggle agent={a} on={isOn(a)} onToggle={onToggle} />
               </td>
