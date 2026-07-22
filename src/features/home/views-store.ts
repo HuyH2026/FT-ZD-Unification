@@ -25,6 +25,13 @@ function mintId(): string {
   return `view-${++seq}`
 }
 
+function syncSeqTo(views: DashboardView[]): void {
+  for (const v of views) {
+    const m = /^view-(\d+)$/.exec(v.id)
+    if (m) seq = Math.max(seq, Number(m[1]))
+  }
+}
+
 export function seedViewsState(): ViewsState {
   const id = mintId()
   return {
@@ -36,17 +43,20 @@ export function seedViewsState(): ViewsState {
 // --- Load / validate / persist ----------------------------------------------
 // Own-key membership (WIDGET_IDS.has), never the `in` operator, so a crafted
 // blob can't resolve inherited prototype keys to a non-widget and crash render.
-function validLayoutArr(arr: unknown): arr is WidgetId[] {
-  return Array.isArray(arr) && arr.every((x) => typeof x === 'string' && WIDGET_IDS.has(x))
+function sanitizeLayoutArr(arr: unknown): WidgetId[] {
+  if (!Array.isArray(arr)) return []
+  return arr.filter((x): x is WidgetId => typeof x === 'string' && WIDGET_IDS.has(x))
 }
 
 function sanitizeLayout(layout: unknown): Layout | null {
   if (typeof layout !== 'object' || layout === null) return null
   const { left, right } = layout as { left?: unknown; right?: unknown }
-  if (!validLayoutArr(left) || !validLayoutArr(right)) return null
+  const leftSanitized = sanitizeLayoutArr(left)
+  const rightSanitized = sanitizeLayoutArr(right)
+  if (leftSanitized.length === 0 && rightSanitized.length === 0) return null
   const seen = new Set<WidgetId>()
   const dedupe = (a: WidgetId[]) => a.filter((id) => !seen.has(id) && seen.add(id))
-  return { left: dedupe(left), right: dedupe(right) }
+  return { left: dedupe(leftSanitized), right: dedupe(rightSanitized) }
 }
 
 function sanitizeView(v: unknown): DashboardView | null {
@@ -72,6 +82,7 @@ export function loadViewsState(): ViewsState {
       .map(sanitizeView)
       .filter((v): v is DashboardView => v !== null)
     if (views.length === 0) return seedViewsState()
+    syncSeqTo(views)
     const activeId =
       typeof parsed.activeId === 'string' && views.some((v) => v.id === parsed.activeId)
         ? parsed.activeId
