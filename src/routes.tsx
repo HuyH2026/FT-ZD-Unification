@@ -5,12 +5,14 @@ import { HomeScreen } from '@/features/home/HomeScreen'
 import { InsightsScreen } from '@/features/insights/InsightsScreen'
 import { AiPerformancesView } from '@/features/insights/AiPerformancesView'
 import { CxJourneyView } from '@/features/insights/cx-journey/CxJourneyView'
+import { AiAgentsScreen } from '@/features/ai-agents/AiAgentsScreen'
+import { ConfigurationView } from '@/features/ai-agents/configuration/ConfigurationView'
 import { OrganizationScreen } from '@/features/organization/OrganizationScreen'
 import { CreateOrgFlow } from '@/features/organization/CreateOrgFlow'
 import { PlaceholderScreen } from '@/features/_placeholder/PlaceholderScreen'
 import { NAV_ITEMS } from '@/app/nav-config'
 
-const BUILT = new Set(['/', '/insights', '/organization'])
+const BUILT = new Set(['/', '/insights', '/organization', '/ai-agents'])
 
 const placeholderRoutes: RouteObject[] = NAV_ITEMS
   .filter((i) => !BUILT.has(i.path))
@@ -32,6 +34,16 @@ export const routes: RouteObject[] = [
               { index: true, element: <AiPerformancesView /> },
               { path: 'cx-journey', element: <CxJourneyView /> },
               { path: 'ai-performances', element: <AiPerformancesView /> },
+            ],
+          },
+          {
+            path: 'ai-agents',
+            element: <AiAgentsScreen />,
+            children: [
+              { index: true, element: <ConfigurationView /> },
+              { path: 'configuration', element: <ConfigurationView /> },
+              { path: 'agent-builder', element: <PlaceholderScreen title="Agent Builder" /> },
+              { path: 'qa', element: <PlaceholderScreen title="QA" /> },
             ],
           },
           { path: 'organization', element: <OrganizationScreen /> },
