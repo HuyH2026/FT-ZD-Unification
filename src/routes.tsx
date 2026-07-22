@@ -10,10 +10,11 @@ import { AgentBuilderScreen } from '@/features/ai-agents/AgentBuilderScreen'
 import { ConfigurationView } from '@/features/ai-agents/configuration/ConfigurationView'
 import { OrganizationScreen } from '@/features/organization/OrganizationScreen'
 import { CreateOrgFlow } from '@/features/organization/CreateOrgFlow'
+import { OrchestratorScreen } from '@/features/orchestrator/OrchestratorScreen'
 import { PlaceholderScreen } from '@/features/_placeholder/PlaceholderScreen'
 import { NAV_ITEMS } from '@/app/nav-config'
 
-const BUILT = new Set(['/', '/insights', '/organization', '/ai-agents'])
+const BUILT = new Set(['/', '/insights', '/organization', '/ai-agents', '/orchestrator'])
 
 const placeholderRoutes: RouteObject[] = NAV_ITEMS
   .filter((i) => !BUILT.has(i.path))
@@ -48,6 +49,7 @@ export const routes: RouteObject[] = [
             ],
           },
           { path: 'organization', element: <OrganizationScreen /> },
+          { path: 'orchestrator', element: <OrchestratorScreen /> },
           ...placeholderRoutes,
         ],
       },
