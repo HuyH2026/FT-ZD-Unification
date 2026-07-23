@@ -48,9 +48,17 @@ export function AutomationDetailScreen() {
           ))}
         </div>
 
-        <button type="button" className="rounded-full bg-ink px-4 py-2 text-[14px] font-medium text-white">
-          Run A/B Test
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            className="rounded-full border border-surface-border px-4 py-2 text-[14px] font-medium text-ink"
+          >
+            Test
+          </button>
+          <button type="button" className="rounded-full bg-ink px-4 py-2 text-[14px] font-medium text-white">
+            Publish
+          </button>
+        </div>
       </div>
 
       {/* Tab body */}
