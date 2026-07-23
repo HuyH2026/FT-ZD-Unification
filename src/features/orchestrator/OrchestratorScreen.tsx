@@ -18,7 +18,7 @@ export function OrchestratorScreen() {
 
   return (
     <div data-testid="screen-orchestrator" className="h-full overflow-y-auto rounded-[26px] bg-white px-8 py-6">
-      <h1 className="text-[22px] font-semibold text-ink">Orchestrator</h1>
+      <h1 className="text-[20px] font-semibold text-ink">Orchestrator</h1>
 
       <div className="mt-6">
         <MetricStrip metrics={METRICS} />

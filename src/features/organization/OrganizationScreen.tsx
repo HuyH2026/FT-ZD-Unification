@@ -19,7 +19,7 @@ export function OrganizationScreen() {
       >
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-[26px] leading-8 text-ink">Organization</h1>
+          <h1 className="text-[20px] font-semibold text-ink">Organization</h1>
           <div className="flex items-center gap-2">
             <button
               aria-label={showStudio ? 'Hide AI Studio' : 'Show AI Studio'}

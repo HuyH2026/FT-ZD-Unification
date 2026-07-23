@@ -82,7 +82,7 @@ export function AgentBuilderScreen() {
       {/* Header: title + date caption (left), channel switcher (right) */}
       <div className="mb-8 flex items-center justify-between">
         <div className="flex items-baseline gap-3">
-          <h1 className="text-[26px] leading-8 text-ink">Agent Builder</h1>
+          <h1 className="text-[20px] font-semibold text-ink">Agent Builder</h1>
           <span className="text-[14px] text-ink-muted">5/2/2026 - 6/1/2026</span>
         </div>
         <div role="tablist" aria-label="Channel" className="flex items-center gap-1 rounded-full bg-[#f4f3f1] p-1">

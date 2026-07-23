@@ -36,7 +36,7 @@ export function AiPerformancesView() {
       {/* Sticky page header: title + section tabs, frosted so content scrolls
           softly beneath it (matching the CX Journey sibling). */}
       <div className="sticky top-0 z-10 flex items-center gap-6 rounded-t-[26px] bg-white/80 px-8 pb-4 pt-6 backdrop-blur-md">
-        <h1 className="pb-3 text-[18px] text-ink">AI Performance</h1>
+        <h1 className="pb-3 text-[20px] font-semibold text-ink">AI Performance</h1>
         <span className="mb-3 h-5 w-px bg-surface-border" />
         {PAGE_TABS.map((t) => {
           const active = t === tab
