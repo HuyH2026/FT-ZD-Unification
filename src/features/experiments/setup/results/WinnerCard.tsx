@@ -1,12 +1,12 @@
 // The winning-variant card in the Results tab: trophy badge, winner label,
 // one row per variant, and a "Publish winning variant" action. Presentational.
 import { Trophy } from 'lucide-react'
-import { WINNER_VARIANTS, WINNER_LABEL } from './results-data'
+import { type WinnerVariant } from './results-data'
 
 const GRADIENT =
   'linear-gradient(137deg, rgba(255,179,147,0.15) 0%, rgba(171,213,250,0.15) 50%, rgba(18,166,180,0.15) 100%)'
 
-export function WinnerCard() {
+export function WinnerCard({ winnerLabel, variants }: { winnerLabel: string; variants: WinnerVariant[] }) {
   return (
     <div
       className="flex h-full flex-col gap-4 rounded-2xl border border-[#ffb393] p-4"
@@ -17,12 +17,12 @@ export function WinnerCard() {
           <Trophy size={16} className="text-ink" aria-hidden />
         </span>
         <p className="text-[13px] text-ink">
-          Winner: <span className="font-semibold">{WINNER_LABEL}</span>
+          Winner: <span className="font-semibold">{winnerLabel}</span>
         </p>
       </div>
 
       <div className="flex flex-col gap-2">
-        {WINNER_VARIANTS.map((v) => (
+        {variants.map((v) => (
           <div
             key={v.key}
             className={

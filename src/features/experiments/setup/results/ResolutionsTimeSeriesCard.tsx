@@ -5,9 +5,9 @@
 import { useState } from 'react'
 import { BarChart3, ChevronDown, Filter, LineChart as LineChartIcon } from 'lucide-react'
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, XAxis, YAxis } from 'recharts'
-import { BAR_COLORS, RESOLUTIONS_SERIES, RESOLUTIONS_TABS } from './results-data'
+import { BAR_COLORS, RESOLUTIONS_TABS, type ResolutionsPoint } from './results-data'
 
-export function ResolutionsTimeSeriesCard() {
+export function ResolutionsTimeSeriesCard({ series }: { series: ResolutionsPoint[] }) {
   const [tab, setTab] = useState<(typeof RESOLUTIONS_TABS)[number]>('Resolutions')
 
   return (
@@ -63,7 +63,7 @@ export function ResolutionsTimeSeriesCard() {
 
       <div className="mt-2 h-[280px] w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={RESOLUTIONS_SERIES} margin={{ top: 10, right: 10, bottom: 0, left: 0 }}>
+          <LineChart data={series} margin={{ top: 10, right: 10, bottom: 0, left: 0 }}>
             <CartesianGrid vertical={false} stroke="#ececef" />
             <XAxis dataKey="bucket" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: '#727583' }} />
             <YAxis
