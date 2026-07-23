@@ -21,6 +21,7 @@ import {
   DEFAULT_TEST_NAME,
   DEFAULT_TEST_DESCRIPTION,
 } from '../experiments-data'
+import { DEFAULT_EXPERIMENT_DETAIL } from './results/results-data'
 import { SetupSection } from './SetupSection'
 import { VariantRow } from './VariantRow'
 import { SummaryPanel } from './SummaryPanel'
@@ -84,7 +85,7 @@ export function ExperimentSetupScreen() {
       {/* Body */}
       <div className="min-h-0 flex-1 overflow-y-auto">
         {tab === 'Results' ? (
-          <ResultsView />
+          <ResultsView detail={DEFAULT_EXPERIMENT_DETAIL} />
         ) : (
         <div className="flex justify-center gap-6 px-8 py-6">
           {/* Form column */}

@@ -1,13 +1,13 @@
 // "Avg delta" card: a big signed percentage per variant vs. control, each
 // with a colored legend swatch beneath it. Presentational.
-import { AVG_DELTA } from './results-data'
+import { type AvgDeltaEntry } from './results-data'
 
-export function AvgDeltaCard() {
+export function AvgDeltaCard({ entries }: { entries: AvgDeltaEntry[] }) {
   return (
     <div className="rounded-2xl border border-surface-border bg-white p-5">
       <p className="text-[13px] font-semibold text-ink">Avg delta</p>
       <div className="mt-9 grid grid-cols-2">
-        {AVG_DELTA.map((d) => (
+        {entries.map((d) => (
           <div key={d.name} className="flex flex-col gap-1.5">
             <span
               className="text-[35px] font-semibold leading-none tracking-[-0.08px]"

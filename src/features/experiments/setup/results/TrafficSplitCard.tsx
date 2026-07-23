@@ -2,9 +2,9 @@
 // total conversation count centered in the donut. Presentational.
 import { Info } from 'lucide-react'
 import { Cell, Pie, PieChart } from 'recharts'
-import { TRAFFIC_SPLIT, TRAFFIC_SPLIT_TOTAL } from './results-data'
+import { type TrafficSplitSlice } from './results-data'
 
-export function TrafficSplitCard() {
+export function TrafficSplitCard({ splits, total }: { splits: TrafficSplitSlice[]; total: number }) {
   return (
     <div className="rounded-2xl border border-surface-border bg-white p-5">
       <div className="flex items-center gap-1.5">
@@ -13,7 +13,7 @@ export function TrafficSplitCard() {
       </div>
       <div className="mt-5 flex items-center gap-5">
         <div className="flex flex-col gap-3">
-          {TRAFFIC_SPLIT.map((s) => (
+          {splits.map((s) => (
             <div key={s.name} className="flex flex-col gap-0.5">
               <span className="text-[13px] font-semibold text-ink">
                 {s.value.toLocaleString()} <span className="font-normal">({s.pct})</span>
@@ -28,7 +28,7 @@ export function TrafficSplitCard() {
         <div className="relative size-[140px] shrink-0">
           <PieChart width={140} height={140}>
             <Pie
-              data={TRAFFIC_SPLIT}
+              data={splits}
               dataKey="value"
               nameKey="name"
               cx={70}
@@ -42,13 +42,13 @@ export function TrafficSplitCard() {
               isAnimationActive={false}
               stroke="none"
             >
-              {TRAFFIC_SPLIT.map((s) => (
+              {splits.map((s) => (
                 <Cell key={s.name} fill={s.color} />
               ))}
             </Pie>
           </PieChart>
           <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-[26px] font-semibold text-ink">{TRAFFIC_SPLIT_TOTAL.toLocaleString()}</span>
+            <span className="text-[26px] font-semibold text-ink">{total.toLocaleString()}</span>
             <span className="text-[10px] text-ink">conversations</span>
           </div>
         </div>
