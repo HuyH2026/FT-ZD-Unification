@@ -33,4 +33,12 @@ describe('ExperimentSetupScreen', () => {
     // top-bar title node also shows the new name
     expect(within(el).getAllByText('My new test').length).toBeGreaterThanOrEqual(1)
   })
+
+  it('switches to the Results tab when Run A/B Test is clicked', () => {
+    renderScreen()
+    const el = screen.getByTestId('screen-experiment-setup')
+    fireEvent.click(within(el).getByRole('button', { name: 'Run A/B Test' }))
+    expect(within(el).getByRole('tab', { name: 'Results' })).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByTestId('view-ab-test-results')).toBeInTheDocument()
+  })
 })

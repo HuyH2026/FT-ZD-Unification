@@ -25,13 +25,16 @@ import { SetupSection } from './SetupSection'
 import { VariantRow } from './VariantRow'
 import { SummaryPanel } from './SummaryPanel'
 import { TextField, TextArea, SelectField } from './Field'
+import { ResultsView } from './results/ResultsView'
 
-const TABS = ['Setup', 'Results', 'Agents', 'Conversations']
+const TABS = ['Setup', 'Results', 'Agents', 'Conversations'] as const
+const LIVE_TABS = new Set<(typeof TABS)[number]>(['Setup', 'Results'])
 
 export function ExperimentSetupScreen() {
   const navigate = useNavigate()
   const back = () => navigate('/experiments')
 
+  const [tab, setTab] = useState<(typeof TABS)[number]>('Setup')
   const [name, setName] = useState(DEFAULT_TEST_NAME)
   const [description, setDescription] = useState(DEFAULT_TEST_DESCRIPTION)
   const [endCondition, setEndCondition] = useState<'fixed' | 'count'>('fixed')
@@ -56,11 +59,12 @@ export function ExperimentSetupScreen() {
             <button
               key={t}
               role="tab"
-              aria-selected={t === 'Setup'}
-              disabled={t !== 'Setup'}
+              aria-selected={t === tab}
+              disabled={!LIVE_TABS.has(t)}
+              onClick={() => setTab(t)}
               className={
                 'rounded-full px-4 py-1.5 text-[14px] ' +
-                (t === 'Setup' ? 'bg-white font-medium text-ink shadow-sm' : 'text-ink-muted')
+                (t === tab ? 'bg-white font-medium text-ink shadow-sm' : 'text-ink-muted')
               }
             >
               {t}
@@ -70,7 +74,7 @@ export function ExperimentSetupScreen() {
 
         <button
           type="button"
-          onClick={back}
+          onClick={() => setTab('Results')}
           className="rounded-full bg-ink px-4 py-2 text-[14px] font-medium text-white"
         >
           Run A/B Test
@@ -79,6 +83,9 @@ export function ExperimentSetupScreen() {
 
       {/* Body */}
       <div className="min-h-0 flex-1 overflow-y-auto">
+        {tab === 'Results' ? (
+          <ResultsView />
+        ) : (
         <div className="flex justify-center gap-6 px-8 py-6">
           {/* Form column */}
           <div className="w-[620px] shrink-0 divide-y divide-surface-border">
@@ -220,6 +227,7 @@ export function ExperimentSetupScreen() {
             <SummaryPanel />
           </div>
         </div>
+        )}
       </div>
     </div>
   )
