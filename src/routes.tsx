@@ -19,10 +19,11 @@ import { ToolsScreen } from '@/features/tools/ToolsScreen'
 import { ToolDetailScreen } from '@/features/tools/ToolDetailScreen'
 import { LogScreen } from '@/features/log/LogScreen'
 import { ExperimentsScreen } from '@/features/experiments/ExperimentsScreen'
+import { ExperimentSetupScreen } from '@/features/experiments/setup/ExperimentSetupScreen'
 import { PlaceholderScreen } from '@/features/_placeholder/PlaceholderScreen'
 import { NAV_ITEMS } from '@/app/nav-config'
 
-const BUILT = new Set(['/', '/insights', '/organization', '/ai-agents', '/orchestrator', '/tools', '/log', '/experiments'])
+const BUILT = new Set(['/', '/insights', '/organization', '/ai-agents', '/orchestrator', '/tools', '/log', '/experiments', '/experiments/new'])
 
 const placeholderRoutes: RouteObject[] = NAV_ITEMS
   .filter((i) => !BUILT.has(i.path))
@@ -64,6 +65,7 @@ export const routes: RouteObject[] = [
           { path: 'tools/:id', element: <ToolDetailScreen /> },
           { path: 'log', element: <LogScreen /> },
           { path: 'experiments', element: <ExperimentsScreen /> },
+          { path: 'experiments/new', element: <ExperimentSetupScreen /> },
           { path: 'opportunity/:id', element: <OpportunityDetailScreen /> },
           ...placeholderRoutes,
         ],
