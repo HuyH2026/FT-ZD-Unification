@@ -9,7 +9,10 @@ type ExpandedSidebarProps = {
 }
 
 function kebab(s: string): string {
-  return s.toLowerCase().replace(/\s+/g, '-')
+  return s
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, '')
+    .replace(/\s+/g, '-')
 }
 
 export function ExpandedSidebar({ activeLabel, onCollapse }: ExpandedSidebarProps) {

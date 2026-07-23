@@ -10,7 +10,10 @@ interface SidebarProps {
 }
 
 function kebabCase(str: string): string {
-  return str.toLowerCase().replace(/\s+/g, '-')
+  return str
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, '')
+    .replace(/\s+/g, '-')
 }
 
 // A single collapsed-rail entry: a 56×48 row (the hover/hit target) wrapping a

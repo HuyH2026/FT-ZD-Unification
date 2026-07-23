@@ -11,9 +11,14 @@ function renderAt(path: string) {
 }
 
 describe('Experiments routing', () => {
-  it('renders the Experiments screen at /experiments', () => {
+  it('shows A/B Test by default at /experiments', () => {
     renderAt('/experiments')
-    expect(screen.getByTestId('screen-experiments')).toBeInTheDocument()
+    expect(screen.getByTestId('view-ab-test')).toBeInTheDocument()
+  })
+
+  it('shows A/B Test at /experiments/ab-test', () => {
+    renderAt('/experiments/ab-test')
+    expect(screen.getByTestId('view-ab-test')).toBeInTheDocument()
   })
 
   it('does not render the placeholder at /experiments', () => {
@@ -23,6 +28,10 @@ describe('Experiments routing', () => {
 
   it('resolves /experiments to the Experiments nav item', () => {
     expect(findNavItemByPath('/experiments')?.label).toBe('Experiments')
+  })
+
+  it('resolves /experiments/ab-test to the Experiments nav item', () => {
+    expect(findNavItemByPath('/experiments/ab-test')?.label).toBe('Experiments')
   })
 })
 

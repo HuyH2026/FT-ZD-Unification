@@ -19,6 +19,7 @@ import { ToolsScreen } from '@/features/tools/ToolsScreen'
 import { ToolDetailScreen } from '@/features/tools/ToolDetailScreen'
 import { LogScreen } from '@/features/log/LogScreen'
 import { ExperimentsScreen } from '@/features/experiments/ExperimentsScreen'
+import { AbTestView } from '@/features/experiments/AbTestView'
 import { ExperimentSetupScreen } from '@/features/experiments/setup/ExperimentSetupScreen'
 import { PlaceholderScreen } from '@/features/_placeholder/PlaceholderScreen'
 import { NAV_ITEMS } from '@/app/nav-config'
@@ -64,7 +65,16 @@ export const routes: RouteObject[] = [
           { path: 'tools', element: <ToolsScreen /> },
           { path: 'tools/:id', element: <ToolDetailScreen /> },
           { path: 'log', element: <LogScreen /> },
-          { path: 'experiments', element: <ExperimentsScreen /> },
+          {
+            path: 'experiments',
+            element: <ExperimentsScreen />,
+            children: [
+              { index: true, element: <Navigate to="ab-test" replace /> },
+              { path: 'ab-test', element: <AbTestView /> },
+              { path: 'test-suite', element: <PlaceholderScreen title="Test Suite" /> },
+              { path: 'simulations', element: <PlaceholderScreen title="Simulations" /> },
+            ],
+          },
           { path: 'experiments/new', element: <ExperimentSetupScreen /> },
           { path: 'opportunity/:id', element: <OpportunityDetailScreen /> },
           ...placeholderRoutes,
