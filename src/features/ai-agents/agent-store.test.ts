@@ -3,6 +3,7 @@ import {
   STEP_TYPES, chipVariantForStep,
   insertChip, removeChip, appendBlock, moveBlock, removeBlock,
   addConditionRow, editConditionRow, removeConditionRow, toggleBlockCollapse,
+  removeAgents,
   seedAgents, nextId, type PolicyDoc, type CanvasBlock,
 } from './agent-store'
 
@@ -87,6 +88,21 @@ describe('agent-store reducers', () => {
     expect(block.header).toBe('Conditions')
     expect(block.subtitle).toBe('Shipping status')
     expect(block.rows?.length).toBeGreaterThan(0)
+  })
+
+  it('removes agents by a set of ids', () => {
+    const agents = seedAgents()
+    const [a, b] = agents
+    const remaining = removeAgents(agents, [a.id, b.id])
+    expect(remaining.some((x) => x.id === a.id || x.id === b.id)).toBe(false)
+    expect(remaining).toHaveLength(agents.length - 2)
+    // original untouched
+    expect(agents.some((x) => x.id === a.id)).toBe(true)
+  })
+
+  it('removeAgents with no ids returns the list unchanged', () => {
+    const agents = seedAgents()
+    expect(removeAgents(agents, [])).toHaveLength(agents.length)
   })
 
   it('mints unique deterministic ids', () => {

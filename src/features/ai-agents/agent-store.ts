@@ -112,6 +112,12 @@ export function toggleBlockCollapse(blocks: CanvasBlock[], blockId: string): Can
   return patchBlock(blocks, blockId, (b) => ({ ...b, collapsed: !b.collapsed }))
 }
 
+export function removeAgents<T extends { id: string }>(agents: T[], ids: string[]): T[] {
+  if (ids.length === 0) return agents
+  const drop = new Set(ids)
+  return agents.filter((a) => !drop.has(a.id))
+}
+
 // Exact "Service cancellation" policy transcribed from the Figma frame.
 function serviceCancellationPolicy(): PolicyDoc {
   return {
@@ -238,6 +244,7 @@ export function useAgentStore() {
       persist(agents.map((a) => (a.id === id ? { ...a, ...patch } : a))),
     toggleAgent: (id: string) =>
       persist(agents.map((a) => (a.id === id ? { ...a, on: !a.on } : a))),
+    deleteAgents: (ids: string[]) => persist(removeAgents(agents, ids)),
   }), [agents, persist])
 }
 

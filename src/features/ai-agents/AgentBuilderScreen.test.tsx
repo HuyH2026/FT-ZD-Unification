@@ -81,5 +81,51 @@ describe('AgentBuilderScreen', () => {
     expect(view.getByRole('switch', { name: 'Activate Service cancellation' })).toBeInTheDocument()
     expect(view.queryByRole('switch', { name: 'Activate Knowledge Retrieval' })).not.toBeInTheDocument()
   })
+
+  it('selects a row and deletes it after confirming', async () => {
+    const user = userEvent.setup()
+    render(<AgentBuilderScreen />)
+    const view = within(surface())
+    expect(view.getByRole('switch', { name: 'Activate Service cancellation' })).toBeInTheDocument()
+
+    // Select the row; the action bar appears.
+    await user.click(view.getByRole('checkbox', { name: 'Select Service cancellation' }))
+    expect(view.getByText('1 selected')).toBeInTheDocument()
+
+    // Delete opens the confirm dialog; row still present until confirmed.
+    await user.click(view.getByRole('button', { name: 'Delete' }))
+    const dialog = screen.getByRole('alertdialog')
+    expect(within(dialog).getByText('Delete 1 agent?')).toBeInTheDocument()
+    expect(view.getByRole('switch', { name: 'Activate Service cancellation' })).toBeInTheDocument()
+
+    // Confirm removes the row and clears the bar.
+    await user.click(within(dialog).getByRole('button', { name: 'Delete' }))
+    expect(view.queryByRole('switch', { name: 'Activate Service cancellation' })).not.toBeInTheDocument()
+    expect(view.queryByText('1 selected')).not.toBeInTheDocument()
+  })
+
+  it('cancelling the confirm dialog keeps the row', async () => {
+    const user = userEvent.setup()
+    render(<AgentBuilderScreen />)
+    const view = within(surface())
+    await user.click(view.getByRole('checkbox', { name: 'Select Service cancellation' }))
+    await user.click(view.getByRole('button', { name: 'Delete' }))
+    await user.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Cancel' }))
+    expect(view.getByRole('switch', { name: 'Activate Service cancellation' })).toBeInTheDocument()
+    // Selection is preserved on cancel.
+    expect(view.getByText('1 selected')).toBeInTheDocument()
+  })
+
+  it('select-all toggles every visible row and clears on channel switch', async () => {
+    const user = userEvent.setup()
+    render(<AgentBuilderScreen />)
+    const view = within(surface())
+    await user.click(view.getByRole('checkbox', { name: 'Select all agents' }))
+    // Widget seeds three agents.
+    expect(view.getByText('3 selected')).toBeInTheDocument()
+    // Switching channel resets selection.
+    await user.click(view.getByRole('tab', { name: 'Voice' }))
+    expect(view.queryByText(/selected$/)).not.toBeInTheDocument()
+  })
 })
 

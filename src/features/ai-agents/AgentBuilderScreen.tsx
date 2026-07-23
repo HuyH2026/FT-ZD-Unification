@@ -2,14 +2,15 @@
 // state: the selected channel and the selected agent tab. Agent list and toggle
 // state are read from the store (single source of truth). All search/filter/action
 // affordances are inert (mock scope).
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { Calendar, ChevronDown, Code2, Globe, MessageSquare, Phone, Plus, Search } from 'lucide-react'
+import { Calendar, ChevronDown, Code2, Globe, MessageSquare, Phone, Plus, Search, Trash2, X } from 'lucide-react'
 import { CHANNELS, type ChannelKey } from './agent-builder-data'
 import { MetricStrip } from './MetricStrip'
 import { AgentsTable } from './AgentsTable'
 import { useAgentStore } from './agent-store'
 import { CreateAgentPanel } from './CreateAgentPanel'
+import { ConfirmDeleteDialog } from './ConfirmDeleteDialog'
 
 const INK = '#2f3130'
 
@@ -34,17 +35,42 @@ export function AgentBuilderScreen() {
   const [channelKey, setChannelKey] = useState<ChannelKey>('widget')
   const [tab, setTab] = useState<AgentTab>('all')
   const [creating, setCreating] = useState(false)
+  const [selected, setSelected] = useState<ReadonlySet<string>>(new Set())
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
 
   const channel = CHANNELS.find((c) => c.key === channelKey)!
 
   // Derive agents from store, filtered by current channel
   const channelAgents = store.agents.filter((a) => a.channel === channelKey)
 
-  const visibleAgents = channelAgents.filter((a) => {
+  const visibleAgents = useMemo(() => channelAgents.filter((a) => {
     if (tab === 'active') return a.on
     if (tab === 'subagents') return a.isSubagent
     return true
-  })
+  }), [channelAgents, tab])
+
+  // Selection only ever references currently-visible rows, so reset it whenever
+  // the channel or tab changes (which changes what's visible).
+  const clearSelection = () => setSelected(new Set())
+  const selectChannel = (key: ChannelKey) => { setChannelKey(key); clearSelection() }
+  const selectTab = (key: AgentTab) => { setTab(key); clearSelection() }
+  const toggleSelect = (id: string) =>
+    setSelected((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  const toggleAll = () =>
+    setSelected((prev) => {
+      const allSelected = visibleAgents.length > 0 && visibleAgents.every((a) => prev.has(a.id))
+      return allSelected ? new Set() : new Set(visibleAgents.map((a) => a.id))
+    })
+  const confirmDelete = () => {
+    store.deleteAgents([...selected])
+    clearSelection()
+    setConfirmingDelete(false)
+  }
 
   return (
     // Nested view: the AiAgentsScreen shell already provides the white rounded
@@ -69,7 +95,7 @@ export function AgentBuilderScreen() {
                 type="button"
                 role="tab"
                 aria-selected={active}
-                onClick={() => setChannelKey(c.key)}
+                onClick={() => selectChannel(c.key)}
                 className="flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[13px] font-medium transition-colors"
                 style={{
                   backgroundColor: active ? '#ffffff' : 'transparent',
@@ -101,7 +127,7 @@ export function AgentBuilderScreen() {
                 type="button"
                 role="tab"
                 aria-selected={active}
-                onClick={() => setTab(t.key)}
+                onClick={() => selectTab(t.key)}
                 className={
                   active
                     ? '-mb-px border-b-2 border-ink pb-3 text-[14px] font-medium text-ink'
@@ -148,13 +174,45 @@ export function AgentBuilderScreen() {
         </div>
       </div>
 
+      {/* Selection action bar (shown when ≥1 row selected) */}
+      {selected.size > 0 && (
+        <div className="mb-3 flex items-center justify-between rounded-lg border border-surface-border bg-[#f4f3f1] px-4 py-2.5">
+          <div className="flex items-center gap-2">
+            <button type="button" aria-label="Clear selection" onClick={clearSelection} className="text-ink-muted hover:text-ink">
+              <X size={16} aria-hidden />
+            </button>
+            <span className="text-[13px] font-medium text-ink">{selected.size} selected</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setConfirmingDelete(true)}
+            className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-semibold text-white"
+            style={{ backgroundColor: '#c0392b' }}
+          >
+            <Trash2 size={14} aria-hidden />
+            Delete
+          </button>
+        </div>
+      )}
+
       {/* Agents table */}
       <AgentsTable
         agents={visibleAgents}
         isOn={(a) => a.on}
         onToggle={(id) => store.toggleAgent(id)}
         onRowClick={(id) => navigate(`/ai-agents/${id}`)}
+        selectedIds={selected}
+        onToggleSelect={toggleSelect}
+        onToggleAll={toggleAll}
       />
+
+      {confirmingDelete && (
+        <ConfirmDeleteDialog
+          count={selected.size}
+          onCancel={() => setConfirmingDelete(false)}
+          onConfirm={confirmDelete}
+        />
+      )}
 
       {creating && (
         <CreateAgentPanel

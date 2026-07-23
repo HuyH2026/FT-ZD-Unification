@@ -1,7 +1,8 @@
 // The agents table for the active channel/tab. Columns: checkbox · Agents ·
 // Activate (toggle) · Type · Conversations · Deflections · Deflection rate ·
 // Avg. CSAT · Tags. The on/off toggle is driven by the parent via isOn/onToggle;
-// checkboxes are inert.
+// row selection (checkboxes) is driven via selectedIds/onToggleSelect/onToggleAll.
+import { useEffect, useRef } from 'react'
 import { Tag } from 'lucide-react'
 import { type Agent } from './agent-builder-data'
 
@@ -32,20 +33,48 @@ function Toggle({ agent, on, onToggle }: { agent: Agent; on: boolean; onToggle: 
   )
 }
 
+function SelectAll({ checked, indeterminate, onChange }: { checked: boolean; indeterminate: boolean; onChange: () => void }) {
+  const ref = useRef<HTMLInputElement>(null)
+  useEffect(() => {
+    if (ref.current) ref.current.indeterminate = indeterminate
+  }, [indeterminate])
+  return (
+    <input
+      ref={ref}
+      type="checkbox"
+      aria-label="Select all agents"
+      checked={checked}
+      onChange={onChange}
+      className="size-4 rounded border-surface-border accent-[#0f8a5f]"
+    />
+  )
+}
+
 export function AgentsTable({
-  agents, isOn, onToggle, onRowClick,
+  agents, isOn, onToggle, onRowClick, selectedIds, onToggleSelect, onToggleAll,
 }: {
   agents: Agent[]
   isOn: (a: Agent) => boolean
   onToggle: (id: string) => void
   onRowClick?: (id: string) => void
+  selectedIds?: ReadonlySet<string>
+  onToggleSelect?: (id: string) => void
+  onToggleAll?: () => void
 }) {
+  const selected = selectedIds ?? new Set<string>()
+  const allSelected = agents.length > 0 && agents.every((a) => selected.has(a.id))
+  const someSelected = agents.some((a) => selected.has(a.id))
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full border-collapse">
         <thead>
           <tr className="border-b border-surface-border">
-            <th className="w-10 px-3 py-3"><span className="sr-only">Select</span></th>
+            <th className="w-10 px-3 py-3">
+              {onToggleAll
+                ? <SelectAll checked={allSelected} indeterminate={someSelected && !allSelected} onChange={onToggleAll} />
+                : <span className="sr-only">Select</span>}
+            </th>
             <th className="px-3 py-3 text-left text-[12px] font-medium text-ink-muted">Agents</th>
             <th className="px-3 py-3 text-left text-[12px] font-medium text-ink-muted">Activate</th>
             {COLS.map((c) => (
@@ -54,10 +83,20 @@ export function AgentsTable({
           </tr>
         </thead>
         <tbody>
-          {agents.map((a) => (
-            <tr key={a.id} className="border-b border-surface-border">
+          {agents.map((a) => {
+            const isSelected = selected.has(a.id)
+            return (
+            <tr key={a.id} className="border-b border-surface-border" style={{ backgroundColor: isSelected ? '#f0f7f4' : undefined }}>
               <td className="px-3 py-4 align-middle">
-                <span className="inline-block size-4 rounded border border-surface-border" aria-hidden />
+                {onToggleSelect
+                  ? <input
+                      type="checkbox"
+                      aria-label={`Select ${a.name}`}
+                      checked={isSelected}
+                      onChange={() => onToggleSelect(a.id)}
+                      className="size-4 rounded border-surface-border accent-[#0f8a5f]"
+                    />
+                  : <span className="inline-block size-4 rounded border border-surface-border" aria-hidden />}
               </td>
               <td className="px-3 py-4 align-middle text-[14px] font-medium">
                 <button
@@ -89,7 +128,8 @@ export function AgentsTable({
                 </div>
               </td>
             </tr>
-          ))}
+            )
+          })}
         </tbody>
       </table>
     </div>
