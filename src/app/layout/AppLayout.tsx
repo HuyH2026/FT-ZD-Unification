@@ -15,7 +15,7 @@ export function AppLayout() {
   const activeLabel = active?.label ?? 'Home'
 
   const aiStudioPanel = showAiStudio ? (
-    <div className="mr-2 py-0">
+    <div className="ml-2">
       <TopicSuggestionsPanel onClose={() => setShowAiStudio(false)} />
     </div>
   ) : null
