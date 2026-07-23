@@ -24,6 +24,17 @@ export type NewPmView = { name: string; kind: 'pm'; role: 'pm'; pmLayout: PmWidg
 export type NewView = NewGridView | NewPmView
 
 const STORAGE_KEY = 'home-dashboard-views-v1'
+
+// Clear persisted dashboard views once per full page load (this module body
+// runs exactly once per browser refresh, not per SPA navigation), so a hard
+// refresh always starts the Home dashboard from the clean seeded view instead
+// of carrying over previous demo/session edits.
+try {
+  window.localStorage?.removeItem(STORAGE_KEY)
+} catch {
+  /* ignore missing/unavailable storage */
+}
+
 const WIDGET_IDS = new Set<string>(WIDGET_ID_LIST)
 const PM_WIDGET_IDS = new Set<string>(PM_WIDGET_ID_LIST)
 const ROLE_KEYS = new Set<string>(['ops', 'quality', 'knowledge', 'exec', 'pm'])

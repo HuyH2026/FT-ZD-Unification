@@ -101,36 +101,30 @@ describe('views-store', () => {
       stubStorage()
     })
 
-    it('REGRESSION: seq counter syncs on load to prevent id collisions after reload', async () => {
+    it('REGRESSION: a full page reload clears persisted views back to a fresh single Default', async () => {
       // Simulate a session: seed → add one generated view → persist
       const initial = seedViewsState()
-      const defaultId = initial.views[0].id // will be view-1
       const withGen = addView(initial, gen)
-      const genId = withGen.views[1].id // will be view-2
       persistViewsState(withGen)
 
       // Capture the persisted state for re-stub
       const persisted = window.localStorage.getItem(STORAGE_KEY)!
 
-      // Simulate reload: reset module (seq counter resets to 0)
+      // Simulate a hard browser refresh: reset the module registry so the
+      // module-level "clear on load" side effect (which only runs once per
+      // real page load) re-runs, then re-stub storage with the prior session's data.
       vi.resetModules()
-      stubStorage(persisted) // re-stub with persisted data
+      stubStorage(persisted)
       const { loadViewsState: loadFresh, addView: addFresh } = await import('./views-store')
 
-      // Load persisted state
+      // The reload wipes the prior session's views — loading now returns a fresh seed.
       const loaded = loadFresh()
-      expect(loaded.views).toHaveLength(2)
-      const loadedIds = loaded.views.map((v) => v.id)
-      expect(loadedIds).toContain(defaultId)
-      expect(loadedIds).toContain(genId)
+      expect(loaded.views).toHaveLength(1)
+      expect(loaded.views[0].builtIn).toBe(true)
 
-      // Add a new view post-load — its id MUST NOT collide with any loaded id
+      // Adding a view post-reload still mints unique ids off the fresh seq.
       const postLoad = addFresh(loaded, { name: 'Post-reload', role: 'quality', layout: { left: ['cost'], right: [] } })
-      const newId = postLoad.views[2].id
-      expect(newId).not.toBe(defaultId)
-      expect(newId).not.toBe(genId)
-      // This assertion will FAIL pre-fix because seq=0 mints view-1 again
-      expect(new Set(postLoad.views.map((v) => v.id)).size).toBe(3) // all unique
+      expect(new Set(postLoad.views.map((v) => v.id)).size).toBe(2) // all unique
     })
 
     it('loads and validates persisted views; drops invalid widget ids', () => {

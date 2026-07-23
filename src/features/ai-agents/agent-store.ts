@@ -184,6 +184,17 @@ export function seedAgents(): StoredAgent[] {
 }
 
 const STORAGE_KEY = 'agent-builder-store-v1'
+
+// Clear persisted agent edits once per full page load (this module body runs
+// exactly once per browser refresh, not per SPA navigation), so a hard
+// refresh always starts the builder flow from the clean seed data instead of
+// carrying over previous demo/session edits.
+try {
+  window.localStorage?.removeItem(STORAGE_KEY)
+} catch {
+  /* ignore missing/unavailable storage */
+}
+
 const STEP_TITLE: Record<StepType, string> = STEP_TYPES.reduce(
   (acc, s) => ({ ...acc, [s.type]: s.label }), {} as Record<StepType, string>,
 )

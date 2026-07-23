@@ -16,6 +16,17 @@ export const PM_TOOL_LABEL: Record<PmTool, string> = {
 }
 
 const STORAGE_KEY = 'home-pm-integration-v1'
+
+// Clear persisted connect-state once per full page load (this module body
+// runs exactly once per browser refresh, not per SPA navigation), so a hard
+// refresh always starts the PM dashboard disconnected instead of carrying
+// over a previous demo/session's "connected" state.
+try {
+  window.localStorage?.removeItem(STORAGE_KEY)
+} catch {
+  /* ignore missing/unavailable storage */
+}
+
 const TOOL_KEYS = new Set<string>(['jira', 'linear', 'asana'])
 const DISCONNECTED: PmIntegration = { connected: false, tool: null }
 
