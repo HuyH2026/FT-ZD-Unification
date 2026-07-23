@@ -73,7 +73,7 @@ export function CreateAgentPanel({
         <textarea
           id="agent-trigger" aria-label="This agent is triggered when" value={triggeredWhen} onChange={(e) => setTriggeredWhen(e.target.value)}
           rows={6} placeholder="describe your customer's action or query."
-          className="mb-6 w-full rounded-lg border border-surface-border px-3 py-2.5 text-[14px] text-ink outline-none placeholder:text-ink-muted"
+          className="mb-6 w-full shrink-0 rounded-lg border border-surface-border px-3 py-2.5 text-[14px] text-ink outline-none placeholder:text-ink-muted"
         />
 
         {/* Training phrases */}
