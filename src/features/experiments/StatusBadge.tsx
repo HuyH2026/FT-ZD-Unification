@@ -9,7 +9,7 @@ const CONFIG: Record<ExperimentStatus, { label: string; bg: string }> = {
   canceled: { label: 'Canceled', bg: '#e53112' },
 }
 
-export function StatusBadge({ status }: { status: ExperimentStatus }): JSX.Element {
+export function StatusBadge({ status }: { status: ExperimentStatus }) {
   const { label, bg } = CONFIG[status]
   return (
     <span

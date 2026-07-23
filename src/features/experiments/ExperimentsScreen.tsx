@@ -6,7 +6,7 @@ import { METRICS, EXPERIMENTS } from './experiments-data'
 import { MetricStrip } from './MetricStrip'
 import { ExperimentTable } from './ExperimentTable'
 
-export function ExperimentsScreen(): JSX.Element {
+export function ExperimentsScreen() {
   return (
     <div data-testid="screen-experiments" className="h-full overflow-y-auto rounded-[26px] bg-white px-8 py-6">
       <h1 className="text-[22px] font-semibold text-ink">A/B test</h1>
