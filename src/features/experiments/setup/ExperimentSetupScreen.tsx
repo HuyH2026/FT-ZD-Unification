@@ -2,7 +2,7 @@
 // controlled local inputs, every action navigates back to /experiments.
 // Mirrors AutomationDetailScreen's shell (rounded card + top bar + body).
 import { useState } from 'react'
-import { useNavigate } from 'react-router'
+import { useNavigate, useSearchParams } from 'react-router'
 import {
   ArrowLeft,
   MoreHorizontal,
@@ -19,9 +19,8 @@ import {
   WINNER_METRICS,
   TIME_ZONE,
   DEFAULT_TEST_NAME,
-  DEFAULT_TEST_DESCRIPTION,
 } from '../experiments-data'
-import { DEFAULT_EXPERIMENT_DETAIL } from './results/results-data'
+import { getExperimentDetail } from './results/results-data'
 import { SetupSection } from './SetupSection'
 import { VariantRow } from './VariantRow'
 import { SummaryPanel } from './SummaryPanel'
@@ -35,9 +34,13 @@ export function ExperimentSetupScreen() {
   const navigate = useNavigate()
   const back = () => navigate('/experiments')
 
-  const [tab, setTab] = useState<(typeof TABS)[number]>('Setup')
-  const [name, setName] = useState(DEFAULT_TEST_NAME)
-  const [description, setDescription] = useState(DEFAULT_TEST_DESCRIPTION)
+  const [searchParams] = useSearchParams()
+  const detail = getExperimentDetail(searchParams.get('id'))
+  const hasId = Boolean(searchParams.get('id') && detail.id === searchParams.get('id'))
+
+  const [tab, setTab] = useState<(typeof TABS)[number]>(hasId ? 'Results' : 'Setup')
+  const [name, setName] = useState(detail.name)
+  const [description, setDescription] = useState(detail.description)
   const [endCondition, setEndCondition] = useState<'fixed' | 'count'>('fixed')
 
   return (
@@ -85,7 +88,7 @@ export function ExperimentSetupScreen() {
       {/* Body */}
       <div className="min-h-0 flex-1 overflow-y-auto">
         {tab === 'Results' ? (
-          <ResultsView detail={DEFAULT_EXPERIMENT_DETAIL} />
+          <ResultsView detail={detail} />
         ) : (
         <div className="flex justify-center gap-6 px-8 py-6">
           {/* Form column */}
