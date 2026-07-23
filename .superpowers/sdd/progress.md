@@ -1,27 +1,33 @@
-# Tool Builder History Tab — Progress Ledger
+# Log Screen — Progress Ledger
 
-Branch: worktree-tool-history-tab
-Plan: docs/superpowers/plans/2026-07-22-tool-history-tab.md
-Base (before Task 1): 9767e901b2101ce99e7e1d2d526641280aeea68c
+Branch: worktree-log-page
+Plan: docs/superpowers/plans/2026-07-22-log-screen.md
+Base (before Task 1): f904e1e1e200a8984ff38646fd5a84c9ce5ddb79
 Baseline: 415/415 tests pass
 
 Tasks:
-- Task 1: complete (commit 4dbf7122, review clean — spec ✅, quality ✅; 10/10 tools-data tests)
-- Task 2: complete (commit f37acf25, review clean — spec ✅, quality ✅; 5/5 ToolsHistoryTable tests; minors: dead-code defensive guard, text-black inherited from ToolsTable pattern, both non-blocking)
-- Task 3: complete (commit afbafd81, review clean — spec ✅, quality ✅; ToolsScreen 4/4, full suite 415/415, tsc clean)
+- Task 1: complete (commit 21915356, review clean — spec ✅, quality ✅; 3/3 log-data tests)
+- Task 2: complete (commit 09d29b8f, review clean — spec ✅, quality ✅; tsc clean)
+- Task 3: complete (commit 8530bfff, review clean — spec ✅, quality ✅; tsc clean)
+- Task 4: complete (commit 6263a1da, review clean — spec ✅, quality ✅; tsc clean)
+- Task 5: complete (commit 384e6f88, review clean — spec ✅, quality ✅; tsc clean)
+- Task 6: complete (commit d927d1aa, review clean — spec ✅, quality ✅; tsc clean)
+- Task 7: complete (commit 336de5eb, review clean — spec ✅, quality ✅ w/ non-blocking minor; tsc clean)
+- Task 8: complete (commit 7d80fc90, review clean — spec ✅, quality ✅; tsc clean)
+- Task 9: complete (commits a37a5a29 + fix b591e025, review clean after fix — spec ✅, quality ✅; tsc clean. Fix: added font-semibold to "Errors overview" heading — spec said semibold, plan code omitted it.)
+- Task 10: complete (commit 495d045d, review clean — spec ✅, quality ✅; 2/2 LogScreen tests, tsc clean)
+- Task 11: complete (commit a2d4e83b, review clean — spec ✅, quality ✅; 3/3 log.routes tests, tsc clean)
+- Task 12: complete (verification — tsc clean, full suite 423/423 pass (+8 new), vite build succeeds; chunk-size warning pre-existing/unrelated).
 
-Feature commits (in order): a5e483bd (spec, cherry-picked — see note), 4dbf7122, f37acf25, afbafd81.
-ALL 3 TASKS COMPLETE. Full suite 415/415, tsc clean.
+Feature commits (in order): 21915356, 09d29b8f, 8530bfff, 6263a1da, 384e6f88, d927d1aa, 336de5eb, 7d80fc90, a37a5a29, b591e025, 495d045d, a2d4e83b.
+ALL 12 TASKS COMPLETE. Full suite 423/423, tsc clean, build OK.
 
-Note: the design spec (originally committed to local main as e9f125ad before
-this worktree was created) was not on origin/main, so EnterWorktree's branch
-point never inherited it — the final review correctly flagged the spec file
-as missing from the branch. Fixed by cherry-picking e9f125ad onto this
-branch as a5e483bd.
+Final whole-branch review (Opus, base f904e1e1..a2d4e83b, 12 commits): READY TO MERGE — yes. No Critical/Important. Minors (non-blocking):
+1. Tabs ARIA incomplete (no tabpanel/aria-controls/roving arrows) — inherited verbatim from ToolsScreen; systemic, fix project-wide or not at all.
+2. HeaderCell + row-cell markup duplicated across AuditTable/ErrorTable — matches ToolsTable house style; low-value extraction.
+3. SeverityBadge white-on-color contrast borderline for AA (Low #3492ef ~3.2:1, High #d64535 ~4.4:1) — transcribed from prototype, consistent one-off.
+4. ADDRESSED: table coverage was thin (no row-count / testid / badge assertions). Added rows to LogScreen.test.tsx.
+5. text-black vs text-ink (adjudicated, see above) — confirmed non-blocking, matches sibling ToolsTable/ToolsToolbar.
 
-Final whole-branch review (Opus, base da400fd3..afbafd81, pre-spec-fix): READY TO MERGE — yes. No Critical/Important. Minors (non-blocking):
-1. Avatar/HeaderCell duplicated locally in ToolsHistoryTable.tsx since ToolsTable.tsx doesn't export them — reasonable for a small mock, drift risk if either changes later.
-2. text-black instead of text-ink token in ToolsHistoryTable.tsx — inherited verbatim from ToolsTable.tsx's own pre-existing pattern, not a new inconsistency.
-3. No dedicated test pins the Authentication tab's placeholder specifically (only Recommended got one) — trivial residual coverage gap.
-4. `if (!action) return null` guard in ToolsHistoryTable.tsx is unreachable with current mock data — harmless, also satisfies TS narrowing.
-5. RUN_COUNT=113 flagged as possibly copy-pasted from NAME_COUNT — verified against the Figma frame fetch from this session (node 755:167810 literally shows "Run (113)"), so this is correct per design, not a defect. Resolved, no action needed.
+Minor findings (for final review triage):
+- Task 4 + Task 7: `text-black` vs canonical `text-ink` on cells/buttons (matches brief verbatim + sibling ToolsToolbar/ToolsTable pattern; text-black is a Tailwind utility not raw hex; non-blocking). Task 7 also has intra-component inconsistency (Alert-management uses text-ink) — both verbatim from brief. Consider unifying to text-ink across the log feature during final polish if desired.
