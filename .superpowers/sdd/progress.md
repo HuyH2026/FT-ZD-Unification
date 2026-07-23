@@ -1,22 +1,24 @@
-# AI Studio Topic Suggestions — Progress Ledger
+# Tool Detail Screen — Progress Ledger
 
-Branch: worktree-ai-studio-suggestions
-Plan: docs/superpowers/plans/2026-07-22-ai-studio-topic-suggestions.md
-Base (before Task 1): dd0a827ece5572459caaf7ed715189556f56cdfb
-Baseline: 211/211 tests pass (excluding .claude worktree crawl)
+Branch: worktree-tool-builder-update
+Plan: docs/superpowers/plans/2026-07-22-tool-detail-screen.md
+Base (before Task 1): eaf2e9f5d9ee13cd9892ba8222b36e6ecc6be2a5
+Baseline: 357/357 tests pass
 
 Tasks:
-- Task 1: complete (commit 9129e6d5, review clean — spec ✅, quality ✅; 2/2 tests, tsc OK; no findings)
-- Task 2: complete (commit 8ad8a946, review clean — spec ✅, quality ✅; 3/3 org tests, tsc OK; net -84 lines; no findings)
-- Task 3: complete (commit b29a19a6, review clean — spec ✅, quality ✅; 3/3 tests, tsc OK; card 1 verbatim; no findings)
-- Task 4: complete (commit 5d4790a9, review clean — spec ✅, quality ✅; 2/2 tests, tsc OK; no findings)
-- Task 5: complete (commit 6b6a2f26, review clean — spec ✅, quality ✅; 3/3 tests incl. both-direction wrap, tsc OK; no findings)
-- Task 6: complete (commit 97f5f929, review clean — spec ✅, quality ✅; AppLayout 5/5 tests, full suite 223/223, tsc OK)
-  Note: implementer initially overwrote AppLayout.test.tsx (dropping 3 routing tests); controller restored them (renderAt + routes) and amended before review. No coverage lost.
+- Task 1: complete (commit f629b176, review clean — spec ✅, quality ✅; 7/7 ToolsTable tests, 18/18 tools feature; note: tsc transiently breaks until Task 2 wires onOpen into ToolsScreen, expected per plan sequencing)
+- Task 2: complete (commit 203ea6eb, review clean — spec ✅, quality ✅; 3/3 ToolsScreen tests, tsc clean)
+- Task 3: complete (commit 4d90e69c, review clean — spec ✅, quality ✅; 3/3 ToolRequestCard tests, tsc clean)
+- Task 4: complete (commit ab5a2b5a, review clean — spec ✅, quality ✅; 1/1 test, tsc clean; minor: text-black vs text-ink from brief's own code, non-blocking)
+- Task 5: complete (commit 9f78402e, review clean — spec ✅, quality ✅; ToolDetailScreen+routes 9/9, full suite 371/371, tsc clean)
 
-Feature commits (in order): 9129e6d5, 8ad8a946, b29a19a6, 5d4790a9, 6b6a2f26, 97f5f929.
-ALL 6 TASKS COMPLETE. Full suite 223/223 (excl. .claude crawl), tsc clean.
+Feature commits (in order): f629b176, 203ea6eb, 4d90e69c, ab5a2b5a, 9f78402e.
+ALL 5 TASKS COMPLETE. Full suite 371/371, tsc clean.
 
-Final whole-feature review (Opus, base dd0a827e..97f5f929, 6 commits): READY TO MERGE — yes. No Critical/Important. Minors (non-blocking):
-1. Double-panel on /organization route: OrganizationScreen renders its own AiStudioPanel (default open) inside <main>; opening the global TopBar panel there shows two AI Studio panels + duplicate a11y labels. Consistent with spec's global-scope decision; org panel predates this work. Follow-up: suppress global panel on /organization, or route the TopBar toggle to the org panel there.
-2. SuggestionCard pager buttons lack hover/focus-visible affordance (minor a11y polish).
+Final whole-feature review (Opus, base eaf2e9f5..9f78402e, 5 commits): READY TO MERGE — yes. No Critical/Important. Minors (non-blocking):
+1. ToolsTable.tsx options button stops mouse propagation but not keyboard (onKeyDown) — keyboard Enter/Space on the inert options button would bubble into row-click navigation.
+2. No single true end-to-end test rendering full routes at /tools, clicking a real row, and asserting the detail screen appears (coverage exists in pieces across ToolsTable/ToolsScreen/tools.routes tests).
+3. Tab-strip underline color inconsistency: ToolsScreen active tab uses border-[#01567a] (blue) vs new Untitled/request-tab strips using border-ink (dark grey) — plan's stated ToolsScreen reference was itself inaccurate.
+4. ToolResponseCard's text-blue-700 (#406cc4) doesn't visually match the Figma #01567a the spec claimed it matched — token usage is still the correct call per CLAUDE.md, spec's "matches" claim was wrong.
+5. Tab-strip markup triplicated across ToolsScreen/ToolRequestCard/Untitled strip — not worth extracting yet per reviewer.
+6. Reproduced Figma copy typo "enter endpoint then sent" — faithful to design, not a code defect.
