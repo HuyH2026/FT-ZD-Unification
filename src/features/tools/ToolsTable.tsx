@@ -11,7 +11,7 @@ const COLS =
 
 // State badge styling per Figma: Live = green fill, Read only = bordered
 // neutral, Auto-saved = grey fill.
-function StateBadge({ state }: { state: ToolState }) {
+export function StateBadge({ state }: { state: ToolState }) {
   if (state === 'Live') {
     // #048c80 has no theme token — inline per the CLAUDE.md one-off convention.
     return <span className="rounded-xl px-2 py-0.5 text-[11px] font-semibold text-white" style={{ backgroundColor: '#048c80' }}>Live</span>
@@ -55,7 +55,14 @@ function Avatar({ tint }: { tint: ToolAction['iconTint'] }) {
 
 // Static, inert checkbox (presentational).
 function CheckboxCell() {
-  return <span className="h-3.5 w-3.5 shrink-0 rounded-[2px] border border-surface-border bg-white" aria-hidden />
+  return (
+    <span
+      data-testid="tool-row-checkbox"
+      onClick={(e) => e.stopPropagation()}
+      className="h-3.5 w-3.5 shrink-0 rounded-[2px] border border-surface-border bg-white"
+      aria-hidden
+    />
+  )
 }
 
 function HeaderCell({ label, sortable = true, info = false }: { label: string; sortable?: boolean; info?: boolean }) {
@@ -68,10 +75,10 @@ function HeaderCell({ label, sortable = true, info = false }: { label: string; s
   )
 }
 
-export function ToolsTable() {
+export function ToolsTable({ onOpen }: { onOpen: (id: string) => void }) {
   return (
     <div className="overflow-hidden rounded-t-[20px] border border-surface-border">
-      {/* Header */}
+      {/* Header — unchanged */}
       <div className={`grid ${COLS} border-b border-surface-border bg-[#fbfbfb]`}>
         <div className="flex items-center gap-2 border-r border-surface-border px-3.5 py-3">
           <CheckboxCell />
@@ -90,7 +97,20 @@ export function ToolsTable() {
 
       {/* Rows */}
       {TOOL_ACTIONS.map((a) => (
-        <div key={a.id} className={`grid ${COLS} border-b border-surface-border last:border-b-0`}>
+        <div
+          key={a.id}
+          data-testid={`tool-row-${a.id}`}
+          role="button"
+          tabIndex={0}
+          onClick={() => onOpen(a.id)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              onOpen(a.id)
+            }
+          }}
+          className={`grid ${COLS} cursor-pointer border-b border-surface-border last:border-b-0`}
+        >
           <div className="flex items-center gap-3 border-r border-surface-border px-3.5 py-3">
             <CheckboxCell />
             <Avatar tint={a.iconTint} />
@@ -115,7 +135,12 @@ export function ToolsTable() {
             {a.lastModified}
           </div>
           <div className="flex items-center justify-center bg-[#fbfbfb] px-2">
-            <button type="button" aria-label={`${a.name} options`} className="text-ink-muted">
+            <button
+              type="button"
+              aria-label={`${a.name} options`}
+              onClick={(e) => e.stopPropagation()}
+              className="text-ink-muted"
+            >
               <MoreVertical size={16} aria-hidden />
             </button>
           </div>
