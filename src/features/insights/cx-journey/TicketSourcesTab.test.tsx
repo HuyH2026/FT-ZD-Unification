@@ -20,4 +20,17 @@ describe('TicketSourcesTab', () => {
     await user.click(screen.getByRole('button', { name: /next ticket/i }))
     expect(screen.getByText('1 of 1')).toBeInTheDocument()
   })
+
+  it('advances through multiple tickets and wraps around', async () => {
+    const user = userEvent.setup()
+    render(<TicketSourcesTab detail={AUTOMATION_DETAILS['Account Lock Issues']} />)
+    expect(screen.getByText('1 of 2')).toBeInTheDocument()
+    expect(screen.getByText(/Ticket ID: 1288/)).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /next ticket/i }))
+    expect(screen.getByText('2 of 2')).toBeInTheDocument()
+    expect(screen.getByText(/Ticket ID: 1291/)).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /next ticket/i }))
+    expect(screen.getByText('1 of 2')).toBeInTheDocument()
+    expect(screen.getByText(/Ticket ID: 1288/)).toBeInTheDocument()
+  })
 })

@@ -1,5 +1,5 @@
 // Right slide-over for a clicked Agent-gaps row. Header (title + topic chip +
-// regenerate), secondary tabs (Create Agent / Generate Policy / Ticket Sources),
+// close), secondary tabs (Create Agent / Generate Policy / Ticket Sources),
 // a scrollable body, and a sticky footer whose labels vary by tab. Selection of
 // training-phrase rows (Create Agent) enables the footer Create button. Closes
 // on X, scrim click, and Escape. Presentational — footer actions are no-ops.

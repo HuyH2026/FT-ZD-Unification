@@ -79,7 +79,6 @@ export type TicketSource = {
 }
 
 export type GeneratedAgentDetail = {
-  channel: string
   summary: string
   autoflowSummary: string
   stats: { value: string; label: string }[]
@@ -119,7 +118,6 @@ const reactivateTicket: TicketSource = {
 
 export const AUTOMATION_DETAILS: Record<string, GeneratedAgentDetail> = {
   'Reactivate account': {
-    channel: 'Email',
     summary: SUMMARY_INTRO,
     autoflowSummary:
       'Acknowledge the reactivation request, verify account info and deactivation reason, follow steps based on cause (inactivity, security, or violation), reactivate if eligible, confirm access, advise on security, and offer further help.',
@@ -165,7 +163,6 @@ export const AUTOMATION_DETAILS: Record<string, GeneratedAgentDetail> = {
     tickets: [reactivateTicket],
   },
   'Account Lock Issues': {
-    channel: 'Email',
     summary: SUMMARY_INTRO,
     autoflowSummary:
       'Confirm the lockout, verify identity, identify the lock cause (failed logins, suspicious activity, or policy hold), guide the customer through unlock or reset, confirm restored access, and recommend enabling two-factor authentication.',
@@ -232,10 +229,32 @@ export const AUTOMATION_DETAILS: Record<string, GeneratedAgentDetail> = {
           timestamp: 'Jul 15, 2026, 2:22pm',
         },
       },
+      {
+        id: '1291',
+        status: 'Closed',
+        channel: 'Email',
+        dateCreated: 'Jul 14, 2026, 9:35am',
+        metrics: [
+          { label: 'First contact resolution', value: 'Yes' },
+          { label: 'First resolution time', value: '0.3 hrs' },
+          { label: 'Full resolution time', value: '0.5 hrs' },
+          { label: 'Sentiment', value: '🙂' },
+          { label: 'Average reply time', value: '0.25 hrs' },
+          { label: 'Agent replies', value: '2' },
+        ],
+        subject: 'Suspicious login lockout',
+        customerRequest: {
+          body: "My account was locked due to 'suspicious activity' but it was just me traveling. How do I get back in?",
+          timestamp: 'Jul 14, 2026, 9:35am',
+        },
+        agentResponse: {
+          body: "Hi [NAME_1], I've confirmed your identity and the travel location. Your account is now unlocked. Please update your password and consider enabling two-factor authentication for added security when traveling.\n\nRegards,\nSupport",
+          timestamp: 'Jul 14, 2026, 9:50am',
+        },
+      },
     ],
   },
   'Account Linking and Updating': {
-    channel: 'Email',
     summary: SUMMARY_INTRO,
     autoflowSummary:
       'Understand which accounts the customer wants to link or update, verify ownership of each, perform the link or profile update, confirm the change, and surface any conflicts that need manual review.',
