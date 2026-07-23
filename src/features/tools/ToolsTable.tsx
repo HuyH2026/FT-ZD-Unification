@@ -7,7 +7,7 @@ import { ArrowDown, Bolt, Info, MoreVertical, User } from 'lucide-react'
 import { TOOL_ACTIONS, NAME_COUNT, type ToolAction, type ToolState } from './tools-data'
 
 const COLS =
-  'grid-cols-[minmax(280px,1.4fr)_100px_150px_200px_120px_160px_56px]'
+  'grid-cols-[minmax(280px,1.4fr)_100px_190px_200px_120px_160px_56px]'
 
 // State badge styling per Figma: Live = green fill, Read only = bordered
 // neutral, Auto-saved = grey fill.
