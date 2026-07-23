@@ -12,6 +12,8 @@ import { PolicyEditor } from './PolicyEditor'
 import { BlockCanvas } from './BlockCanvas'
 import { StepsPalette } from './StepsPalette'
 import { EditorRail, type RailKey } from './EditorRail'
+import { AiStudioEditorPanel } from './AiStudioEditorPanel'
+import { AiStudioFullView } from './AiStudioFullView'
 
 export function AgentEditorScreen() {
   const { agentId = '' } = useParams()
@@ -20,9 +22,12 @@ export function AgentEditorScreen() {
   const agent = store.getAgent(agentId)
 
   const [channel, setChannel] = useState<ChannelKey>(agent?.channel ?? 'widget')
-  // The far-right rail drives the right panel. "steps" shows the palette;
-  // any other selection hides it (those panels are unspecced/empty).
+  // The far-right rail drives the right panel. "steps" shows the palette,
+  // "ai" shows the AI Studio assistant; any other selection hides it (those
+  // panels are unspecced/empty).
   const [rail, setRail] = useState<RailKey>('steps')
+  // Whether the AI Studio "Review plan" full-screen takeover is open.
+  const [reviewing, setReviewing] = useState(false)
 
   if (!agent) return <Navigate to="/ai-agents" replace />
 
@@ -44,10 +49,17 @@ export function AgentEditorScreen() {
               <BlockCanvas blocks={agent.blocks} onChange={(blocks) => store.updateAgent(agent.id, { blocks })} />
             </div>
             {rail === 'steps' && <StepsPalette onClose={() => setRail('outline')} />}
+            {rail === 'ai' && (
+              <AiStudioEditorPanel
+                onClose={() => setRail('steps')}
+                onReview={() => setReviewing(true)}
+              />
+            )}
           </div>
           <EditorRail selected={rail} onSelect={setRail} />
         </div>
       </div>
+      {reviewing && <AiStudioFullView onClose={() => setReviewing(false)} />}
     </DndProvider>
   )
 }
