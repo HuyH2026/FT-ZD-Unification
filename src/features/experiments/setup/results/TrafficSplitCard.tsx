@@ -38,10 +38,9 @@ export function TrafficSplitCard() {
               startAngle={90}
               endAngle={450}
               isAnimationActive={false}
-              stroke="none"
             >
               {TRAFFIC_SPLIT.map((s) => (
-                <Cell key={s.name} fill={s.color} />
+                <Cell key={s.name} fill={s.color} stroke={s.color} strokeWidth={1} />
               ))}
             </Pie>
           </PieChart>
