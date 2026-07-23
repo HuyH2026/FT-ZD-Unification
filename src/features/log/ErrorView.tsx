@@ -8,7 +8,7 @@ export function ErrorView() {
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-baseline justify-between">
-        <h2 className="text-[20px] text-ink">
+        <h2 className="text-[20px] font-semibold text-ink">
           Errors overview <span className="text-grey-500">Last 24 hours</span>
         </h2>
         <span className="text-[13px] text-ink-muted">Error logs are stored for 30 days.</span>
