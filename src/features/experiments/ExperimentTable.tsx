@@ -1,6 +1,7 @@
 // The experiments table. Columns: Name · Status · Intent · Description ·
-// Traffic split. Rows are separated cards, matching the frame. Static — no
-// click-through.
+// Traffic split. Rows are separated cards; clicking a row opens its detail
+// at /experiments/new?id=<id>.
+import { useNavigate } from 'react-router'
 import { type Experiment } from './experiments-data'
 import { StatusBadge } from './StatusBadge'
 import { TrafficSplitBar } from './TrafficSplitBar'
@@ -9,6 +10,7 @@ const INK = '#2f3130'
 const COLS = 'grid-cols-[1.4fr_0.8fr_1.2fr_1.8fr_0.9fr]'
 
 export function ExperimentTable({ experiments }: { experiments: Experiment[] }) {
+  const navigate = useNavigate()
   return (
     <div>
       {/* Column headers */}
@@ -24,7 +26,16 @@ export function ExperimentTable({ experiments }: { experiments: Experiment[] }) 
         {experiments.map((e) => (
           <div
             key={e.id}
-            className={`grid ${COLS} items-center gap-4 rounded-2xl border border-surface-border bg-white px-5 py-4`}
+            role="button"
+            tabIndex={0}
+            onClick={() => navigate(`/experiments/new?id=${e.id}`)}
+            onKeyDown={(ev) => {
+              if (ev.key === 'Enter' || ev.key === ' ') {
+                ev.preventDefault()
+                navigate(`/experiments/new?id=${e.id}`)
+              }
+            }}
+            className={`grid ${COLS} cursor-pointer items-center gap-4 rounded-2xl border border-surface-border bg-white px-5 py-4 transition-colors hover:border-grey-500 hover:bg-[#fafafa] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-700`}
           >
             <div className="text-[14px] font-medium" style={{ color: INK }}>{e.name}</div>
             <div><StatusBadge status={e.status} /></div>
