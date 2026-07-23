@@ -4,6 +4,7 @@
 // the toolbar + table, the other three show titled empty regions (no fabricated
 // data). No backend.
 import { useState } from 'react'
+import { useNavigate } from 'react-router'
 import { Settings } from 'lucide-react'
 import { TOOL_TABS, type ToolTab } from './tools-data'
 import { ToolsToolbar } from './ToolsToolbar'
@@ -11,6 +12,7 @@ import { ToolsTable } from './ToolsTable'
 
 export function ToolsScreen() {
   const [tab, setTab] = useState<ToolTab>('Available')
+  const navigate = useNavigate()
 
   return (
     <div
@@ -54,7 +56,7 @@ export function ToolsScreen() {
         {tab === 'Available' ? (
           <div className="flex flex-col gap-4">
             <ToolsToolbar />
-            <ToolsTable />
+            <ToolsTable onOpen={(id) => navigate(`/tools/${id}`)} />
           </div>
         ) : (
           <div
