@@ -47,7 +47,7 @@ describe('AgentBuilderScreen — create flow', () => {
   it('opens the editor when an agent row is clicked', async () => {
     const user = userEvent.setup()
     renderApp()
-    await user.click(screen.getByRole('button', { name: 'Open Knowledge Retrieval' }))
+    await user.click(screen.getByTestId('agent-row-w1'))
     expect(screen.getByTestId('view-agent-editor')).toBeInTheDocument()
   })
 
@@ -63,6 +63,6 @@ describe('AgentBuilderScreen — create flow', () => {
     await user.click(screen.getByLabelText('Back to agents'))
     // The created agent should now appear in the list.
     const builderView = within(screen.getByTestId('view-agent-builder'))
-    expect(builderView.getByRole('button', { name: 'Open Refund helper' })).toBeInTheDocument()
+    expect(builderView.getByText('Refund helper')).toBeInTheDocument()
   })
 })

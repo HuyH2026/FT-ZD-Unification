@@ -9,11 +9,11 @@ const agents: Agent[] = [
 ]
 
 describe('AgentsTable row click', () => {
-  it('calls onRowClick with the agent id when the name is clicked', async () => {
+  it('calls onRowClick with the agent id when the row is clicked', async () => {
     const user = userEvent.setup()
     const onRowClick = vi.fn()
     render(<AgentsTable agents={agents} isOn={() => true} onToggle={() => {}} onRowClick={onRowClick} />)
-    await user.click(screen.getByRole('button', { name: 'Open Knowledge Retrieval' }))
+    await user.click(screen.getByTestId('agent-row-w1'))
     expect(onRowClick).toHaveBeenCalledWith('w1')
   })
 

@@ -1026,7 +1026,7 @@ export function HomeScreen() {
             <div>
               <div className="flex items-center gap-3">
                 <p className="text-[26px] font-normal leading-8 tracking-[0.35px]" style={{ color: INK_SOFT }}>
-                  {editing ? 'Customize your dashboard' : 'Good morning, Alex'}
+                  {editing ? 'Customize your dashboard' : 'Good morning, Sunny'}
                 </p>
                 {!editing && !previewView && (
                   <ViewSwitcher

@@ -19,7 +19,7 @@ function Toggle({ agent, on, onToggle }: { agent: Agent; on: boolean; onToggle: 
         role="switch"
         aria-checked={on}
         aria-label={`Activate ${agent.name}`}
-        onClick={() => onToggle(agent.id)}
+        onClick={(e) => { e.stopPropagation(); onToggle(agent.id) }}
         className="relative h-4 w-7 rounded-full transition-colors"
         style={{ backgroundColor: on ? GREEN : '#c9c7c3' }}
       >
@@ -86,8 +86,14 @@ export function AgentsTable({
           {agents.map((a) => {
             const isSelected = selected.has(a.id)
             return (
-            <tr key={a.id} className="border-b border-surface-border" style={{ backgroundColor: isSelected ? '#f0f7f4' : undefined }}>
-              <td className="px-3 py-4 align-middle">
+            <tr
+              key={a.id}
+              data-testid={`agent-row-${a.id}`}
+              className={`border-b border-surface-border${onRowClick ? ' cursor-pointer' : ''}`}
+              style={{ backgroundColor: isSelected ? '#f0f7f4' : undefined }}
+              onClick={() => onRowClick?.(a.id)}
+            >
+              <td className="px-3 py-4 align-middle" onClick={(e) => e.stopPropagation()}>
                 {onToggleSelect
                   ? <input
                       type="checkbox"
@@ -98,18 +104,10 @@ export function AgentsTable({
                     />
                   : <span className="inline-block size-4 rounded border border-surface-border" aria-hidden />}
               </td>
-              <td className="px-3 py-4 align-middle text-[14px] font-medium">
-                <button
-                  type="button"
-                  aria-label={`Open ${a.name}`}
-                  onClick={() => onRowClick?.(a.id)}
-                  className="text-left hover:underline"
-                  style={{ color: INK }}
-                >
-                  {a.name}
-                </button>
+              <td className="px-3 py-4 align-middle text-[14px] font-medium" style={{ color: INK }}>
+                {a.name}
               </td>
-              <td className="px-3 py-4 align-middle">
+              <td className="px-3 py-4 align-middle" onClick={(e) => e.stopPropagation()}>
                 <Toggle agent={a} on={isOn(a)} onToggle={onToggle} />
               </td>
               <td className="px-3 py-4 align-middle text-[13px] text-ink-muted">{a.type}</td>
