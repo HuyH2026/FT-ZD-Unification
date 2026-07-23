@@ -3,7 +3,7 @@
 // zone at the end of the prose inserts a chip derived from the dragged step.
 import {
   Undo2, Redo2, Bold, Italic, Underline, List, ListOrdered,
-  Heading1, Heading2, Heading3, Quote, Code2, Link2, Plus,
+  Heading1, Heading2, Heading3, Quote, Code2, Link2, Plus, Sparkles,
 } from 'lucide-react'
 import { useDrop } from 'react-dnd'
 import {
@@ -42,7 +42,15 @@ export function PolicyEditor({ doc, onChange }: { doc: PolicyDoc; onChange: (doc
         </button>
       </div>
 
-      <h2 className="mb-4 text-[20px] font-medium text-ink">{doc.title}</h2>
+      <h2 className="mb-4 flex items-center gap-2 text-[20px] font-medium text-ink">
+        <span
+          className="flex size-6 items-center justify-center rounded-full text-white"
+          style={{ background: 'linear-gradient(135deg,#724be8,#1f73b7)' }}
+        >
+          <Sparkles size={14} aria-hidden />
+        </span>
+        {doc.title}
+      </h2>
 
       {/* Document: prose segments (editable) + inline chips */}
       <div className="text-[16px] leading-8 text-ink">
@@ -63,13 +71,25 @@ export function PolicyEditor({ doc, onChange }: { doc: PolicyDoc; onChange: (doc
         )}
       </div>
 
-      {/* Inline drop zone */}
+      {/* Inline drop zone: a solid divider with a centered "Drop it here" pill. */}
       <div
         ref={drop as unknown as React.Ref<HTMLDivElement>}
-        className="mt-4 flex h-10 items-center justify-center rounded-lg border-2 border-dashed text-[13px] transition-colors"
-        style={{ borderColor: isOver ? '#1f73b7' : '#e2e0dd', color: '#8b8e89', backgroundColor: isOver ? '#1f73b70a' : 'transparent' }}
+        className="relative mt-6 flex h-6 items-center justify-center"
       >
-        Drop it here
+        <span
+          className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 transition-colors"
+          style={{ backgroundColor: isOver ? '#1f73b7' : '#e2e0dd' }}
+          aria-hidden
+        />
+        <span
+          className="relative rounded-full px-3 py-1 text-[12px] font-medium transition-colors"
+          style={{
+            backgroundColor: isOver ? '#1f73b7' : '#0d212d',
+            color: '#fff',
+          }}
+        >
+          Drop it here
+        </span>
       </div>
     </div>
   )

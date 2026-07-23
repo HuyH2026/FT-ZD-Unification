@@ -30,4 +30,38 @@ describe('AgentEditorScreen', () => {
     await user.click(screen.getByRole('button', { name: 'Back to agents' }))
     expect(screen.getByTestId('view-agent-builder')).toBeInTheDocument()
   })
+
+  it('renders the seeded condition block expanded with numbered rows', () => {
+    renderAt('/ai-agents/w3')
+    expect(screen.getByText('Shipping status')).toBeInTheDocument()
+    expect(screen.getAllByText('Condition description')).toHaveLength(2)
+    expect(screen.getByText('Otherwise…')).toBeInTheDocument()
+  })
+
+  it('collapses and expands the condition block', async () => {
+    const user = userEvent.setup()
+    renderAt('/ai-agents/w3')
+    await user.click(screen.getByRole('button', { name: 'Collapse Untitled classic block 01' }))
+    expect(screen.queryByText('Shipping status')).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Expand Untitled classic block 01' }))
+    expect(screen.getByText('Shipping status')).toBeInTheDocument()
+  })
+
+  it('adds a condition row', async () => {
+    const user = userEvent.setup()
+    renderAt('/ai-agents/w3')
+    await user.click(screen.getByRole('button', { name: 'Add condition' }))
+    // Two seeded + one added.
+    expect(screen.getAllByText('Condition description')).toHaveLength(3)
+  })
+
+  it('rail selection toggles the Steps palette', async () => {
+    const user = userEvent.setup()
+    renderAt('/ai-agents/w3')
+    expect(screen.getByText('Steps')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Outline' }))
+    expect(screen.queryByText('Steps')).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Steps' }))
+    expect(screen.getByText('Steps')).toBeInTheDocument()
+  })
 })

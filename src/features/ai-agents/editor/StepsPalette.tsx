@@ -3,13 +3,14 @@
 import { X, GripVertical } from 'lucide-react'
 import { useDrag } from 'react-dnd'
 import { STEP_TYPES, type StepType } from '../agent-store'
-import { STEP_ICON } from './editor-data'
+import { STEP_ICON, STEP_BADGE } from './editor-data'
 
 export const EDITOR_DND_TYPE = 'editor-step'
 export type StepDragItem = { stepType: StepType }
 
 function PaletteRow({ stepType, label }: { stepType: StepType; label: string }) {
   const Icon = STEP_ICON[stepType]
+  const badge = STEP_BADGE[stepType]
   const [{ isDragging }, drag] = useDrag({
     type: EDITOR_DND_TYPE,
     item: (): StepDragItem => ({ stepType }),
@@ -22,7 +23,12 @@ function PaletteRow({ stepType, label }: { stepType: StepType; label: string }) 
       className="flex cursor-grab items-center gap-3 rounded-xl border border-surface-border bg-white px-4 py-3 active:cursor-grabbing"
     >
       <GripVertical size={16} className="text-ink-muted" aria-hidden />
-      <Icon size={18} className="text-ink" aria-hidden />
+      <span
+        className="flex size-8 shrink-0 items-center justify-center rounded-full"
+        style={{ backgroundColor: badge.bg, color: badge.fg }}
+      >
+        <Icon size={18} aria-hidden />
+      </span>
       <span className="text-[14px] text-ink">{label}</span>
     </div>
   )

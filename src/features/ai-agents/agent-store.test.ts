@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   STEP_TYPES, chipVariantForStep,
   insertChip, removeChip, appendBlock, moveBlock, removeBlock,
+  addConditionRow, editConditionRow, removeConditionRow, toggleBlockCollapse,
   seedAgents, nextId, type PolicyDoc, type CanvasBlock,
 } from './agent-store'
 
@@ -47,11 +48,45 @@ describe('agent-store reducers', () => {
     expect(removeBlock(two, 'b1').map((x) => x.id)).toEqual(['b2'])
   })
 
-  it('seeds Service cancellation with policy chips and a classic block', () => {
+  it('adds, edits, and removes condition rows on a block', () => {
+    const block: CanvasBlock = {
+      id: 'b1', stepType: 'condition', title: 'Untitled classic block 01',
+      rows: [{ id: 'r1', label: 'First' }],
+    }
+    const two = addConditionRow([block], 'b1', { id: 'r2', label: 'Second' })
+    expect(two[0].rows?.map((r) => r.id)).toEqual(['r1', 'r2'])
+
+    const edited = editConditionRow(two, 'b1', 'r2', 'Renamed')
+    expect(edited[0].rows?.find((r) => r.id === 'r2')?.label).toBe('Renamed')
+
+    const removed = removeConditionRow(edited, 'b1', 'r1')
+    expect(removed[0].rows?.map((r) => r.id)).toEqual(['r2'])
+
+    // other blocks untouched; original array not mutated
+    expect(block.rows).toHaveLength(1)
+  })
+
+  it('seeds a first row on a block that has none when adding', () => {
+    const block: CanvasBlock = { id: 'b1', stepType: 'condition', title: 'x' }
+    const next = addConditionRow([block], 'b1', { id: 'r1', label: 'First' })
+    expect(next[0].rows).toEqual([{ id: 'r1', label: 'First' }])
+  })
+
+  it('toggles a block collapsed flag', () => {
+    const block: CanvasBlock = { id: 'b1', stepType: 'condition', title: 'x' }
+    expect(toggleBlockCollapse([block], 'b1')[0].collapsed).toBe(true)
+    expect(toggleBlockCollapse(toggleBlockCollapse([block], 'b1'), 'b1')[0].collapsed).toBe(false)
+  })
+
+  it('seeds Service cancellation with policy chips and a condition block', () => {
     const agents = seedAgents()
     const svc = agents.find((x) => x.id === 'w3')!
     expect(svc.policy.segments.some((s) => s.kind === 'chip')).toBe(true)
     expect(svc.blocks.length).toBeGreaterThan(0)
+    const block = svc.blocks[0]
+    expect(block.header).toBe('Conditions')
+    expect(block.subtitle).toBe('Shipping status')
+    expect(block.rows?.length).toBeGreaterThan(0)
   })
 
   it('mints unique deterministic ids', () => {

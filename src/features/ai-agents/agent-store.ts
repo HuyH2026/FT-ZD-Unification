@@ -28,7 +28,18 @@ export type PolicyProse = { kind: 'prose'; id: string; text: string }
 export type PolicySegment = PolicyProse | PolicyChip
 export type PolicyDoc = { title: string; segments: PolicySegment[] }
 
-export type CanvasBlock = { id: string; stepType: StepType; title: string }
+export type ConditionRow = { id: string; label: string }
+export type CanvasBlock = {
+  id: string
+  stepType: StepType
+  title: string
+  collapsed?: boolean
+  // Condition content (present for condition-type blocks). The last row acts as
+  // the "Otherwise…" fallthrough when its label is the sentinel.
+  header?: string
+  subtitle?: string
+  rows?: ConditionRow[]
+}
 
 export type StoredAgent = Agent & {
   channel: ChannelKey
@@ -82,6 +93,25 @@ export function removeBlock(blocks: CanvasBlock[], id: string): CanvasBlock[] {
   return blocks.filter((b) => b.id !== id)
 }
 
+function patchBlock(blocks: CanvasBlock[], id: string, fn: (b: CanvasBlock) => CanvasBlock): CanvasBlock[] {
+  return blocks.map((b) => (b.id === id ? fn(b) : b))
+}
+export function addConditionRow(blocks: CanvasBlock[], blockId: string, row: ConditionRow): CanvasBlock[] {
+  return patchBlock(blocks, blockId, (b) => ({ ...b, rows: [...(b.rows ?? []), row] }))
+}
+export function editConditionRow(blocks: CanvasBlock[], blockId: string, rowId: string, label: string): CanvasBlock[] {
+  return patchBlock(blocks, blockId, (b) => ({
+    ...b,
+    rows: (b.rows ?? []).map((r) => (r.id === rowId ? { ...r, label } : r)),
+  }))
+}
+export function removeConditionRow(blocks: CanvasBlock[], blockId: string, rowId: string): CanvasBlock[] {
+  return patchBlock(blocks, blockId, (b) => ({ ...b, rows: (b.rows ?? []).filter((r) => r.id !== rowId) }))
+}
+export function toggleBlockCollapse(blocks: CanvasBlock[], blockId: string): CanvasBlock[] {
+  return patchBlock(blocks, blockId, (b) => ({ ...b, collapsed: !b.collapsed }))
+}
+
 // Exact "Service cancellation" policy transcribed from the Figma frame.
 function serviceCancellationPolicy(): PolicyDoc {
   return {
@@ -123,7 +153,15 @@ export function seedAgents(): StoredAgent[] {
         channel: channel.key,
         policy: a.id === 'w3' ? serviceCancellationPolicy() : starterPolicy(a.name),
         blocks: a.id === 'w3'
-          ? [{ id: 'b-seed-1', stepType: 'condition', title: 'Untitled classic block 01' }]
+          ? [{
+              id: 'b-seed-1', stepType: 'condition', title: 'Untitled classic block 01',
+              header: 'Conditions', subtitle: 'Shipping status',
+              rows: [
+                { id: 'r-seed-1', label: 'Condition description' },
+                { id: 'r-seed-2', label: 'Condition description' },
+                { id: 'r-seed-3', label: 'Otherwise…' },
+              ],
+            }]
           : [],
         universalBrand: false,
         tags: a.tags,

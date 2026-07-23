@@ -11,6 +11,7 @@ import { EditorHeader } from './EditorHeader'
 import { PolicyEditor } from './PolicyEditor'
 import { BlockCanvas } from './BlockCanvas'
 import { StepsPalette } from './StepsPalette'
+import { EditorRail, type RailKey } from './EditorRail'
 
 export function AgentEditorScreen() {
   const { agentId = '' } = useParams()
@@ -19,7 +20,9 @@ export function AgentEditorScreen() {
   const agent = store.getAgent(agentId)
 
   const [channel, setChannel] = useState<ChannelKey>(agent?.channel ?? 'widget')
-  const [paletteOpen, setPaletteOpen] = useState(true)
+  // The far-right rail drives the right panel. "steps" shows the palette;
+  // any other selection hides it (those panels are unspecced/empty).
+  const [rail, setRail] = useState<RailKey>('steps')
 
   if (!agent) return <Navigate to="/ai-agents" replace />
 
@@ -34,12 +37,15 @@ export function AgentEditorScreen() {
           onBack={() => navigate('/ai-agents')}
           onTitleChange={(name) => store.updateAgent(agent.id, { name })}
         />
-        <div className="flex flex-1 gap-6 overflow-hidden p-8">
-          <div className="flex-1 overflow-y-auto">
-            <PolicyEditor doc={agent.policy} onChange={(policy) => store.updateAgent(agent.id, { policy })} />
-            <BlockCanvas blocks={agent.blocks} onChange={(blocks) => store.updateAgent(agent.id, { blocks })} />
+        <div className="flex flex-1 overflow-hidden">
+          <div className="flex flex-1 gap-6 overflow-hidden p-8">
+            <div className="flex-1 overflow-y-auto">
+              <PolicyEditor doc={agent.policy} onChange={(policy) => store.updateAgent(agent.id, { policy })} />
+              <BlockCanvas blocks={agent.blocks} onChange={(blocks) => store.updateAgent(agent.id, { blocks })} />
+            </div>
+            {rail === 'steps' && <StepsPalette onClose={() => setRail('outline')} />}
           </div>
-          {paletteOpen && <StepsPalette onClose={() => setPaletteOpen(false)} />}
+          <EditorRail selected={rail} onSelect={setRail} />
         </div>
       </div>
     </DndProvider>
