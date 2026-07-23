@@ -5,7 +5,7 @@
 // no Approve button — the user types "Approve" into the composer, which flips
 // the plan card to an "Approved" badge and shows a "Working…" row; the parent
 // then closes the view and reveals the inline diff preview. Presentational mock.
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ChevronRight, Menu, X } from 'lucide-react'
 import { ZendeskLogo } from '@/components/ZendeskLogo'
 import {
@@ -101,6 +101,16 @@ export function AiStudioFullView({
   const newPolicy = s1.newPolicy!
   const [approved, setApproved] = useState(false)
   const [composer, setComposer] = useState('')
+  const workingRef = useRef<HTMLDivElement>(null)
+
+  // When the "Working…" row appears (after approval), scroll it into view so
+  // the user sees the flow is in progress even if the chat column was short.
+  // (scrollIntoView is unimplemented in jsdom — guard so tests don't throw.)
+  useEffect(() => {
+    if (approved && typeof workingRef.current?.scrollIntoView === 'function') {
+      workingRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' })
+    }
+  }, [approved])
 
   const submit = () => {
     const value = composer.trim()
@@ -159,7 +169,7 @@ export function AiStudioFullView({
 
             {/* Working indicator (after approval) */}
             {approved && (
-              <div className="mt-6 flex items-center gap-2">
+              <div ref={workingRef} className="mt-6 flex items-center gap-2 scroll-mb-4">
                 <ZendeskLogo size={24} className="text-[#545767]" />
                 <span className="animate-pulse text-[14px] font-medium text-[#545767]">
                   {plan.workingLabel}
