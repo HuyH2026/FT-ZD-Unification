@@ -79,9 +79,9 @@ export function ExperimentSetupScreen() {
 
       {/* Body */}
       <div className="min-h-0 flex-1 overflow-y-auto">
-        <div className="flex gap-6 px-8 py-6">
+        <div className="flex justify-center gap-6 px-8 py-6">
           {/* Form column */}
-          <div className="max-w-[620px] flex-1 divide-y divide-surface-border">
+          <div className="w-[620px] shrink-0 divide-y divide-surface-border">
             <SetupSection
               icon={<FlaskConical size={16} aria-hidden />}
               title="A/B Test detail"
