@@ -26,4 +26,32 @@ describe('AiStudioShell', () => {
     await userEvent.click(screen.getByLabelText('Close AI Studio'))
     expect(onClose).toHaveBeenCalledTimes(1)
   })
+
+  it('drives an interactive composer: Enter submits the trimmed value', async () => {
+    const onComposerChange = vi.fn()
+    const onComposerSubmit = vi.fn()
+    render(
+      <AiStudioShell
+        composerValue="hello"
+        onComposerChange={onComposerChange}
+        onComposerSubmit={onComposerSubmit}
+      >
+        <p>body</p>
+      </AiStudioShell>,
+    )
+    const input = screen.getByDisplayValue('hello')
+    await userEvent.type(input, '{Enter}')
+    expect(onComposerSubmit).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not submit an empty composer', async () => {
+    const onComposerSubmit = vi.fn()
+    render(
+      <AiStudioShell composerValue="   " onComposerChange={vi.fn()} onComposerSubmit={onComposerSubmit}>
+        <p>body</p>
+      </AiStudioShell>,
+    )
+    await userEvent.type(screen.getByRole('textbox'), '{Enter}')
+    expect(onComposerSubmit).not.toHaveBeenCalled()
+  })
 })

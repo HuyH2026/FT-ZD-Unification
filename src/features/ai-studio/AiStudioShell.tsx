@@ -3,18 +3,33 @@ import { Plus, ExternalLink, X } from 'lucide-react'
 
 // Reusable AI Studio assistant shell: a white card with a header (sparkle +
 // "AI Studio" title, external-link and close actions), a scrollable body slot,
-// and a presentational chat composer pinned to the bottom. Static shell — the
-// composer, `+`, send, and external-link are no-ops (no backend this phase).
-// `onClose` is wired to the header X button so the parent can hide the panel.
+// and a chat composer pinned to the bottom. By default the composer is inert
+// (no backend this phase). Passing composer* props makes it interactive: a
+// controlled value, Enter/send submit, and an optional placeholder. `onClose`
+// is wired to the header X; `onExpand` (when given) wires the external-link.
 export function AiStudioShell({
   testId = 'ai-studio-panel',
   onClose,
+  onExpand,
   children,
+  composerValue,
+  onComposerChange,
+  onComposerSubmit,
+  composerPlaceholder = 'What can I help you with today?',
 }: {
   testId?: string
   onClose?: () => void
+  onExpand?: () => void
   children: ReactNode
+  composerValue?: string
+  onComposerChange?: (value: string) => void
+  onComposerSubmit?: () => void
+  composerPlaceholder?: string
 }) {
+  const interactive = onComposerChange !== undefined
+  const submit = () => {
+    if (composerValue && composerValue.trim()) onComposerSubmit?.()
+  }
   return (
     <aside
       data-testid={testId}
@@ -45,6 +60,7 @@ export function AiStudioShell({
         <div className="flex items-center gap-2">
           <button
             aria-label="Open in new tab"
+            onClick={onExpand}
             className="flex size-6 items-center justify-center rounded text-[#5c6970] transition-colors hover:bg-[#f5f6f7]"
           >
             <ExternalLink size={16} />
@@ -73,10 +89,25 @@ export function AiStudioShell({
           </button>
           <input
             className="min-w-0 flex-1 bg-transparent text-[14px] leading-5 tracking-[-0.1px] text-ink outline-none placeholder:text-[#727583]"
-            placeholder="What can I help you with today?"
+            placeholder={composerPlaceholder}
+            value={interactive ? (composerValue ?? '') : undefined}
+            readOnly={!interactive}
+            onChange={interactive ? (e) => onComposerChange?.(e.target.value) : undefined}
+            onKeyDown={
+              interactive
+                ? (e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      submit()
+                    }
+                  }
+                : undefined
+            }
           />
           <button
+            type="button"
             aria-label="Send message"
+            onClick={interactive ? submit : undefined}
             className="flex size-6 shrink-0 items-center justify-center rounded-full transition-opacity hover:opacity-80"
           >
             <svg width={18} height={18} viewBox="0 0 24 24" fill="none">

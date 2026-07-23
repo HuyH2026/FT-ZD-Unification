@@ -64,4 +64,30 @@ describe('AgentEditorScreen', () => {
     await user.click(screen.getByRole('button', { name: 'Steps' }))
     expect(screen.getByText('Steps')).toBeInTheDocument()
   })
+
+  it('opens AI Studio, rewrites the policy, and reviews the plan full-view', async () => {
+    const user = userEvent.setup()
+    renderAt('/ai-agents/w3')
+
+    // Rail "AI" opens the AI Studio panel (and hides Steps).
+    await user.click(screen.getByRole('button', { name: 'AI' }))
+    expect(screen.getByTestId('ai-studio-editor-panel')).toBeInTheDocument()
+    expect(screen.queryByText('Steps')).not.toBeInTheDocument()
+
+    // Ask to rewrite → analysis + plan card appear.
+    await user.type(
+      screen.getByPlaceholderText('What can I help you with today?'),
+      'Help me rewrite this policy to improve deflection{Enter}',
+    )
+    expect(screen.getByText('Current drop off rate:')).toBeInTheDocument()
+
+    // Review plan opens the full-screen takeover.
+    await user.click(screen.getByRole('button', { name: 'Review plan' }))
+    expect(screen.getByTestId('ai-studio-full-view')).toBeInTheDocument()
+    expect(screen.getByText('Update Policy Description')).toBeInTheDocument()
+
+    // Close returns to the editor without the takeover.
+    await user.click(screen.getByRole('button', { name: 'Close review plan' }))
+    expect(screen.queryByTestId('ai-studio-full-view')).not.toBeInTheDocument()
+  })
 })
