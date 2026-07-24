@@ -4,7 +4,7 @@ import { type ResultsRecommendation } from './results-data'
 
 export function RecommendationCard({ recommendation, keyLearning }: { recommendation: ResultsRecommendation; keyLearning: ResultsRecommendation }) {
   return (
-    <div className="flex h-full flex-col rounded-2xl border border-surface-border bg-white p-4">
+    <div className="flex h-full flex-col rounded-2xl border border-surface-border bg-white p-5">
       <p className="text-[12px] font-semibold text-ink">{recommendation.title}</p>
       <p className="mt-2 text-[12px] text-ink">In accordance with the hypothesis, it is recommended that we:</p>
       <ul className="mt-1 list-disc pl-4 text-[12px] text-ink">

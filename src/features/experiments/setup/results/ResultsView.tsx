@@ -12,7 +12,7 @@ import { ResolutionsTimeSeriesCard } from './ResolutionsTimeSeriesCard'
 export function ResultsView({ detail }: { detail: ExperimentDetail }) {
   const [deflection, ...restMetrics] = detail.metricCards
   return (
-    <div data-testid="view-ab-test-results" className="flex flex-col gap-5 px-8 py-6">
+    <div data-testid="view-ab-test-results" className="flex flex-col gap-6 px-8 py-6">
       <div className="grid grid-cols-[348px_1fr] gap-5">
         <WinnerCard winnerLabel={detail.winnerLabel} variants={detail.winnerVariants} />
         <RecommendationCard recommendation={detail.recommendation} keyLearning={detail.keyLearning} />

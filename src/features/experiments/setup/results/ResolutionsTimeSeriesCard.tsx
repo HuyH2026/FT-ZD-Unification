@@ -11,7 +11,7 @@ export function ResolutionsTimeSeriesCard({ series }: { series: ResolutionsPoint
   const [tab, setTab] = useState<(typeof RESOLUTIONS_TABS)[number]>('Resolutions')
 
   return (
-    <div className="rounded-2xl border border-surface-border bg-white p-4">
+    <div className="rounded-2xl border border-surface-border bg-white p-5">
       <div className="flex items-center gap-3">
         <p className="flex-1 text-[13px] font-semibold text-ink">Resolutions time series chart</p>
 

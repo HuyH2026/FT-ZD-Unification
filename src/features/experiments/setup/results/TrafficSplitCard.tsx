@@ -11,7 +11,7 @@ export function TrafficSplitCard({ splits, total }: { splits: TrafficSplitSlice[
         <p className="text-[13px] font-semibold text-ink">Traffic split</p>
         <Info size={16} className="text-ink-muted" aria-hidden />
       </div>
-      <div className="mt-5 flex items-center gap-5">
+      <div className="mt-5 flex items-center justify-between gap-5">
         <div className="flex flex-col gap-3">
           {splits.map((s) => (
             <div key={s.name} className="flex flex-col gap-0.5">
@@ -25,16 +25,16 @@ export function TrafficSplitCard({ splits, total }: { splits: TrafficSplitSlice[
             </div>
           ))}
         </div>
-        <div className="relative size-[140px] shrink-0">
-          <PieChart width={140} height={140}>
+        <div className="relative size-[150px] shrink-0">
+          <PieChart width={150} height={150}>
             <Pie
               data={splits}
               dataKey="value"
               nameKey="name"
-              cx={70}
-              cy={70}
-              innerRadius={56}
-              outerRadius={69}
+              cx={75}
+              cy={75}
+              innerRadius={60}
+              outerRadius={72}
               startAngle={90}
               endAngle={450}
               paddingAngle={4}

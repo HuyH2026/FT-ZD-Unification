@@ -32,8 +32,8 @@ function ValuePill({
 
 export function MetricBarCard({ card }: { card: MetricCard }) {
   return (
-    <div className="rounded-2xl border border-surface-border bg-white p-4">
-      <div className="mb-4 flex items-center gap-2">
+    <div className="rounded-2xl border border-surface-border bg-white p-5">
+      <div className="mb-5 flex items-center gap-2">
         <p className="text-[13px] font-semibold text-ink">{card.title}</p>
         <span
           className="rounded-[4px] px-1.5 py-0.5 text-[10px] font-semibold"

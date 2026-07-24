@@ -9,7 +9,7 @@ const GRADIENT =
 export function WinnerCard({ winnerLabel, variants }: { winnerLabel: string; variants: WinnerVariant[] }) {
   return (
     <div
-      className="flex h-full flex-col gap-4 rounded-2xl border border-[#ffb393] p-4"
+      className="flex h-full flex-col gap-4 rounded-2xl border border-[#ffb393] p-5"
       style={{ backgroundImage: GRADIENT }}
     >
       <div className="flex flex-col items-center gap-1.5">
