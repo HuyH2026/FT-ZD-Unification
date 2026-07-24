@@ -1,11 +1,25 @@
 import { useNavigate } from 'react-router'
 import { ChevronDown, Building2 } from 'lucide-react'
 import { useOrgs } from '@/app/org-context'
+import { ORG_LOGOS } from '@/lib/org-logo'
 import { useHoverIntent } from './useHoverIntent'
 import { useState } from 'react'
 
+function OrgLogo({ orgId, orgName }: { orgId: string; orgName: string }) {
+  const src = ORG_LOGOS[orgId]
+  if (!src) return <Building2 size={16} className="text-ink shrink-0" />
+  return (
+    <img
+      src={src}
+      alt={`${orgName} logo`}
+      className="size-4 shrink-0 rounded-[2px] object-contain"
+    />
+  )
+}
+
 export function OrgSwitcher() {
   const { orgs, currentOrg, setCurrentOrg } = useOrgs()
+  const currentOrgId = orgs.find((org) => org.name === currentOrg)?.id ?? ''
   const navigate = useNavigate()
   const [clickOpen, setClickOpen] = useState(false)
   const { activeKey, open, scheduleClose } = useHoverIntent()
@@ -26,7 +40,7 @@ export function OrgSwitcher() {
     <div className="relative">
       {/* Current org display */}
       <div className="flex items-center gap-2 rounded-lg px-3 py-1.5">
-        <Building2 size={16} className="text-ink" />
+        <OrgLogo orgId={currentOrgId} orgName={currentOrg} />
         <span className="font-semibold text-ink text-[14px] tracking-[-0.154px] leading-[20px]">
           {currentOrg}
         </span>
@@ -83,7 +97,8 @@ export function OrgSwitcher() {
                   </div>
                 )}
               </div>
-              <div className="text-nav-active text-[14px] tracking-[-0.154px] leading-[20px]">
+              <div className="flex items-center gap-2 text-nav-active text-[14px] tracking-[-0.154px] leading-[20px]">
+                <OrgLogo orgId={org.id} orgName={org.name} />
                 {org.name}
               </div>
             </button>

@@ -1,5 +1,6 @@
 import { ChevronDown, Users, Braces, ChartPie, Globe, CircleHelp, Sparkles } from 'lucide-react'
 import { ZendeskLogo } from '@/components/ZendeskLogo'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { OrgSwitcher } from './OrgSwitcher'
 
 const ICON_BUTTONS: { Icon: typeof Users; label: string }[] = [
@@ -54,7 +55,10 @@ export function TopBar({
         >
           <Sparkles size={20} className="text-white" />
         </button>
-        <div className="size-6 rounded-full bg-[#d9d7d5]" />
+        <Avatar className="size-6">
+          <AvatarImage src="https://i.pravatar.cc/64?img=47" alt="User avatar" />
+          <AvatarFallback className="bg-[#d9d7d5]" />
+        </Avatar>
       </div>
     </div>
   )
