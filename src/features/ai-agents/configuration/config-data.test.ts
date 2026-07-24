@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   CHANNEL_TABS, SEED_BRANDS, BRAND_LIST_LABELS, RAIL_SECTIONS, summarizeTags,
   emptyPersonality, TONE_PRESET_OPTIONS, AI_PERSONALITY_COPY,
+  HEADLESS_STEPS, A2A_AGENT_CARD_URL, A2A_MESSAGE_ENDPOINT, nextApiKey, seedApiKey,
 } from './config-data'
 
 describe('config-data', () => {
@@ -66,5 +67,36 @@ describe('config-data', () => {
     const b = emptyPersonality()
     expect(a).toEqual(b)
     expect(a).not.toBe(b)
+  })
+})
+
+describe('config-data — headless', () => {
+  it('has four headless steps with the expected titles in order', () => {
+    expect(HEADLESS_STEPS.map((s) => s.title)).toEqual([
+      'Add Forethought as an A2A agent',
+      'Authenticate with your API key',
+      "Pass the end-user's identity",
+      'Send a message',
+    ])
+    expect(HEADLESS_STEPS.map((s) => s.n)).toEqual(['01', '02', '03', '04'])
+    expect(HEADLESS_STEPS.every((s) => s.code.length > 0 && s.body.length > 0)).toBe(true)
+  })
+
+  it('exposes the A2A endpoint URLs', () => {
+    expect(A2A_AGENT_CARD_URL).toMatch(/agent-card\.json$/)
+    expect(A2A_MESSAGE_ENDPOINT).toMatch(/\/v1\/message$/)
+  })
+
+  it('nextApiKey returns distinct ft_a2a_live_ keys on successive calls', () => {
+    const a = nextApiKey()
+    const b = nextApiKey()
+    expect(a).toMatch(/^ft_a2a_live_/)
+    expect(b).toMatch(/^ft_a2a_live_/)
+    expect(a).not.toBe(b)
+  })
+
+  it('seedApiKey is a stable ft_a2a_live_ key', () => {
+    expect(seedApiKey()).toBe(seedApiKey())
+    expect(seedApiKey()).toMatch(/^ft_a2a_live_/)
   })
 })

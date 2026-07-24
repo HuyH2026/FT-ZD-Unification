@@ -123,3 +123,80 @@ export const AI_PERSONALITY_COPY = {
     footnote: 'Keep it under 100 words',
   },
 } as const
+
+// ── Headless tab ────────────────────────────────────────────────────────────
+// Frontend-only mock content for the AI Agents → Configuration → Headless tab.
+// Mirrors Figma frames 225-6282 (tab) and 145-75243 (instruction content).
+
+export const HEADLESS_INTRO =
+  'Run your agent with a direct API key, or layer on the A2A protocol so other agents can discover and call it. Both modes use the same key. A2A adds a public agent card and a message endpoint on top.'
+
+export const A2A_HEADING = 'A2A ( Agent to Agent)'
+
+export const A2A_DESCRIPTION =
+  'An open standard that lets AI agents from any vendor talk to your headless agent. Forethought publishes an agent card and message endpoint for you. Point any A2A client at them to start an authenticated support conversation. Your CX team stays in full control of the policies and Autoflows behind it.'
+
+export const A2A_AGENT_CARD_URL =
+  'https://app.forethought.ai/solve/a2a/acme/.well-known/agent-card.json'
+export const A2A_MESSAGE_ENDPOINT = 'https://app.forethought.ai/solve/a2a/acme/v1/message'
+
+// The masked API-key display (shown until the eye toggle reveals the real value).
+export const API_KEY_MASK = '••••••••••••••'
+
+export type HeadlessStep = {
+  n: string
+  title: string
+  body: string
+  code: string
+  codeCaption?: string
+}
+
+const BEARER = 'Authorization: Bearer ft_a2a_live_9b3f7c21d8a64e05'
+
+export const HEADLESS_STEPS: HeadlessStep[] = [
+  {
+    n: '01',
+    title: 'Add Forethought as an A2A agent',
+    body: 'In your A2A client, register a new agent using your Agent Card URL. The client reads the card and discovers the skill, endpoint, and auth automatically, no manual config.',
+    code: `# Agent Card URL\n${A2A_AGENT_CARD_URL}`,
+  },
+  {
+    n: '02',
+    title: 'Authenticate with your API key',
+    body: 'Send your A2A API key as a Bearer token on every request.',
+    code: BEARER,
+  },
+  {
+    n: '03',
+    title: "Pass the end-user's identity",
+    body: "Include the customer's signed token so Solve treats the conversation as authenticated and can act on their account.",
+    code: BEARER,
+  },
+  {
+    n: '04',
+    title: 'Send a message',
+    body: "POST a JSON-RPC message/send to your message endpoint. Forethought replies with a task and the agent's answer; reuse the returned task id for follow-up turns.",
+    code: `POST ${A2A_MESSAGE_ENDPOINT}
+{
+  "jsonrpc": "2.0", "id": "1", "method": "message/send",
+  "params": { "message": {
+    "role": "user", "messageId": "m-1",
+    "parts": [{ "kind": "text", "text": "Where is my refund for order 12345?" }]
+  }}
+}`,
+  },
+]
+
+// Deterministic mock API keys (no Date.now/Math.random — see org-context seq).
+let keySeq = 0
+function keyFrom(n: number): string {
+  // Pad a counter-derived hex to a stable, key-looking suffix.
+  const suffix = (0x9b3f7c21d8a64e05n + BigInt(n) * 0x1_0000_1111n).toString(16).slice(0, 16)
+  return `ft_a2a_live_${suffix}`
+}
+export function seedApiKey(): string {
+  return keyFrom(0)
+}
+export function nextApiKey(): string {
+  return keyFrom(++keySeq)
+}
